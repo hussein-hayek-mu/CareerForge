@@ -1,0 +1,11 @@
+node_modules/
+.next/
+out/
+*.log
+.env
+.env.*
+!.env.example
+src/generated/
+coverage/
+*.tsbuildinfo
+.DS_Store
