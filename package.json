@@ -7,8 +7,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit",
-    "test": "tsx --test src/app/api/v1/health/route.test.ts src/lib/supabase/middleware.test.ts src/lib/demo-workspace.test.ts",
+    "typecheck": "next typegen && tsc --noEmit",
+    "test:e2e": "playwright test",
+    "test": "tsx --test src/app/api/v1/health/route.test.ts src/lib/supabase/middleware.test.ts src/lib/demo-workspace.test.ts src/lib/account/handlers.test.ts",
+    "db:migrate": "node scripts/db-migrate.mjs",
+    "test:rls": "node scripts/test-rls.mjs",
+    "test:account:live": "node scripts/test-account-live.mjs",
     "prisma:generate": "prisma generate"
   },
   "dependencies": {
@@ -18,10 +22,12 @@
     "@supabase/supabase-js": "^2.75.0",
     "next": "^16.4.2",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
+    "@playwright/test": "^1.64.1",
     "@tailwindcss/postcss": "^4.1.14",
     "@types/node": "^22.15.0",
     "@types/react": "^19.2.0",

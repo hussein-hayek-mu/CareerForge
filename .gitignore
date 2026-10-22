@@ -1,5 +1,6 @@
 node_modules/
 .next/
+next-env.d.ts
 out/
 *.log
 .env
@@ -7,5 +8,7 @@ out/
 !.env.example
 src/generated/
 coverage/
+test-results/
+playwright-report/
 *.tsbuildinfo
 .DS_Store
