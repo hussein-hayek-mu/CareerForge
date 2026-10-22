@@ -5,6 +5,13 @@ includes a browsable demo and real Supabase email/password accounts with private
 profile persistence. AI, live job discovery, and automatic applications are out
 of scope for this increment.
 
+## Implementation roadmap
+
+Read [the master implementation roadmap](docs/IMPLEMENTATION_ROADMAP.md) for
+completed work, the ordered remaining backlog, quality/release gates and the
+workflow to follow on every change. It is the current delivery reference;
+older increment plans are historical records.
+
 ## Prerequisites
 
 - Node.js 20.9 or newer (Node.js 22 is used for this workspace)
@@ -66,7 +73,9 @@ URL when the direct hostname is unavailable. Never edit an applied SQL migration
 
 Visit `/register` to create your own account, `/login` to sign in, and `/account`
 to edit your private profile. The real account never imports sample profile data.
-Demo jobs, saved roles, and application statuses remain browser-local examples.
+Jobs remain fictional. Signed-in dashboards and matches use the saved account
+profile; saved roles and application statuses still persist only in this
+browser, separately for each account. Guests retain the local sample workspace.
 
 In Supabase **Authentication → URL Configuration**, allow
 `http://localhost:3000/auth/callback` for email confirmation. For testing signup
@@ -145,8 +154,11 @@ Never run this live test against production. No test signup emails are sent.
 ## Pending
 
 - Confirm real signup email delivery and callback allowlists for each teammate.
-- Connect demo matching and tracking to authenticated account data in a later
-  increment; currently the account and demo are explicitly separate.
+- Persist saved jobs and application statuses in Supabase; matching already
+  uses the authenticated user's saved profile.
 - Expand education/project summaries into normalized records when their editing
   contracts are agreed. Skills remain self-reported.
 - Add password recovery and deployment configuration before a public release.
+
+See the [master roadmap](docs/IMPLEMENTATION_ROADMAP.md) for task IDs,
+dependencies, acceptance criteria and the full deferred product backlog.

@@ -1,5 +1,8 @@
 # Navigation and readability refresh
 
+> Historical increment record. For current status, priorities and release gates,
+> use the [master implementation roadmap](IMPLEMENTATION_ROADMAP.md).
+
 Direction: GitHub/Primer navigation structure, restrained Apple-inspired spacing,
 and flow-level references from Mobbin. Keep CareerForge's olive identity.
 This is an interface-only increment in the existing local Next.js application.

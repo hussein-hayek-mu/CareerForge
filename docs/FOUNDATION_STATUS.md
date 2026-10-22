@@ -1,5 +1,8 @@
 # Foundation verification
 
+> Historical increment record. For current status, priorities and release gates,
+> use the [master implementation roadmap](IMPLEMENTATION_ROADMAP.md).
+
 The current deliverable is the npm-based Next.js web MVP described in the
 README and helper chat summary. Retain that structure for now; the full-product
 pnpm monorepo in `helper/BUILD_PLAN.md` is a later architecture decision.

@@ -1,5 +1,8 @@
 # Developer-focused visual direction
 
+> Historical increment record. For current status, priorities and release gates,
+> use the [master implementation roadmap](IMPLEMENTATION_ROADMAP.md).
+
 Replace the incremental style overrides with a single coherent visual system:
 graphite surfaces, chartreuse accents, editorial type, precise borders and a
 code-inspired launchpad. Use native CSS/SVG and existing system fonts rather

@@ -1,5 +1,8 @@
 # Browsable web MVP
 
+> Historical increment record. For current status, priorities and release gates,
+> use the [master implementation roadmap](IMPLEMENTATION_ROADMAP.md).
+
 This focused UI increment follows the first-month, no-AI scope in
 `helper/CareerForge_Chat_Summary.md`. The owner requested visible UI/UX before
 the remaining full-product build-plan phases on 22 October 2026.

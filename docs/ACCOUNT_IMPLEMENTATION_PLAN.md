@@ -1,5 +1,8 @@
 # Accounts and profile persistence
 
+> Historical increment record. For current status, priorities and release gates,
+> use the [master implementation roadmap](IMPLEMENTATION_ROADMAP.md).
+
 This owner-authorized increment continues the no-AI web MVP. Keep fictional
 jobs and browser-local demo tracking; do not upload the sample profile.
 

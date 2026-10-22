@@ -1,5 +1,9 @@
 # CareerForge contribution guidance
 
+- Start with `docs/IMPLEMENTATION_ROADMAP.md` for current status, task order,
+  acceptance criteria and release gates. Update its status/evidence when work
+  changes, and commit useful increments with benefit-oriented messages.
+
 - Use Next.js App Router, React, TypeScript strict mode, Tailwind CSS, Supabase SSR, and Prisma 7.
 - Keep the first release as a small web MVP without AI, mobile/Expo, or unrelated infrastructure.
 - Use Route Handlers in Next.js for backend endpoints; do not add a separate backend.
