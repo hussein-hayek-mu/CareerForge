@@ -15,6 +15,13 @@ button, a { -webkit-tap-highlight-color: transparent; }
 button:disabled { cursor: wait; opacity: .55; }
 h1, h2, h3, p { margin: 0; }
 ::selection { background: #c5ed85; color: #17200f; }
+.recovery-page { min-height: 100svh; display: grid; place-items: center; padding: 40px 24px; }
+.recovery-card { width: 100%; max-width: 680px; }
+.recovery-card .brand { display: inline-flex; margin-bottom: 80px; }
+.recovery-card h1 { margin: 22px 0; font-size: clamp(36px, 7vw, 64px); line-height: 1.08; letter-spacing: -.04em; }
+.recovery-description { max-width: 510px; color: var(--muted); line-height: 1.8; }
+.recovery-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
+.recovery-actions .button { min-height: 44px; max-width: 100%; white-space: normal; text-align: center; }
 :focus-visible { outline: 2px solid var(--green); outline-offset: 5px; }
 input, select, textarea { accent-color: var(--green); }
 .app-shell { --sidebar-width: 236px; min-height: 100vh; }

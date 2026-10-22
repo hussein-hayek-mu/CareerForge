@@ -216,6 +216,13 @@ without an actual audit. Verify a physical phone in addition to emulation.
 
 **P3.2 - Visual refinement and performance. Open.**
 
+Missing-page increment implemented: branded recovery page with overview and
+opportunity links. Desktop browser verification passed for direct 404 status,
+noindex, visible keyboard focus, both recovery destinations and 320px reflow.
+The narrow screenshot was reviewed. Both desktop and phone browser cases passed,
+as did lint, TypeScript and production build. No backend changes or new
+dependencies. This does not complete the wider P3.2 performance/visual audit.
+
 Keep the GitHub-inspired navigation clarity, restrained spacing, and coherent
 CareerForge identity. Standardize semantic color/type/spacing/component tokens
 where they eliminate real inconsistency. Review forms/cards/dialogs, long names,
