@@ -78,3 +78,23 @@ test("login distinguishes unconfirmed email from invalid credentials without pro
   assert.equal(response.status, 403);
   assert.equal((await response.json()).error.code, "EMAIL_NOT_CONFIRMED");
 });
+
+test("callback rejects ambiguous or oversized PKCE inputs without contacting auth", async () => {
+  let calls = 0;
+  const handler = callbackHandler(async () => { calls++; throw new Error("Must not exchange"); });
+  for (const query of ["code=a&code=b", "code=a&sb_flow_id=a&sb_flow_id=b", `code=a&sb_flow_id=${"x".repeat(257)}`, `code=${"x".repeat(2049)}`, "code=a&error_code=unexpected"]) {
+    const result = await handler(new Request(`http://localhost:3000/auth/callback?${query}`));
+    assert.equal(result.headers.get("Location"), "http://localhost:3000/login?confirmation=failed");
+  }
+  assert.equal(calls, 0);
+});
+
+test("provider expiry callbacks and exchange exceptions remain safe and recoverable", async () => {
+  for (const errorCode of ["otp_expired", "flow_state_expired"]) {
+    const result = await callbackHandler(async () => { throw new Error("Must not exchange"); })(new Request(`http://localhost:3000/auth/callback?error=access_denied&error_code=${errorCode}&error_description=private-details`));
+    assert.equal(result.headers.get("Location"), "http://localhost:3000/login?confirmation=failed&reason=expired");
+    assert.equal(result.headers.get("Location")?.includes("private-details"), false);
+  }
+  const result = await callbackHandler(async () => { throw new Error("private-token"); })(new Request("http://localhost:3000/auth/callback?code=secret"));
+  assert.equal(result.headers.get("Location"), "http://localhost:3000/login?confirmation=failed");
+});

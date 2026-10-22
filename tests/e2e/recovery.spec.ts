@@ -28,4 +28,8 @@ test("anonymous password change is denied and old callbacks offer recovery", asy
   await page.goto("/auth/callback?error=access_denied");
   await expect(page).toHaveURL(/\/login\?confirmation=failed/);
   await expect(page.getByRole("link", { name: "Forgot your password?" })).toBeVisible();
+  await page.goto("/auth/callback?error=access_denied&error_code=otp_expired&error_description=private-details");
+  await expect(page).toHaveURL(/confirmation=failed&reason=expired$/);
+  await expect(page.locator(".form-error[role=alert]")).toContainText("expired or was already used");
+  await expect(page.locator("body")).not.toContainText("private-details");
 });

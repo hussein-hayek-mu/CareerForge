@@ -154,6 +154,14 @@ expired sessions, unknown roles and cross-user injection are covered.
 
 **P2.1 - Real confirmation and session recovery. Partial.**
 
+Callback review delivered: classify provider expiry query errors and reject
+ambiguous/oversized PKCE inputs before exchange. All 29 local tests, four
+desktop/mobile recovery cases, lint, TypeScript and production build passed.
+Tests send no real email; the owner checklist is in ACCOUNT_RECOVERY.md.
+Public Auth settings responded
+200: email enabled, signup enabled, confirmation required. This public endpoint
+does not establish redirect allowlists, SMTP configuration or inbox delivery.
+
 Implemented safe confirmation resend with local/provider cooldown, login error
 distinctions, callback recovery messages and isolated PKCE flow forwarding.
 See [ACCOUNT_RECOVERY.md](ACCOUNT_RECOVERY.md). Actual fresh signup -> inbox ->

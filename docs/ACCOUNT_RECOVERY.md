@@ -39,6 +39,44 @@ delivery. Sender configuration, spam filtering, expiration and callback
 allowlists still require a real inbox check. No service-role key, database
 password override, user deletion or disabled confirmation is needed.
 
+## Callback review and owner checklist
+
+On 22 October 2026, a read-only public Auth settings request returned 200:
+email authentication enabled, signup enabled, and email confirmation required.
+No credentials were printed and no emails were requested. This endpoint does
+not expose the redirect allowlist or establish SMTP delivery health.
+
+Callbacks now reject duplicate codes/flow IDs and oversized flow IDs before
+contacting Auth. Provider query errors `otp_expired` and `flow_state_expired`
+lead to specific expired-link guidance; descriptions are never echoed. Successful
+redirects still depend on a real exchange, never on query-supplied recovery type.
+URL fragments are not sent to the server; a fragment-only provider failure gets
+generic missing-code guidance rather than a specific expiry diagnosis.
+
+Complete the remaining owner check without sharing passwords or email links:
+
+1. Keep the app running at one origin. In Supabase Authentication URL
+   Configuration, check that this origin's `/auth/callback` is allowed and the
+   Site URL points to the intended environment. The public settings check above
+   cannot verify these dashboard values.
+2. Request a fresh confirmation from `/confirm-email`, then open the newest
+   email link in the same browser/device/origin that requested it. Check that
+   `/account` loads, a profile edit persists after refresh, and sign-out removes
+   private access. Use a fresh signup if a genuinely new confirmation is needed;
+   an already-confirmed account may not receive another confirmation.
+3. From `/forgot-password`, request a reset for your account and open the newest
+   link in that same browser. Expect `/reset-password`; set a new password, sign
+   out, then verify the new password works and the previous password fails.
+4. Reuse the consumed link: expect recovery guidance, without a fresh session
+   created by the consumed code. An already signed-in owner can still access
+   their own account; that alone does not prove link reuse succeeded.
+5. Report only the final route and visible message if it fails. Do not paste
+   the full callback URL, codes, tokens, cookies or password into chat.
+
+PKCE browser requirements and redirect configuration are documented in
+[Supabase PKCE](https://supabase.com/docs/guides/auth/sessions/pkce-flow) and
+[redirect URLs](https://supabase.com/docs/guides/auth/redirect-urls).
+
 ## Verification
 
 - Unit/API tests cover validation, origin rejection, generic email responses,
