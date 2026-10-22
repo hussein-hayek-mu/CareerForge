@@ -61,3 +61,18 @@ installation, so no extra browser download was needed.
 Public Supabase settings confirm that email signup is enabled and email
 confirmation is required. Check real email delivery and the callback allowlist
 before treating signup as end-to-end verified.
+
+## Account-aware workspace
+
+Overview, opportunities, and the tracker now verify an existing Supabase session
+on the server and read the owner's profile through the authenticated client.
+Completeness, skill counts, ranking, and role-detail comparisons use those saved
+skills. Signed-in profile links open the private account editor. Guests retain
+the browser demo without requiring a database connection. A session or profile
+read failure displays recovery links rather than sample account data.
+
+The fictional-job tracker still uses browser storage, in a separate key per
+verified account ID. It stores only job IDs/statuses, never a private profile,
+and does not import the guest tracker. Cross-device tracker persistence remains
+the next implementation step. Real signup email delivery still needs an owner
+check; automated live tests send no email.

@@ -1,2 +1,3 @@
-import { CareerWorkspace } from "@/components/career-workspace";
-export default function ApplicationsPage() { return <CareerWorkspace view="applications" />; }
+import { WorkspacePage } from "@/components/workspace-page";
+
+export default function ApplicationsPage() { return <WorkspacePage view="applications" />; }

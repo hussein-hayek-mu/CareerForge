@@ -135,3 +135,5 @@ h1 { font-size: clamp(34px, 3.5vw, 55px); font-weight: 550; line-height: 1.13; l
   .film-summary { width: 220px; padding: 14px 16px; }
   .film-summary strong { font-size: 31px; }
 }
+
+.account-workspace-info::before { content: 'YOUR WORKSPACE / '; }

@@ -1,2 +1,3 @@
-import { CareerWorkspace } from "@/components/career-workspace";
-export default function ProfilePage() { return <CareerWorkspace view="profile" />; }
+import { WorkspacePage } from "@/components/workspace-page";
+
+export default function ProfilePage() { return <WorkspacePage view="profile" />; }

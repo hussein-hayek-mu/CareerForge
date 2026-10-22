@@ -75,6 +75,21 @@ try {
   await a.page.evaluate(() => window.scrollTo(0, 0));
   await a.page.screenshot({ path: "test-results/account-desktop.png", fullPage: true, animations: "disabled" });
 
+  stage = "saved profile drives workspace and matching";
+  await a.page.goto("/");
+  await expect(a.page.locator(".demo-info")).toContainText("saved account profile");
+  await expect(a.page.locator(".app-sidebar-account").first()).toContainText("Live Test Owner A");
+  await expect(a.page.locator(".film-summary")).toContainText("2 self-reported skills");
+  await a.page.goto("/jobs");
+  const frontend = a.page.locator(".job-card").filter({ has: a.page.getByRole("button", { name: "Junior Frontend Developer", exact: true }) });
+  await expect(frontend).toContainText("25% skill match");
+  await a.page.getByRole("button", { name: "Save Junior Frontend Developer", exact: true }).click();
+  await a.page.goto("/applications");
+  await expect(a.page.locator(".tracker-row")).toHaveCount(1);
+  await a.page.goto("/profile");
+  await expect(a.page).toHaveURL(`${baseURL}/account`);
+  await expect(a.page.getByLabel("Your skills", { exact: true })).toHaveValue("React, SQL");
+
   stage = "owner B isolation and phone layout";
   const phone = { ...devices["iPhone 13"] };
   delete phone.defaultBrowserType;
@@ -92,6 +107,13 @@ try {
   assert.equal(await b.page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
   await b.page.evaluate(() => window.scrollTo(0, 0));
   await b.page.screenshot({ path: "test-results/account-mobile.png", fullPage: true, animations: "disabled" });
+
+  stage = "second account workspace isolation";
+  await b.page.goto("/");
+  await expect(b.page.locator(".film-summary")).toContainText("0 self-reported skills");
+  await b.page.goto("/applications");
+  await expect(b.page.locator(".tracker-row")).toHaveCount(0);
+  await b.page.goto("/account");
 
   stage = "save failure recovery";
   await a.page.route("**/api/v1/profile", route => route.request().method() === "PUT"

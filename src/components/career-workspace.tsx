@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import type { AccountProfile } from "@/lib/account/schemas";
 import { AppShell } from "./app-shell";
 import { CareerLaunchpad, ProfileIdentity } from "./career-visuals";
 import { useState, useSyncExternalStore, useRef, type FormEvent } from "react";
@@ -13,14 +14,27 @@ function subscribe(callback: () => void) {
   window.addEventListener("careerforge-update", callback);
   return () => { window.removeEventListener("storage", callback); window.removeEventListener("careerforge-update", callback); };
 }
-function snapshot() { try { return localStorage.getItem(storageKey); } catch { return null; } }
+function snapshot(key: string) { try { return localStorage.getItem(key); } catch { return null; } }
 function serverSnapshot() { return null; }
 
-export function CareerWorkspace({ view }: { view: View }) {
-  const raw = useSyncExternalStore(subscribe, snapshot, serverSnapshot);
+function readTracker(raw: string | null): Workspace["applications"] {
+  try {
+    const value: unknown = JSON.parse(raw ?? "{}");
+    if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+    return Object.fromEntries(Object.entries(value).filter(([id, status]) =>
+      jobs.some(job => job.id === id) && statuses.includes(status)
+    ));
+  } catch { return {}; }
+}
+
+export function CareerWorkspace({ view, account }: { view: View; account?: { id: string; profile: AccountProfile } }) {
+  const currentStorageKey = account ? `careerforge-tracker-v1:${account.id}` : storageKey;
+  const raw = useSyncExternalStore(subscribe, () => snapshot(currentStorageKey), serverSnapshot);
   const [notice, setNotice] = useState("");
   const [temporary, setTemporary] = useState<Workspace | null>(null);
-  const workspace = temporary ?? readWorkspace(raw);
+  const workspace = account
+    ? { profile: account.profile, applications: temporary?.applications ?? readTracker(raw) }
+    : temporary ?? readWorkspace(raw);
   const [query, setQuery] = useState("");
   const [mode, setMode] = useState("All work modes");
   const [savedOnly, setSavedOnly] = useState(false);
@@ -36,7 +50,7 @@ export function CareerWorkspace({ view }: { view: View }) {
 
   function save(next: Workspace, message: string) {
     try {
-      localStorage.setItem(storageKey, JSON.stringify(next));
+      localStorage.setItem(currentStorageKey, JSON.stringify(account ? next.applications : next));
       setTemporary(null);
       window.dispatchEvent(new Event("careerforge-update"));
       setNotice(message);
@@ -78,14 +92,14 @@ export function CareerWorkspace({ view }: { view: View }) {
     </article>;
   }
 
-  return <AppShell pageTitle={{ overview: "Overview", profile: "My profile", jobs: "Find opportunities", applications: "Applications" }[view]} displayName={profile.name} applicationCount={entries.length}>
-        <div className="demo-info">Fictional jobs. Sample profile. Edits stay in this browser; no applications are submitted.</div>
+  return <AppShell pageTitle={{ overview: "Overview", profile: "My profile", jobs: "Find opportunities", applications: "Applications" }[view]} displayName={profile.name} applicationCount={entries.length} privateAccount={!!account}>
+        <div className={`demo-info ${account ? "account-workspace-info" : ""}`}>{account ? "Matches use your saved account profile. Jobs are fictional. Your tracker stays in this browser; no applications are submitted." : "Fictional jobs. Sample profile. Edits stay in this browser; no applications are submitted."}</div>
         {notice && <div className="notice" role="status">✓ {notice}<button aria-label="Dismiss notification" onClick={() => setNotice("")}>×</button></div>}
         {view === "overview" && <>
           <div className="page-heading"><div><p className="eyebrow">YOUR NEXT CHAPTER</p><h1>Make your next <em>move.</em></h1><p>Build the skills. Find your direction. Ship your next chapter.</p></div><Link className="button primary" href="/jobs">Explore opportunities <span>↗</span></Link></div>
-          <CareerLaunchpad profile={profile} completion={completion} />
+          <CareerLaunchpad profile={profile} completion={completion} profileHref={account ? "/account" : "/profile"} />
           <section className="stats-grid" aria-label="Workspace summary">{[{ label: "Profile completeness", value: `${completion}%`, hint: "Give your story a strong foundation", icon: "◎" }, { label: "Your skill toolkit", value: profile.skills.length, hint: "Self-reported skills to build on", icon: "✧" }, { label: "Tracked opportunities", value: entries.length, hint: "Possibilities worth coming back to", icon: "▣" }, { label: "Applications in motion", value: entries.filter(([, s]) => s !== "Saved" && s !== "Rejected").length, hint: "Every step forward counts", icon: "↗" }].map(stat => <article className="stat-card" key={stat.label}><div className="stat-label">{stat.label}<span aria-hidden="true">{stat.icon}</span></div><strong>{stat.value}</strong><p>{stat.hint}</p></article>)}</section>
-          <div className="dashboard-columns"><section><div className="section-heading"><div><h2>Possibilities to explore</h2><p>A few example roles connected to your skills.</p></div><Link className="text-button" href="/jobs">View all ↗</Link></div><div className="job-grid compact">{ranked.slice(0, 2).map(jobCard)}</div><div className="matching-note"><span>✧</span><p>Clarity, not guesswork. Matches compare your self-reported skills with each role’s listed skills.</p></div></section><section className="next-step"><span className="eyebrow">YOUR NEXT SMALL STEP</span><h2>Let your work<br />tell your story.</h2><p>A project is more than a line on your profile. It shows how you think, build, and solve problems.</p><div className="step-check"><span>01</span><div><strong>Add a project you’re proud of</strong><small>What did you build? What did you learn?</small></div></div><Link className="text-button" href="/profile">Update your profile ↗</Link></section></div>
+          <div className="dashboard-columns"><section><div className="section-heading"><div><h2>Possibilities to explore</h2><p>A few example roles connected to your skills.</p></div><Link className="text-button" href="/jobs">View all ↗</Link></div><div className="job-grid compact">{ranked.slice(0, 2).map(jobCard)}</div><div className="matching-note"><span>✧</span><p>Clarity, not guesswork. Matches compare your self-reported skills with each role’s listed skills.</p></div></section><section className="next-step"><span className="eyebrow">YOUR NEXT SMALL STEP</span><h2>Let your work<br />tell your story.</h2><p>A project is more than a line on your profile. It shows how you think, build, and solve problems.</p><div className="step-check"><span>01</span><div><strong>Add a project you’re proud of</strong><small>What did you build? What did you learn?</small></div></div><Link className="text-button" href={account ? "/account" : "/profile"}>Update your profile ↗</Link></section></div>
         </>}
         {view === "jobs" && <>
           <div className="page-heading"><div><p className="eyebrow">FIND YOUR DIRECTION</p><h1>Good things ahead<span>.</span></h1><p>Explore example roles and see where your skills connect.</p></div><span className="outline-label">{jobs.length} demo opportunities</span></div>
@@ -103,7 +117,7 @@ export function CareerWorkspace({ view }: { view: View }) {
           {entries.length ? <section className="panel tracker"><div className="section-heading"><div><h2>Your opportunities</h2><p>Update statuses manually as your search progresses.</p></div></div>{jobs.filter(j => workspace.applications[j.id]).map(job => <article className="tracker-row" key={job.id}><span className={`company-mark ${job.color}`}>{job.initials}</span><div className="tracker-role"><button className="job-title" onClick={e => openRole(job, e.currentTarget)}>{job.title}</button><p>{job.company} · {job.location}</p></div><label className="status-select"><span className="sr-only">Status for {job.title}</span><select value={workspace.applications[job.id]} onChange={e => save({ ...workspace, applications: { ...workspace.applications, [job.id]: e.target.value as (typeof statuses)[number] } }, "Application status updated in this browser.")}>{statuses.map(status => <option key={status}>{status}</option>)}</select></label><button className="remove-button" onClick={() => toggleSaved(job)} aria-label={`Remove ${job.title} from tracker`}>×</button></article>)}</section> : <div className="empty-state"><span className="empty-icon">↗</span><h2>Your next chapter is still unwritten.</h2><p>Save an opportunity that catches your eye.<br />Keep track of every next step right here.</p><Link href="/jobs" className="button primary">Explore opportunities ↗</Link></div>}
           <p className="muted-note">This is a personal demo tracker. Changing a status does not submit an application or contact an employer.</p>
         </>}
-        <footer className="page-footer"><span>CareerForge <span className="footer-dot">✳</span> A little closer to what’s next.</span><button onClick={() => { if (window.confirm("Reset your demo profile and tracker? This only clears CareerForge demo data in this browser.")) save(initialWorkspace, "Demo workspace reset."); }}>Reset demo</button></footer>
+        <footer className="page-footer"><span>CareerForge <span className="footer-dot">✳</span> A little closer to what’s next.</span>{!account && <button onClick={() => { if (window.confirm("Reset your demo profile and tracker? This only clears CareerForge demo data in this browser.")) save(initialWorkspace, "Demo workspace reset."); }}>Reset demo</button>}</footer>
     <dialog ref={dialogRef} className="role-dialog" aria-labelledby="role-title" onCancel={() => triggerRef.current?.focus()} onClick={e => { if (e.target === e.currentTarget) { const rect = e.currentTarget.getBoundingClientRect(); if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) closeRole(); } }}>{selected && <><button className="modal-close" onClick={closeRole} aria-label="Close role details">×</button><span className={`company-mark ${selected.color}`}>{selected.initials}</span><p className="eyebrow">FICTIONAL DEMO OPPORTUNITY</p><h2 id="role-title">{selected.title}</h2><p>{selected.company} · {selected.location}</p><div className="tag-row"><span className="tag">{selected.mode}</span><span className="tag">{selected.type}</span></div><h3>About the role</h3><p>{selected.description}</p><h3>Your skill connection</h3><p>{matchSkills(profile.skills, selected.skills).score}% of listed skills match your self-reported profile.</p><div className="tag-row">{selected.skills.map(skill => <span key={skill} className={`tag ${matchSkills(profile.skills, [skill]).score ? "skill-have" : "skill-missing"}`}>{matchSkills(profile.skills, [skill]).score ? "✓ " : "+ "}{skill}</span>)}</div><p className="muted-note">Green skills are in your profile. Other skills are gaps to explore. No live vacancy or application submission is available.</p><button className="button primary" onClick={() => toggleSaved(selected)}>{workspace.applications[selected.id] ? "Remove from tracker" : "Save opportunity"}</button></>}</dialog>
   </AppShell>;
 }
