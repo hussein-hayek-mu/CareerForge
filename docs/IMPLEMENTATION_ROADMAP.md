@@ -36,7 +36,8 @@ Skills remain self-reported. Fictional jobs must stay clearly labeled.
 
 **Done** means implemented with recorded checks. **Partial** means usable but
 with the stated gap. **Open** means work remains. **Deferred** means recorded
-future scope, outside the current release. No work is currently in progress.
+future scope, outside the current release. No work is currently in progress;
+the next functional task remains P1.1.
 
 | ID | Capability | Status | Evidence and remaining boundary |
 | --- | --- | --- | --- |
@@ -51,7 +52,7 @@ future scope, outside the current release. No work is currently in progress.
 | D09 | Saved roles and manual tracker | Partial | Functional local save/remove/status updates; per-account browser keys separate from guest demo. No server persistence or cross-device sync. |
 | D10 | Guest demo | Done | Browser-local editable sample profile/tracker, reset, malformed-storage recovery, no sample upload into accounts. |
 | D11 | Shared responsive design | Done | Graphite/chartreuse system, branded SVGs, sidebar collapse preference, mobile drawer, private profile identity and dark auth forms. Further release audit remains required. |
-| D12 | Motion hero | Done | Original local video/poster, playback control, reduced-motion/save-data fallback, off-screen pause, failure fallback; documented in `HERO_FILM.md`. |
+| D12 | Motion hero | Done | Enhanced original local film with aurora ribbons, orbital trails, forge pulses and sparks; continuous playback while scrolling, hidden-tab pause, playback control, reduced-motion/save-data and poster fallback. |
 | D13 | Automated verification | Partial | 15 local tests; auth/navigation/demo/film browser coverage; live two-account and RLS scripts. No comprehensive production, physical-device or performance validation. |
 | D14 | Hosting and release operations | Open | No verified hosted release, production environment, recovery drill or remote CI result for the latest work. |
 
@@ -319,3 +320,12 @@ phone layout, error recovery and logout. Temporary identities were removed.
 Earlier increments recorded the film/auth browser scenarios and profile RLS
 checks. These are historical local results, not a fresh full-suite run or proof
 of hosted CI, physical-phone validation, email delivery or production readiness.
+
+Owner-requested D12 enhancement: removed scroll-based pausing and regenerated
+the original film with more layered motion effects (~1.3 MB video, ~25 KB
+poster). Lint, types, 15 local tests and production build passed; eight motion
+browser cases passed, then two desktop/mobile playback-and-screenshot cases
+passed against the final asset. Desktop/mobile hero screenshots were reviewed.
+The first local render stalled; software rendering and timer-driven frames
+completed regeneration. No dependencies or paid services were added. This
+presentation increment does not change the pending tracker-persistence work.

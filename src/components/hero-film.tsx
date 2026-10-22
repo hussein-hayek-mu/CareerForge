@@ -23,18 +23,10 @@ export function HeroFilm() {
   const [choice, setChoice] = useState<boolean | null>(null);
   const [playing, setPlaying] = useState(false);
   const [failed, setFailed] = useState(false);
-  const [inView, setInView] = useState(true);
   const tabVisible = useSyncExternalStore(subscribeVisibility, () => !document.hidden, () => true);
   const video = useRef<HTMLVideoElement>(null);
-  const wantsPlayback = !failed && inView && tabVisible && (choice ?? !restricted);
+  const wantsPlayback = !failed && tabVisible && (choice ?? !restricted);
   const shouldLoad = !failed && (!restricted || choice === true);
-  useEffect(() => {
-    const element = video.current;
-    if (!element || typeof IntersectionObserver === "undefined") return;
-    const observer = new IntersectionObserver(entries => setInView(entries[0]?.isIntersecting ?? false));
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, []);
   useEffect(() => {
     if (wantsPlayback) void video.current?.play().catch(() => setPlaying(false));
     else video.current?.pause();

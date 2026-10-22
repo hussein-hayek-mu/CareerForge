@@ -3,9 +3,13 @@
 import { chromium } from "@playwright/test";
 import { mkdir, writeFile } from "node:fs/promises";
 
-const browser = await chromium.launch({ channel: process.platform === "win32" ? "msedge" : "chromium", headless: true });
+const browser = await chromium.launch({
+  channel: process.platform === "win32" ? "msedge" : "chromium", headless: true,
+  args: ["--disable-gpu", "--disable-renderer-backgrounding", "--disable-backgrounding-occluded-windows"]
+});
 try {
   const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
+  console.log("Rendering original CareerForge film locally...");
   const result = await page.evaluate(async () => {
     const canvas = document.createElement("canvas");
     canvas.width = 1280; canvas.height = 720;
@@ -24,6 +28,20 @@ try {
       const glow = ctx.createRadialGradient(866, 344, 10, 866, 344, 580);
       glow.addColorStop(0, "#34542b88"); glow.addColorStop(.5, "#1b393155"); glow.addColorStop(1, "#0b120e00");
       ctx.fillStyle = glow; ctx.fillRect(0, 0, 1280, 720);
+      // Soft aurora ribbons give the network depth without flashing behind text.
+      ctx.save(); ctx.globalCompositeOperation = "screen";
+      for (let ribbon = 0; ribbon < 4; ribbon++) {
+        const drift = Math.sin(angle + ribbon * 1.2);
+        const light = ctx.createLinearGradient(450, 600, 1200, 80);
+        light.addColorStop(0, "#64d4b000");
+        light.addColorStop(.5, ribbon % 2 ? "#75d9bc18" : "#b9ed7d20");
+        light.addColorStop(1, "#b9ed7d00");
+        ctx.beginPath(); ctx.moveTo(410, 660 + ribbon * 35);
+        ctx.bezierCurveTo(670 + drift * 65, 500, 690, 100 + drift * 50, 1280, 65 + ribbon * 80);
+        ctx.strokeStyle = light; ctx.lineWidth = 22 + ribbon * 15;
+        ctx.shadowColor = "#8edab0"; ctx.shadowBlur = 35; ctx.stroke();
+      }
+      ctx.restore();
       ctx.strokeStyle = "#9bc7880b"; ctx.lineWidth = .6;
       for (let i = 0; i < 25; i++) { const x = i * 64; ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 720); ctx.stroke(); }
       for (let i = 0; i < 13; i++) { ctx.beginPath(); ctx.moveTo(0, i * 64); ctx.lineTo(1280, i * 64); ctx.stroke(); }
@@ -39,6 +57,15 @@ try {
           if (distance < 145) line([n, m], `rgba(174,226,152,${(1 - distance / 145) * .27})`, .75);
         }
         const breathing = .5 + .5 * Math.sin(angle * 2 + i);
+        // Short luminous trails communicate information flowing through skills.
+        if (i % 3 === 0) {
+          const a = i * 2.399963 + angle * (i % 2 ? 1 : -1);
+          const radius = 100 + Math.sqrt(i / 54) * 320;
+          ctx.beginPath();
+          ctx.ellipse(core.x, core.y, radius, radius * .72, 0, a - .075, a);
+          ctx.strokeStyle = `rgba(153,224,191,${.12 + n.depth * .2})`;
+          ctx.lineWidth = 1.4; ctx.stroke();
+        }
         ctx.beginPath(); ctx.arc(n.x, n.y, 1.3 + n.depth * 1.6, 0, tau);
         ctx.fillStyle = `rgba(191,235,160,${.25 + .6 * breathing})`; ctx.shadowColor = "#c5ed85"; ctx.shadowBlur = 7 + breathing * 8; ctx.fill(); ctx.shadowBlur = 0;
       }
@@ -83,6 +110,35 @@ try {
         ctx.save(); ctx.translate(core.x, core.y); ctx.rotate(Math.sin(angle) * .22 + i * Math.PI / 3);
         ctx.beginPath(); ctx.ellipse(0, 0, 205 + i * 24, 108 + i * 13, 0, 0, tau); ctx.strokeStyle = `rgba(164,214,143,${.08 + i*.025})`; ctx.lineWidth = .8; ctx.stroke(); ctx.restore();
       }
+      // Rotating segmented arcs, traveling sparks and an expanding forge pulse.
+      ctx.save(); ctx.translate(core.x, core.y);
+      for (let ring = 0; ring < 3; ring++) {
+        const rotation = angle * (ring % 2 ? -1 : 1) + ring * 2.1;
+        const radius = 155 + ring * 48;
+        ctx.beginPath(); ctx.arc(0, 0, radius, rotation, rotation + .65);
+        ctx.strokeStyle = ring === 1 ? "#8bdec277" : "#c5ed8588";
+        ctx.lineWidth = ring === 0 ? 2.2 : 1.2;
+        ctx.shadowColor = "#b4f293"; ctx.shadowBlur = 12; ctx.stroke();
+        ctx.beginPath(); ctx.arc(Math.cos(rotation + .65) * radius, Math.sin(rotation + .65) * radius, 2.5, 0, tau);
+        ctx.fillStyle = "#dcffb6"; ctx.fill();
+      }
+      ctx.shadowBlur = 0;
+      for (let pulse = 0; pulse < 2; pulse++) {
+        const progress = (phase * 2 + pulse / 2) % 1;
+        const opacity = Math.sin(progress * Math.PI) * .13;
+        ctx.beginPath(); ctx.ellipse(0, 0, 90 + progress * 240, 65 + progress * 175, 0, 0, tau);
+        ctx.strokeStyle = `rgba(185,237,143,${opacity})`; ctx.lineWidth = 1; ctx.stroke();
+      }
+      // Fine radial particles rise from the forge into the opportunity network.
+      for (let spark = 0; spark < 24; spark++) {
+        const progress = (phase + spark / 24) % 1;
+        const heading = spark * 2.399963;
+        const radius = 70 + progress * 250;
+        const x = Math.cos(heading) * radius, y = Math.sin(heading) * radius * .7;
+        ctx.globalAlpha = Math.sin(progress * Math.PI) * .5;
+        line([{ x: x * .96, y: y * .96 }, { x, y }], "#c5ed85", 1.2);
+      }
+      ctx.restore();
       const vignette = ctx.createRadialGradient(850, 340, 100, 850, 340, 750);
       vignette.addColorStop(0, "#07110b00"); vignette.addColorStop(1, "#07110bd0"); ctx.fillStyle = vignette; ctx.fillRect(0, 0, 1280, 720);
     }
@@ -94,12 +150,19 @@ try {
     const stream = canvas.captureStream(24);
     const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 1_500_000 });
     const chunks = [];
-    const recorded = new Promise(resolve => { recorder.ondataavailable = e => { if(e.data.size) chunks.push(e.data); }; recorder.onstop = () => resolve(new Blob(chunks, { type: mimeType })); });
+    const recorded = new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => reject(new Error("Video encoding timed out")), 60000);
+      recorder.ondataavailable = e => { if(e.data.size) chunks.push(e.data); };
+      recorder.onstop = () => { clearTimeout(timeout); resolve(new Blob(chunks, { type: mimeType })); };
+      recorder.onerror = () => { clearTimeout(timeout); reject(new Error("Video encoding failed")); };
+    });
+    // Attach the rejection handler immediately, even while the frames render.
+    void recorded.catch(() => {});
     recorder.start(250);
     const start = performance.now();
     await new Promise(resolve => {
-      function frame(now) { const elapsed = (now - start) / 1000; draw(Math.min(duration, elapsed)); if (elapsed < duration) requestAnimationFrame(frame); else { recorder.stop(); resolve(); } }
-      requestAnimationFrame(frame);
+      function frame() { const elapsed = (performance.now() - start) / 1000; draw(Math.min(duration, elapsed)); if (elapsed < duration) setTimeout(frame, 1000 / 24); else { recorder.stop(); resolve(); } }
+      frame();
     });
     const bytes = new Uint8Array(await (await recorded).arrayBuffer());
     stream.getTracks().forEach(track => track.stop());

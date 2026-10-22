@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test("original hero video plays silently, loops, and supports pause/resume", async ({ page }) => {
+test("original hero video plays silently, loops, and supports pause/resume", async ({ page }, testInfo) => {
   await page.emulateMedia({ reducedMotion: "no-preference" });
   await page.goto("/");
   const video = page.locator(".hero-film video");
@@ -9,6 +9,9 @@ test("original hero video plays silently, loops, and supports pause/resume", asy
     const element = node as HTMLVideoElement;
     return { muted: element.muted, loop: element.loop, inline: element.playsInline, ready: element.readyState >= 2 };
   })).toEqual({ muted: true, loop: true, inline: true, ready: true });
+  await video.evaluate(node => { (node as HTMLVideoElement).currentTime = 4.8; });
+  await expect.poll(() => video.evaluate(node => (node as HTMLVideoElement).seeking)).toBe(false);
+  await page.locator(".launchpad").screenshot({ path: testInfo.outputPath("hero-film.png"), animations: "disabled" });
   await page.getByRole("button", { name: "Pause background video", exact: true }).click();
   await expect.poll(() => video.evaluate(node => (node as HTMLVideoElement).paused)).toBe(true);
   await page.getByRole("button", { name: "Play background video", exact: true }).click();
@@ -21,7 +24,10 @@ test("original hero video plays silently, loops, and supports pause/resume", asy
   // visible. Use a short viewport to ensure the video really leaves view.
   await page.setViewportSize({ width: page.viewportSize()?.width ?? 1440, height: 420 });
   await page.locator(".page-footer").scrollIntoViewIfNeeded();
-  await expect.poll(() => video.evaluate(node => (node as HTMLVideoElement).paused)).toBe(true);
+  expect(await video.evaluate(node => node.getBoundingClientRect().bottom < 0)).toBe(true);
+  const before = await video.evaluate(node => (node as HTMLVideoElement).currentTime);
+  await expect.poll(() => video.evaluate(node => (node as HTMLVideoElement).currentTime)).toBeGreaterThan(before + .2);
+  await expect.poll(() => video.evaluate(node => (node as HTMLVideoElement).paused)).toBe(false);
   await page.locator(".launchpad").scrollIntoViewIfNeeded();
   await expect.poll(() => video.evaluate(node => (node as HTMLVideoElement).paused)).toBe(false);
 });
