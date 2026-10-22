@@ -59,7 +59,7 @@ the direct/session connection string for Prisma migrations. Prisma 7 reads
 local environment file, passwords, service-role keys, or other secrets.
 
 For real accounts, configure the public Supabase values and apply the reviewed
-profile migration once to the shared **development** database:
+profile and jobs/tracker migrations to the shared **development** database:
 
 ```bash
 npm run db:migrate
@@ -145,7 +145,11 @@ with `npx playwright install --with-deps chromium`. The normal browser suite
 covers the demo, anonymous account protection, login errors, and a mocked signup
 confirmation screen at desktop and phone widths. It reuses a running dev server.
 
-`test:rls` uses a rolled-back database transaction. `test:account:live` requires
+`test:rls` uses a rolled-back database transaction to check profile and tracker
+ownership, protected fields, catalog permissions, stale revisions, inactive
+history and deletion rules. The jobs/tracker tables are a database foundation;
+the UI tracker still uses browser storage until roadmap task P1.3.
+`test:account:live` requires
 the dev server and development database; it creates two temporary confirmed
 `@careerforge.invalid` identities, verifies real login, cookie flags, persistence,
 isolation, and logout, then deletes those identities and their profile data.

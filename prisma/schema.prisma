@@ -23,3 +23,38 @@ model Profile {
 
   @@map("profiles")
 }
+
+model JobPosting {
+  id             String     @id
+  title          String
+  company        String
+  initials       String
+  location       String
+  workMode       String     @map("work_mode")
+  employmentType String     @map("employment_type")
+  skills         String[]
+  description    String
+  color          String
+  isActive       Boolean    @default(true) @map("is_active")
+  isFictional    Boolean    @default(true) @map("is_fictional")
+  createdAt      DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime   @default(now()) @map("updated_at") @db.Timestamptz(6)
+  savedJobs      SavedJob[]
+
+  @@map("job_postings")
+}
+
+// Ownership FK to auth.users and trigger-controlled revision/timestamps live in SQL.
+model SavedJob {
+  userId    String     @map("user_id") @db.Uuid
+  jobId     String     @map("job_id")
+  status    String     @default("Saved")
+  revision  String     @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  createdAt DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime   @default(now()) @map("updated_at") @db.Timestamptz(6)
+  job       JobPosting @relation(fields: [jobId], references: [id], onDelete: Restrict)
+
+  @@id([userId, jobId])
+  @@index([jobId], map: "saved_jobs_job_id_idx")
+  @@map("saved_jobs")
+}

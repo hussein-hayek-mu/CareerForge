@@ -57,8 +57,10 @@ user_id to clients unless a feature requires it. Unknown job identifiers return
 stale revisions 409 and unavailable storage 503. A missing PATCH target is 404.
 Cross-user guesses behave like missing owner entries, never reveal another row.
 
-Create with insert-on-conflict-do-nothing, then read the owner's row; never
-upsert status. If a concurrent removal leaves no row, return 409 and refresh.
+First return an existing owner entry unchanged, including an inactive role.
+For a missing entry, create with insert-on-conflict-do-nothing, then read the
+owner's row; never upsert status. If a concurrent removal leaves no row, return
+409 and refresh.
 Database constraints/active-job guard remain authoritative if catalog state
 changes between API validation and insert.
 

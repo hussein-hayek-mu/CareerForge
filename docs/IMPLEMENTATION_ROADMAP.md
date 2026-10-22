@@ -37,7 +37,7 @@ Skills remain self-reported. Fictional jobs must stay clearly labeled.
 **Done** means implemented with recorded checks. **Partial** means usable but
 with the stated gap. **Open** means work remains. **Deferred** means recorded
 future scope, outside the current release. No work is currently in progress;
-the next functional task is P1.2.
+the next functional task is P1.3.
 
 | ID | Capability | Status | Evidence and remaining boundary |
 | --- | --- | --- | --- |
@@ -48,8 +48,8 @@ the next functional task is P1.2.
 | D05 | Registration/login/logout | Partial | SSR HttpOnly sessions, origin validation, safe API errors, private account screen. Real signup email delivery/callback requires owner verification; recovery flow missing. |
 | D06 | Private profile editing | Done | Validated profile summaries/skills, save/reload, error recovery and cross-user isolation tested. This is not full normalized experience/education CRUD. |
 | D07 | Account-aware workspace | Done | Server verifies session and reads owner profile; dashboard, skill ranking and role gaps use saved data. `/profile` leads signed-in users to `/account`; read failures do not substitute demo data. |
-| D08 | Jobs and transparent matching | Partial | Six static fictional roles, search/work-mode/saved filters, detail dialog, normalized skill matching and missing skills. Database catalog/admin maintenance not implemented. |
-| D09 | Saved roles and manual tracker | Partial | Functional local save/remove/status updates; per-account browser keys separate from guest demo. No server persistence or cross-device sync. |
+| D08 | Jobs and transparent matching | Partial | Six static fictional roles, search/work-mode/saved filters, detail dialog, normalized skill matching and missing skills. Database catalog seeded; API/UI integration and admin maintenance remain. |
+| D09 | Saved roles and manual tracker | Partial | Functional local save/remove/status updates; per-account browser keys separate from guest demo. Server tables/RLS exist; API/UI persistence and cross-device sync remain. |
 | D10 | Guest demo | Done | Browser-local editable sample profile/tracker, reset, malformed-storage recovery, no sample upload into accounts. |
 | D11 | Shared responsive design | Done | Graphite/chartreuse system, branded SVGs, sidebar collapse preference, mobile drawer, private profile identity and dark auth forms. Further release audit remains required. |
 | D12 | Motion hero | Done | Enhanced original local film with aurora ribbons, orbital trails, forge pulses and sparks; continuous playback while scrolling, hidden-tab pause, playback control, reduced-motion/save-data and poster fallback. |
@@ -92,7 +92,12 @@ and verification criteria are defined. Documentation consistency checked.
 Acceptance: migration, API/UI contracts and edge cases are written down before
 implementation; no sample profile is inserted and no existing job ID breaks.
 
-**P1.2 - Add tables, constraints, seed and RLS. Open. Depends on P1.1.**
+**P1.2 - Add tables, constraints, seed and RLS. Done.**
+
+Implemented in `202610220002_job_tracker.sql`, with Prisma mappings and
+`verify-tracker-rls.mjs` called by `npm.cmd run test:rls`. Applied to development;
+repeat migration skipped both recorded files. Ownership/constraint checks passed
+and rolled back; no temporary users or tracker rows retained.
 
 Add an additive checksum-tracked migration and update Prisma mappings. Catalog
 reads expose the intended active fictional jobs; students cannot write catalog
@@ -307,7 +312,7 @@ Known limitations and next task:
 | --- | --- |
 | MVP architecture | npm single Next.js app; no separate backend or early native app. |
 | Data boundary | Verified server session + Supabase RLS for private data; guest demo stays explicit. |
-| Next implementation | P1.1 contract complete; P1.2 migration/RLS next, then P1.3 integration. |
+| Next implementation | P1.1 contract and P1.2 database/RLS complete; P1.3 API/UI integration next. |
 | Real email flow | Owner verification outstanding; no passwords requested in chat. |
 | Database environment | Use working development connection; recheck direct-host availability only when needed. No secrets in documentation. |
 | Remote release | Latest feature commits are local at this baseline; push/CI/hosting remain separate steps. |
@@ -333,3 +338,12 @@ passed against the final asset. Desktop/mobile hero screenshots were reviewed.
 The first local render stalled; software rendering and timer-driven frames
 completed regeneration. No dependencies or paid services were added. This
 presentation increment does not change the pending tracker-persistence work.
+
+P1.1/P1.2: tracker contract committed as `03dcfd5`; additive jobs/tracker
+migration applied to development with six unchanged fictional catalog IDs.
+Lint, Prisma generation, typecheck, 15 local tests, production build and expanded
+RLS checks passed. Migration rerun skipped recorded files. RLS tests covered
+owner CRUD, both directions of isolation, catalog/column grants, defaults and
+constraints, stale revisions, inactive history, restricted catalog deletion and
+account-deletion cascade; the full test transaction rolled back. No UI/API
+tracker persistence is claimed: P1.3 remains open. No paid services/dependencies.

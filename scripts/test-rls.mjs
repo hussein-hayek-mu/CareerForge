@@ -2,14 +2,15 @@ import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import nextEnv from "@next/env";
 import { Client } from "pg";
+import { verifyTrackerRls } from "./verify-tracker-rls.mjs";
 
 nextEnv.loadEnvConfig(process.cwd());
 const client = new Client({ connectionString: process.env.DATABASE_URL ?? process.env.DIRECT_URL, connectionTimeoutMillis: 15000, statement_timeout: 15000 });
 const a = randomUUID(), b = randomUUID();
-async function denied(sql, params = []) {
+async function denied(sql, params = [], code = "42501") {
   await client.query("savepoint blocked_operation");
   try {
-    await assert.rejects(client.query(sql, params), error => error.code === "42501");
+    await assert.rejects(client.query(sql, params), error => error.code === code);
   } finally { await client.query("rollback to savepoint blocked_operation"); }
 }
 async function asUser(id) {
@@ -45,6 +46,7 @@ try {
   await client.query("set local role anon");
   await denied("select id from public.profiles");
   console.log("PASS: profile trigger, owner CRUD, two-way isolation, role/id protection, anonymous denial");
+  await verifyTrackerRls(client, asUser, denied, a, b);
 } catch (error) {
   console.error("RLS verification failed:", error.code ?? error.name);
   process.exitCode = 1;
