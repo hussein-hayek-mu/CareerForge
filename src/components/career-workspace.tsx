@@ -6,7 +6,7 @@ import type { TrackerData } from "@/lib/tracker/schemas";
 import type { AccountProfile } from "@/lib/account/schemas";
 import { AppShell } from "./app-shell";
 import { CareerLaunchpad, ProfileIdentity } from "./career-visuals";
-import { useState, useSyncExternalStore, useRef, type FormEvent } from "react";
+import { useEffect, useState, useSyncExternalStore, useRef, type FormEvent } from "react";
 import { initialWorkspace, jobs, matchSkills, readWorkspace, statuses, type Job, type Workspace } from "@/lib/demo-workspace";
 
 type View = "overview" | "profile" | "jobs" | "applications";
@@ -33,8 +33,17 @@ export function CareerWorkspace({ view, account }: { view: View; account?: { id:
   const [mode, setMode] = useState("All work modes");
   const [savedOnly, setSavedOnly] = useState(false);
   const [selected, setSelected] = useState<Job | null>(null);
+  const [roleOpen, setRoleOpen] = useState(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
+  useEffect(() => {
+    // Open after React has inserted the role's title and controls, so the
+    // dialog has its accessible name and initial focus target from the start.
+    const dialog = dialogRef.current;
+    if (!roleOpen || !selected || !dialog) return;
+    if (!dialog.open) dialog.showModal();
+    dialog.querySelector<HTMLButtonElement>(".modal-close")?.focus();
+  }, [roleOpen, selected]);
   const profile = workspace.profile;
   const entries = Object.entries(workspace.applications);
   const ranked = [...catalog].sort((a, b) => matchSkills(profile.skills, b.skills).score - matchSkills(profile.skills, a.skills).score);
@@ -74,9 +83,14 @@ export function CareerWorkspace({ view, account }: { view: View; account?: { id:
   function openRole(job: Job, trigger: HTMLButtonElement) {
     triggerRef.current = trigger;
     setSelected(job);
-    dialogRef.current?.showModal();
+    setRoleOpen(true);
   }
-  function closeRole() { dialogRef.current?.close(); triggerRef.current?.focus(); }
+  function closeRole() { dialogRef.current?.close(); }
+  function restoreRoleFocus() {
+    setRoleOpen(false);
+    if (triggerRef.current?.isConnected) triggerRef.current.focus();
+    else document.getElementById("main-content")?.focus();
+  }
   function jobCard(job: Job) {
     const match = matchSkills(profile.skills, job.skills);
     const status = workspace.applications[job.id];
@@ -107,7 +121,7 @@ export function CareerWorkspace({ view, account }: { view: View; account?: { id:
         {view === "jobs" && <>
           <div className="page-heading"><div><p className="eyebrow">FIND YOUR DIRECTION</p><h1>Good things ahead<span>.</span></h1><p>Explore example roles and see where your skills connect.</p></div><span className="outline-label">{catalog.length} demo opportunities</span></div>
           <div className="filter-bar"><label className="search-input"><span aria-hidden="true">⌕</span><input aria-label="Search opportunities" placeholder="Search a role, skill, or location" value={query} onChange={e => setQuery(e.target.value)} /></label><select aria-label="Work mode" value={mode} onChange={e => setMode(e.target.value)}>{["All work modes", "Remote", "Hybrid", "On-site"].map(m => <option key={m}>{m}</option>)}</select><label className="checkbox-label"><input type="checkbox" checked={savedOnly} onChange={e => setSavedOnly(e.target.checked)} />Saved only</label></div>
-          <div className="results-heading"><span>{filtered.length} opportunities</span><span>Sorted by skill match</span></div><div className="job-grid">{filtered.map(jobCard)}</div>{!filtered.length && <div className="empty-state"><h2>No opportunities found</h2><p>Try a different search or save a role to see it here.</p><button className="button primary" onClick={() => { setQuery(""); setMode("All work modes"); setSavedOnly(false); }}>Clear filters</button></div>}
+          <div className="results-heading"><span aria-live="polite" aria-atomic="true">{filtered.length} opportunities</span><span>Sorted by skill match</span></div><div className="job-grid">{filtered.map(jobCard)}</div>{!filtered.length && <div className="empty-state"><h2>No opportunities found</h2><p>Try a different search or save a role to see it here.</p><button className="button primary" onClick={() => { setQuery(""); setMode("All work modes"); setSavedOnly(false); }}>Clear filters</button></div>}
           <p className="muted-note">Skill match = matched required skills ÷ listed required skills. This is a demo comparison, not a hiring prediction.</p>
         </>}
         {view === "profile" && <>
@@ -121,7 +135,7 @@ export function CareerWorkspace({ view, account }: { view: View; account?: { id:
           <p className="muted-note">This is a personal demo tracker. Changing a status does not submit an application or contact an employer.</p>
         </>}
         <footer className="page-footer"><span>CareerForge <span className="footer-dot">✳</span> A little closer to what’s next.</span>{!account && <button onClick={() => { if (window.confirm("Reset your demo profile and tracker? This only clears CareerForge demo data in this browser.")) save(initialWorkspace, "Demo workspace reset."); }}>Reset demo</button>}</footer>
-    <dialog ref={dialogRef} className="role-dialog" aria-labelledby="role-title" onCancel={() => triggerRef.current?.focus()} onClick={e => { if (e.target === e.currentTarget) { const rect = e.currentTarget.getBoundingClientRect(); if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) closeRole(); } }}>{selected && <><button className="modal-close" onClick={closeRole} aria-label="Close role details">×</button><span className={`company-mark ${selected.color}`}>{selected.initials}</span><p className="eyebrow">FICTIONAL DEMO OPPORTUNITY</p><h2 id="role-title">{selected.title}</h2><p>{selected.company} · {selected.location}</p><div className="tag-row"><span className="tag">{selected.mode}</span><span className="tag">{selected.type}</span></div><h3>About the role</h3><p>{selected.description}</p><h3>Your skill connection</h3><p>{matchSkills(profile.skills, selected.skills).score}% of listed skills match your self-reported profile.</p><div className="tag-row">{selected.skills.map(skill => <span key={skill} className={`tag ${matchSkills(profile.skills, [skill]).score ? "skill-have" : "skill-missing"}`}>{matchSkills(profile.skills, [skill]).score ? "✓ " : "+ "}{skill}</span>)}</div><p className="muted-note">Green skills are in your profile. Other skills are gaps to explore. No live vacancy or application submission is available.</p><button className="button primary" disabled={busy(selected.id)} onClick={() => toggleSaved(selected)}>{workspace.applications[selected.id] ? "Remove from tracker" : "Save opportunity"}</button></>}</dialog>
+    <dialog ref={dialogRef} className="role-dialog" aria-labelledby="role-title" onClose={restoreRoleFocus} onClick={e => { if (e.target === e.currentTarget) { const rect = e.currentTarget.getBoundingClientRect(); if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) closeRole(); } }}>{selected && <><button className="modal-close" onClick={closeRole} aria-label="Close role details">×</button><span className={`company-mark ${selected.color}`}>{selected.initials}</span><p className="eyebrow">FICTIONAL DEMO OPPORTUNITY</p><h2 id="role-title">{selected.title}</h2><p>{selected.company} · {selected.location}</p><div className="tag-row"><span className="tag">{selected.mode}</span><span className="tag">{selected.type}</span></div><h3>About the role</h3><p>{selected.description}</p><h3>Your skill connection</h3><p>{matchSkills(profile.skills, selected.skills).score}% of listed skills match your self-reported profile.</p><div className="tag-row">{selected.skills.map(skill => <span key={skill} className={`tag ${matchSkills(profile.skills, [skill]).score ? "skill-have" : "skill-missing"}`}>{matchSkills(profile.skills, [skill]).score ? "✓ " : "+ "}{skill}</span>)}</div><p className="muted-note">Green skills are in your profile. Other skills are gaps to explore. No live vacancy or application submission is available.</p><button className="button primary" disabled={busy(selected.id)} onClick={() => toggleSaved(selected)}>{workspace.applications[selected.id] ? "Remove from tracker" : "Save opportunity"}</button></>}</dialog>
   </AppShell>;
 }
 

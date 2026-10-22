@@ -177,7 +177,13 @@ blank accounts never inherit Alex Morgan's data or guest tracker entries.
 
 ### P3 - Polish the complete experience
 
-**P3.1 - Interaction and accessibility audit. Open. Depends on P1/P2 flows.**
+**P3.1 - Interaction and accessibility audit. Partial. Depends on P1/P2 flows.**
+
+First pass fixes form focus outlines, small job/notification targets, skip-target
+focus, role-dialog initial/return focus and live filter counts. Narrow public
+route checks and keyboard/dialog cases are covered by browser tests. Remaining
+contrast, screen-reader, actual zoom, private-state and physical-device checks
+are tracked in [ACCESSIBILITY_REVIEW.md](ACCESSIBILITY_REVIEW.md).
 
 Review every route and state using the quality matrix below. Fix observed
 problems first. Include keyboard-only operation, drawer/dialog focus restoration,
@@ -425,3 +431,20 @@ tracker, ownership, password-change and logout regressions. A decorative-arrow
 link selector was corrected before the successful rerun. Temporary identities
 were removed and desktop/mobile profile screenshots reviewed. No schema changes,
 new dependencies or paid services. CV/portfolio/AI modules remain deferred.
+
+P3.1 first-pass delivery: preserved keyboard form outlines, increased tracker
+remove/bookmark/notification targets, enlarged compact coarse-pointer actions,
+made main content focusable for skip/return focus, and announced filter counts.
+Role dialogs now open after their named content mounts and return focus to
+the original trigger or main content if removal deleted that trigger. The
+initial browser reproduction measured a 36px tracker remove target; the
+expanded tests also caught the dialog initial-focus timing issue.
+
+Verification: lint, typecheck, 27 local tests and final production build
+passed. Four final desktop/mobile accessibility cases passed, covering nine
+public routes at 320/360/640 CSS-pixel widths, keyboard field/skip focus, dialog
+opening/reopening/Escape, 44px removal targets and focus after trigger deletion.
+The existing desktop/mobile navigation cases also passed in the earlier run.
+No new dependencies, paid services or database changes. P3.1 remains partial;
+actual zoom, contrast inventory, assistive technology, private-state layouts
+and physical-phone checks remain in ACCESSIBILITY_REVIEW.md.
