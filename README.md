@@ -23,6 +23,8 @@ npm run dev
 
 Open <http://localhost:3000>. The starter page and
 <http://localhost:3000/api/v1/health> work without Supabase credentials.
+After configuring `DATABASE_URL`, check the database connection at
+<http://localhost:3000/api/v1/health/database>.
 
 Available checks:
 
