@@ -5,6 +5,7 @@ import base from "./playwright.config";
 // developer server. Keep live-account suites outside this configuration.
 export default defineConfig({
   ...base,
+  metadata: { ...base.metadata, offlineAuth: true },
   testMatch: ["workspace.spec.ts", "navigation.spec.ts", "not-found.spec.ts"],
   forbidOnly: true,
   retries: 0,

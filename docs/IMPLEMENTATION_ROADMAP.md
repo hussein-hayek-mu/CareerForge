@@ -334,6 +334,15 @@ abuse controls, headers/CSP and operational/privacy gates remain open.
 
 **P4.2 - Reproducible checks and CI. Open.**
 
+Remote run `39798862922` for pushed `e9594b9` passed install/generation/lint/types/
+unit/build and four browser cases; two navigation cases failed because truly
+offline auth shows the account-unavailable state, not a direct login redirect.
+Correction locally verified: explicitly assert that offline state and its working
+sign-in link, while preserving configured-suite redirect expectations. Rebuild
+locally with public Supabase values empty before rerunning the production smoke.
+All six corrected cases passed on that fresh offline build, as did lint,
+TypeScript and production build. Remote correction run remains to be checked.
+
 Offline smoke increment delivered: run existing guest workspace, navigation and
 404 cases against a dedicated production server on port 3200, desktop and mobile.
 Build/run with public Supabase configuration empty in CI; never reuse the owner's

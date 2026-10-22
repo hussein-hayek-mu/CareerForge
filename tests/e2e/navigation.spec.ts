@@ -39,5 +39,10 @@ test("shared navigation is accessible, responsive, and preserves desktop collaps
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
   }
   await navigate(page, "My account");
+  if (testInfo.config.metadata.offlineAuth) {
+    await expect(page).toHaveURL(/\/account$/);
+    await expect(page.getByRole("heading", { name: "Your account is temporarily unavailable." })).toBeVisible();
+    await page.getByRole("link", { name: "Back to sign in", exact: true }).click();
+  }
   await expect(page).toHaveURL(/\/login$/);
 });

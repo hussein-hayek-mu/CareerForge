@@ -38,3 +38,18 @@ parser was available. No app source changed, so local unit tests/build were not
 repeated solely for the configuration; the workflow will run both on its exact
 commit. No live accounts, email requests, dependencies or database writes were
 introduced.
+
+The first GitHub run for `e9594b9` passed install/generation/lint/types/unit/build
+but failed the two navigation cases: the truly unconfigured build correctly
+displayed `/account` unavailable rather than redirecting to login. The earlier
+local build contained configured public values and did not reproduce that state.
+The offline config now explicitly identifies this scenario; navigation asserts
+the unavailable heading and follows its sign-in link. Configured-suite behavior
+still requires a direct anonymous login redirect. Verify with a freshly built
+unconfigured production app, not only child-server environment overrides.
+
+Correction verification: rebuilt with both public Supabase variables explicitly
+empty in the build process; all six desktop/mobile smoke cases then passed.
+Lint, TypeScript and production build also passed. No app behavior was changed
+or assertion removed: the offline account state and sign-in recovery are now
+tested explicitly. Remote CI must still pass the corrected commit.
