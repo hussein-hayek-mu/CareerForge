@@ -216,6 +216,17 @@ without an actual audit. Verify a physical phone in addition to emulation.
 
 **P3.2 - Visual refinement and performance. Open.**
 
+Local production performance baseline recorded in
+[PERFORMANCE_BASELINE.md](PERFORMANCE_BASELINE.md), with a repeatable
+`npm.cmd run audit:performance` command. Five anonymous mobile lab scenarios
+returned 200 without uncaught page errors: observed LCP 0.656–1.732s and windowed
+CLS 0. Reduced-motion overview fetched no video (200 KB versus 1,488 KB normal).
+These are single local samples, not hosted/field results; INP and authenticated
+performance remain unmeasured. No speculative rendering/video changes were made.
+Lint, TypeScript, script syntax and whitespace checks passed; the measured
+production build passed in the preceding increment. P3.2 remains open for the
+wider visual audit and hosted performance work.
+
 Missing-page increment implemented: branded recovery page with overview and
 opportunity links. Desktop browser verification passed for direct 404 status,
 noindex, visible keyboard focus, both recovery destinations and 320px reflow.

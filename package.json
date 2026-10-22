@@ -14,7 +14,8 @@
     "test:rls": "node scripts/test-rls.mjs",
     "test:account:live": "node scripts/test-account-live.mjs",
     "prisma:generate": "prisma generate",
-    "audit:contrast": "node scripts/audit-contrast.mjs"
+    "audit:contrast": "node scripts/audit-contrast.mjs",
+    "audit:performance": "node scripts/audit-performance.mjs"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.1",
