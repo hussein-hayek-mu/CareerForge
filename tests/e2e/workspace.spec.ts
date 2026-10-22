@@ -33,7 +33,7 @@ test("demo profile, job matching, saved roles and tracking work across reloads",
     await page.goto(path);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBeTruthy();
-    await page.screenshot({ path: testInfo.outputPath(`${path.slice(1) || "overview"}.png`), fullPage: true });
+    await page.screenshot({ path: testInfo.outputPath(`${path.slice(1) || "overview"}.png`), fullPage: true, animations: "disabled" });
   }
   expect(errors).toEqual([]);
 });

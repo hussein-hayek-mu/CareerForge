@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { BrandMark } from "./career-visuals";
 import { usePathname } from "next/navigation";
 import { useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 
@@ -48,7 +49,7 @@ export function AppShell({ children, pageTitle, displayName = "Your workspace", 
   }
   function navigation(mobile = false) {
     return <>
-      <div className="app-sidebar-brand"><Link href="/" className="brand" aria-label="CareerForge home" onClick={() => drawer.current?.close()}><span className="brand-mark">↗</span><span className="app-brand-name">CareerForge<span>.</span></span></Link>{mobile ? <button className="shell-icon-button" aria-label="Close navigation" onClick={() => drawer.current?.close()}><AppIcon name="close" /></button> : <button className="shell-icon-button collapse-button" aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"} aria-expanded={!collapsed} aria-controls="desktop-navigation" title={collapsed ? "Expand sidebar" : "Collapse sidebar"} onClick={toggleSidebar}><AppIcon name="panel" /></button>}</div>
+      <div className="app-sidebar-brand"><Link href="/" className="brand" aria-label="CareerForge home" onClick={() => drawer.current?.close()}><BrandMark /><span className="app-brand-name">CareerForge<span>.</span></span></Link>{mobile ? <button className="shell-icon-button" aria-label="Close navigation" onClick={() => drawer.current?.close()}><AppIcon name="close" /></button> : <button className="shell-icon-button collapse-button" aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"} aria-expanded={!collapsed} aria-controls="desktop-navigation" title={collapsed ? "Expand sidebar" : "Collapse sidebar"} onClick={toggleSidebar}><AppIcon name="panel" /></button>}</div>
       <nav aria-label="Main navigation" id={mobile ? "mobile-navigation" : "desktop-navigation"}>
         <p className="app-nav-heading">WORKSPACE <span>DEMO</span></p>
         {items.map(item => <Link key={item.href} href={item.href} aria-label={item.label} aria-current={pathname === item.href ? "page" : undefined} title={item.label} className={`app-nav-item ${pathname === item.href ? "selected" : ""}`} onClick={() => drawer.current?.close()}><AppIcon name={item.icon} /><span className="app-nav-label">{item.label}</span>{item.href === "/applications" && applicationCount > 0 && <span className="app-nav-count">{applicationCount}</span>}</Link>)}

@@ -72,7 +72,8 @@ try {
   await expect(a.page.getByLabel("Your skills", { exact: true })).toHaveValue("React, SQL");
   const aProfile = await (await a.context.request.get("/api/v1/profile")).json();
   assert.equal(aProfile.profile.name, "Live Test Owner A");
-  await a.page.screenshot({ path: "test-results/account-desktop.png", fullPage: true });
+  await a.page.evaluate(() => window.scrollTo(0, 0));
+  await a.page.screenshot({ path: "test-results/account-desktop.png", fullPage: true, animations: "disabled" });
 
   stage = "owner B isolation and phone layout";
   const phone = { ...devices["iPhone 13"] };
@@ -89,7 +90,8 @@ try {
   const crossOrigin = await a.context.request.put("/api/v1/profile", { headers: { Origin: "https://untrusted.example" }, data: aProfile.profile });
   assert.equal(crossOrigin.status(), 403);
   assert.equal(await b.page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
-  await b.page.screenshot({ path: "test-results/account-mobile.png", fullPage: true });
+  await b.page.evaluate(() => window.scrollTo(0, 0));
+  await b.page.screenshot({ path: "test-results/account-mobile.png", fullPage: true, animations: "disabled" });
 
   stage = "save failure recovery";
   await a.page.route("**/api/v1/profile", route => route.request().method() === "PUT"
