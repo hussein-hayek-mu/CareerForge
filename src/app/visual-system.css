@@ -87,3 +87,51 @@ h1 { font-size: clamp(34px, 3.5vw, 55px); font-weight: 550; line-height: 1.13; l
 @media (max-width: 420px) { .app-topbar .private-mode { display: none; }.profile-identity { padding: 21px; gap: 14px; }.identity-copy h2 { font-size: 20px; } }
 @media (max-height: 650px) { .app-sidebar-help { display: none; }.app-sidebar-account { margin-top: auto; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
+
+/* Original motion background and refined navigation controls. */
+.app-sidebar, .navigation-drawer { scrollbar-width: none; -ms-overflow-style: none; }
+.app-sidebar::-webkit-scrollbar, .navigation-drawer::-webkit-scrollbar { display: none; width: 0; height: 0; }
+.collapse-button { width: 35px; height: 35px; border: 1px solid #455637; background: #26321f; border-radius: 9px; color: #c7dfaa; transition: background .2s, border-color .2s; }
+.collapse-button svg { width: 21px; height: 21px; stroke-width: 1.9; }
+.collapse-button:hover { background: #3b5127; border-color: #8cae5f; color: #e2f8c3; }
+.sidebar-collapsed .collapse-button svg { transform: rotate(180deg); }
+.launchpad.has-film { min-height: 420px; grid-template-columns: 1.15fr 1fr; background: #0b140f; border-color: #50673d; isolation: isolate; }
+.hero-film { position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+.hero-film video, .hero-film-poster { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.hero-film-poster { background: url("/media/careerforge-neural-forge.webp") center / cover no-repeat; }
+.hero-film video { opacity: .95; }
+.hero-film-scrim { position: absolute; inset: 0; background: linear-gradient(90deg, #0b140ff5 0%, #0b140fe0 30%, #0b140f5c 58%, #0b140f08 100%), linear-gradient(0deg, #09110c99, transparent 40%); }
+.has-film .launchpad-copy { position: relative; z-index: 1; padding: 38px 36px 30px; }
+.has-film .launchpad-label { max-width: calc(100% - 30px); }
+.has-film h2 { font-size: clamp(33px, 3.4vw, 49px); margin-top: 29px; }
+.has-film .launchpad-copy > p { color: #c1d1b1; }
+.has-film .launchpad-coordinate { color: #a1b68d; border-color: #7c9d5544; }
+.film-control { position: absolute; right: 19px; top: 19px; z-index: 3; display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 36px; min-width: 36px; padding: 9px 12px; border: 1px solid #829e5e77; border-radius: 7px; background: #101d13bb; color: #d2e7b9; backdrop-filter: blur(12px); font: 9px var(--mono); }
+.film-control:hover { background: #294020; border-color: #a3c579; }
+.film-visual { align-items: flex-end; justify-content: flex-end; padding: 32px; position: relative; z-index: 1; pointer-events: none; }
+.film-summary { width: 245px; max-width: 100%; border: 1px solid #8dae6555; border-radius: 10px; padding: 18px 19px; background: #122015bd; backdrop-filter: blur(14px); box-shadow: 0 15px 40px #0002; }
+.film-summary-index { display: block; color: #a9c38c; font: 7px var(--mono); letter-spacing: 1.8px; margin-bottom: 11px; }
+.film-summary > div { display: flex; align-items: center; gap: 14px; }
+.film-summary strong { font-size: 35px; color: #d4f2ac; font-weight: 450; letter-spacing: -1.5px; }
+.film-summary > div > span { color: #deead1; font-size: 11px; }
+.film-summary small { display: block; color: #b3c99b; font-size: 8px; line-height: 1.7; margin-top: 6px; }
+@media (min-width: 761px) and (max-width: 980px) {
+  .launchpad.has-film { grid-template-columns: 1fr; }
+  .has-film .launchpad-copy { padding: 35px 30px 15px; }
+  .film-visual { width: 100%; max-width: none; margin: 0; min-height: 145px; padding: 15px 30px 28px; }
+  .hero-film video, .hero-film-poster { object-position: 70% center; background-position: 70% center; }
+}
+@media (max-width: 760px) {
+  .launchpad.has-film { grid-template-columns: 1fr; min-height: 590px; }
+  .has-film .launchpad-copy { padding: 57px 26px 0; }
+  .has-film .launchpad-label { font-size: 7px; }
+  .has-film h2 { font-size: 36px; margin-top: 24px; }
+  .has-film .launchpad-copy > p { font-size: 12px; }
+  .film-control { top: 13px; right: 13px; min-height: 44px; min-width: 44px; font-size: 8px; }
+  .hero-film video { object-position: 72% center; }
+  .hero-film-poster { background-position: 72% center; }
+  .hero-film-scrim { background: linear-gradient(180deg, #0b140fe8 0%, #0b140fc9 40%, #0b140f11 65%, #0b140f88 100%); }
+  .film-visual { min-height: 220px; padding: 25px; align-items: flex-end; }
+  .film-summary { width: 220px; padding: 14px 16px; }
+  .film-summary strong { font-size: 31px; }
+}

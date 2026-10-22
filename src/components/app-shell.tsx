@@ -22,7 +22,7 @@ export function AppIcon({ name }: { name: IconName }) {
     applications: "M6 3h15v15 M3 6h15v15H3z M7 11h7 M7 15h5",
     account: "M12 3l8 3v6c0 5-8 9-8 9s-8-4-8-9V6z M8 12l3 3 5-6",
     menu: "M4 6h16 M4 12h16 M4 18h16", close: "M6 6l12 12 M18 6L6 18",
-    panel: "M3 3h18v18H3z M9 3v18 M13 9l-3 3 3 3", arrow: "M5 12h14 M13 6l6 6-6 6"
+    panel: "M4 4h16v16H4z M9 4v16 M16 8l-4 4 4 4", arrow: "M5 12h14 M13 6l6 6-6 6"
   };
   return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={paths[name]} /></svg>;
 }

@@ -21,6 +21,7 @@ test("shared navigation is accessible, responsive, and preserves desktop collaps
     await expect(drawer.getByRole("link", { name: "Find opportunities", exact: true })).toHaveAttribute("aria-current", "page");
     await page.keyboard.press("Escape");
   } else {
+    await expect(page.locator(".app-sidebar")).toHaveCSS("scrollbar-width", "none");
     await page.getByRole("button", { name: "Collapse sidebar" }).click();
     await expect(page.locator(".app-shell")).toHaveClass(/sidebar-collapsed/);
     await navigate(page, "Find opportunities");
@@ -29,6 +30,9 @@ test("shared navigation is accessible, responsive, and preserves desktop collaps
     await expect(page.getByRole("button", { name: "Expand sidebar" })).toBeVisible();
     await page.getByRole("button", { name: "Expand sidebar" }).click();
     await expect(page.locator(".app-shell")).not.toHaveClass(/sidebar-collapsed/);
+    await page.setViewportSize({ width: 1440, height: 480 });
+    await page.getByRole("navigation", { name: "Main navigation" }).getByRole("link", { name: "My account", exact: true }).scrollIntoViewIfNeeded();
+    await expect(page.getByRole("navigation", { name: "Main navigation" }).getByRole("link", { name: "My account", exact: true })).toBeInViewport();
   }
   for (const width of [360, 768, 1024, 1440]) {
     await page.setViewportSize({ width, height: 900 });
