@@ -37,7 +37,7 @@ Skills remain self-reported. Fictional jobs must stay clearly labeled.
 **Done** means implemented with recorded checks. **Partial** means usable but
 with the stated gap. **Open** means work remains. **Deferred** means recorded
 future scope, outside the current release. No work is currently in progress;
-the next functional task remains P1.1.
+the next functional task is P1.2.
 
 | ID | Capability | Status | Evidence and remaining boundary |
 | --- | --- | --- | --- |
@@ -71,7 +71,11 @@ again before each phase, rather than implementing the whole future backlog.
 
 ### P1 - Persist the current tracker
 
-**P1.1 - Define the data contract. Open. Next task.**
+**P1.1 - Define the data contract. Done.**
+
+Contract: [TRACKER_CONTRACT.md](TRACKER_CONTRACT.md). Stable catalog IDs,
+owner-only storage, revision-based conflicts, idempotent save, API/UI behavior
+and verification criteria are defined. Documentation consistency checked.
 
 - Decide stable catalog identifiers before storing references. Keep existing
   fictional role IDs stable; use a small seeded `job_postings` catalog with
@@ -303,7 +307,7 @@ Known limitations and next task:
 | --- | --- |
 | MVP architecture | npm single Next.js app; no separate backend or early native app. |
 | Data boundary | Verified server session + Supabase RLS for private data; guest demo stays explicit. |
-| Next implementation | P1.1 tracker/catalog contract, then P1.2 migration/RLS, then P1.3 integration. |
+| Next implementation | P1.1 contract complete; P1.2 migration/RLS next, then P1.3 integration. |
 | Real email flow | Owner verification outstanding; no passwords requested in chat. |
 | Database environment | Use working development connection; recheck direct-host availability only when needed. No secrets in documentation. |
 | Remote release | Latest feature commits are local at this baseline; push/CI/hosting remain separate steps. |
