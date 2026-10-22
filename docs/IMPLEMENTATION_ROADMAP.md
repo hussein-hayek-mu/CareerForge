@@ -22,6 +22,29 @@ Target: a polished, reliable product whose claims can be demonstrated. Passing
 tests is evidence for the scenarios tested, not a promise of zero defects.
 Do not label a task complete merely because its screen looks finished.
 
+### Quality guidance update — 22 October 2026
+
+Reviewed all nine pages of
+[`Codex_NextJS_Production_Quality_Workflow.pdf`](../helper/Codex_NextJS_Production_Quality_Workflow.pdf)
+and the owner's accompanying senior engineering/product instructions. Root
+`AGENTS.md` now preserves their operational standards. This was a documentation
+review, not a new code audit or verification of the software engineering report.
+
+The owner's full-product priorities are M1 profile/onboarding, M2 career/skill
+analysis, M3 academic/course planning, M4 job/skill matching, M5 personalized
+learning/project recommendations, and M6 CV analysis/portfolio building. Existing
+profile summaries, deterministic skill matching and fictional jobs cover only
+parts of this scope. Normalized profile records, AI career analysis, academic
+planning, adaptive learning roadmaps, secure CV parsing and portfolio publication
+remain future work. Preserve the implemented tracker; course-failure simulation
+and the AI assistant remain stretch goals. The current release boundary below
+is unchanged; automated applications are not part of M1–M6 completion.
+
+The newer instructions name Flutter while the older helper plan names Expo.
+Resolve this against the actual report before scheduling mobile implementation.
+Likewise verify the report's exact data/API contracts before implementing each
+future module; this guidance review does not establish report-wide conformance.
+
 ## Current release boundary
 
 Deliver a responsive web application for students and early-career developers:
