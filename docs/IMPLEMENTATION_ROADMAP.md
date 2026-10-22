@@ -66,7 +66,7 @@ real inbox journeys and remaining session cases require verification.
 | ID | Capability | Status | Evidence and remaining boundary |
 | --- | --- | --- | --- |
 | D01 | npm/Next.js/TypeScript foundation | Done | Existing app, lockfile, lint/types/tests/build scripts; no monorepo conversion needed. |
-| D02 | CI definition | Partial | `.github/workflows/ci.yml` runs generation, lint, types, unit tests, build. Latest local commits need pushing and remote CI verification. Browser checks are not in CI yet. |
+| D02 | CI definition | Partial | `.github/workflows/ci.yml` defines generation, lint, types, unit tests, build and six offline desktop/mobile production smoke cases. Local smoke passed; latest commits need pushing and exact remote CI verification. |
 | D03 | Development database connectivity | Done | Supabase Auth settings and SQL connection verified previously; direct hostname failed, session-pooler connection worked. Environment health is not guaranteed permanently. |
 | D04 | Profile migrations and ownership | Done | Transaction/checksum migration runner, profile trigger, RLS, restricted writable columns, rollback-based two-user tests. |
 | D05 | Registration/login/logout | Partial | SSR HttpOnly sessions, origin validation, safe API errors, private account screen. Real signup/reset email delivery and callback require owner verification; recovery/resend routes are implemented. |
@@ -333,6 +333,16 @@ abuse controls, headers/CSP and operational/privacy gates remain open.
   migration recovery path. Do not assume a provider plan includes every backup.
 
 **P4.2 - Reproducible checks and CI. Open.**
+
+Offline smoke increment delivered: run existing guest workspace, navigation and
+404 cases against a dedicated production server on port 3200, desktop and mobile.
+Build/run with public Supabase configuration empty in CI; never reuse the owner's
+development server. Keep failures visible (no retries), retain failure artifacts
+seven days, and install only Chromium. All six local Windows Edge cases, lint,
+TypeScript and whitespace checks passed against the preceding verified production
+build. No new app code/dependencies, live emails or database writes. Details:
+[CI_VERIFICATION.md](CI_VERIFICATION.md). Remote CI is not
+verified until the exact commit is pushed and its workflow result inspected.
 
 Push verified commits when authorized and inspect the actual CI result. Add
 offline desktop/mobile browser smoke coverage to CI without production secrets.

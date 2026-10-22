@@ -16,6 +16,9 @@ jobs:
       # Client generation reads Prisma config but does not connect to this URL.
       DIRECT_URL: postgresql://postgres:postgres@localhost:5432/careerforge
       NEXT_TELEMETRY_DISABLED: "1"
+      # Offline build/smoke coverage must never depend on account credentials.
+      NEXT_PUBLIC_SUPABASE_URL: ""
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ""
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -28,3 +31,15 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
+      - name: Install Chromium for offline browser checks
+        run: npx playwright install --with-deps chromium
+      - name: Desktop and mobile production smoke
+        run: npm run test:e2e:ci
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: offline-browser-failure
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
