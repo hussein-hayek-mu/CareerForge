@@ -49,6 +49,12 @@ try {
     stage = "waiting for authenticated account page";
     await expect(page).toHaveURL(`${baseURL}/account`, { timeout: 20000 });
     await expect(page.getByRole("heading", { level: 1 })).toContainText("Your story starts here");
+    const menu = page.getByRole("button", { name: "Open navigation", exact: true });
+    const mobileNavigation = await menu.isVisible();
+    if (mobileNavigation) await menu.click();
+    await expect(page.getByRole("navigation", { name: "Main navigation" }).getByRole("link", { name: "My account", exact: true })).toHaveAttribute("aria-current", "page");
+    if (mobileNavigation) await page.getByRole("button", { name: "Close navigation", exact: true }).click();
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
     const sessionCookies = (await context.cookies()).filter(c => c.name.startsWith("sb-"));
     assert.ok(sessionCookies.length > 0);
     assert.ok(sessionCookies.every(c => c.httpOnly && c.sameSite === "Lax"));

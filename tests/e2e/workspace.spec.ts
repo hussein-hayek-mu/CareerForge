@@ -1,18 +1,19 @@
 import { expect, test } from "@playwright/test";
+import { navigate } from "./navigation";
 
 test("demo profile, job matching, saved roles and tracking work across reloads", async ({ page }, testInfo) => {
   const errors: string[] = [];
   page.on("pageerror", error => errors.push(error.message));
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Make your next move");
-  await page.getByRole("link", { name: "My profile", exact: true }).click();
+  await navigate(page, "My profile");
   await page.getByLabel("Full name").fill("Test Student");
   await page.getByLabel("Your skills", { exact: true }).fill("React, TypeScript, CSS, Git");
   await page.getByRole("button", { name: "Save profile" }).click();
   await expect(page.getByRole("status")).toContainText("Profile saved");
   await page.reload();
   await expect(page.getByLabel("Full name")).toHaveValue("Test Student");
-  await page.getByRole("link", { name: "Find opportunities", exact: true }).click();
+  await navigate(page, "Find opportunities");
   await page.getByRole("textbox", { name: "Search opportunities" }).fill("Junior Frontend");
   const card = page.locator(".job-card");
   await expect(card).toHaveCount(1);
@@ -22,7 +23,7 @@ test("demo profile, job matching, saved roles and tracking work across reloads",
   await expect(page.getByRole("dialog")).toContainText("100% of listed skills");
   await page.getByRole("button", { name: "Close role details" }).click();
   await card.getByRole("button", { name: "Save Junior Frontend Developer", exact: true }).click();
-  await page.getByRole("link", { name: /^Applications/ }).click();
+  await navigate(page, "Applications");
   await page.getByLabel("Status for Junior Frontend Developer").selectOption("Interview");
   await page.reload();
   await expect(page.getByLabel("Status for Junior Frontend Developer")).toHaveValue("Interview");

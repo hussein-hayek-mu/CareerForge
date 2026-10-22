@@ -1,17 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { AppShell } from "./app-shell";
 import { useState, useSyncExternalStore, useRef, type FormEvent } from "react";
 import { initialWorkspace, jobs, matchSkills, readWorkspace, statuses, type Job, type Workspace } from "@/lib/demo-workspace";
 
 type View = "overview" | "profile" | "jobs" | "applications";
 const storageKey = "careerforge-demo-v1";
-const navigation: { view: View; label: string; href: string; icon: string }[] = [
-  { view: "overview", label: "Overview", href: "/", icon: "▦" },
-  { view: "profile", label: "My profile", href: "/profile", icon: "◎" },
-  { view: "jobs", label: "Find opportunities", href: "/jobs", icon: "▣" },
-  { view: "applications", label: "Applications", href: "/applications", icon: "▤" }
-];
 function subscribe(callback: () => void) {
   window.addEventListener("storage", callback);
   window.addEventListener("careerforge-update", callback);
@@ -79,24 +74,12 @@ export function CareerWorkspace({ view }: { view: View }) {
     </article>;
   }
 
-  return <div className="workspace">
-    <a className="skip-link" href="#main-content">Skip to content</a>
-    <aside className="sidebar">
-      <Link className="brand" href="/"><span className="brand-mark">↗</span>CareerForge<span className="brand-period">.</span></Link>
-      <div className="workspace-label">YOUR WORKSPACE</div>
-      <nav aria-label="Main navigation">{navigation.map(item => <Link key={item.view} href={item.href} className={`nav-item ${view === item.view ? "active" : ""}`} aria-current={view === item.view ? "page" : undefined}><span className="nav-icon" aria-hidden="true">{item.icon}</span>{item.label}{item.view === "applications" && entries.length > 0 && <span className="nav-count">{entries.length}</span>}</Link>)}</nav>
-      <div className="sidebar-note"><span className="little-star">✳</span><h3>Small steps.<br />Real progress.</h3><p>Your next chapter starts with what you do today.</p><Link href="/profile">Build your profile <span>↗</span></Link></div>
-      <div className="sidebar-bottom"><span className="demo-dot" />Interactive demo<span className="version">v0.1</span></div>
-      <Link className="account" href="/profile"><span className="avatar">{initials}</span><span><strong>{profile.name || "Your profile"}</strong><small>Student workspace</small></span><span className="account-arrow">↗</span></Link>
-    </aside>
-    <div className="main-shell">
-      <header className="topbar"><div><span className="breadcrumb">Workspace</span><span className="breadcrumb-slash">/</span><span>{navigation.find(n => n.view === view)?.label}</span></div><span className="demo-badge"><span />Demo workspace</span><Link className="text-button" href="/account">My account ?</Link><Link href="/profile" className="avatar small-avatar" aria-label="Edit your profile">{initials}</Link></header>
-      <main id="main-content" className="main-content">
+  return <AppShell pageTitle={{ overview: "Overview", profile: "My profile", jobs: "Find opportunities", applications: "Applications" }[view]} displayName={profile.name} applicationCount={entries.length}>
         <div className="demo-info">Fictional jobs. Sample profile. Edits stay in this browser; no applications are submitted.</div>
         {notice && <div className="notice" role="status">✓ {notice}<button aria-label="Dismiss notification" onClick={() => setNotice("")}>×</button></div>}
         {view === "overview" && <>
           <div className="page-heading"><div><p className="eyebrow">YOUR NEXT CHAPTER</p><h1>Make your next move<span>.</span></h1><p>A little clarity. A little momentum. A career that feels like you.</p></div><Link className="button primary" href="/jobs">Explore opportunities <span>↗</span></Link></div>
-          <section className="hero-panel"><div className="hero-copy"><span className="hero-label"><span /> A PATH BUILT AROUND YOU</span><h2>Your potential.<br />Meet your possibilities.</h2><p>Connect what you know with where you want to go.<br />Discover roles, spot skill gaps, and take the next step.</p><Link className="button dark" href="/profile">Shape your profile <span>↗</span></Link><span className="hero-footnote">Start with your story. See the connections.</span></div><div className="path-art" aria-hidden="true"><div className="art-orbit orbit-one" /><div className="art-orbit orbit-two" /><div className="art-grid" /><span className="art-star star-one">✳</span><span className="art-star star-two">✦</span><div className="step-block block-one"><b>◎</b><span>Your skills</span></div><div className="step-block block-two"><b>✧</b><span>Your direction</span></div><div className="step-block block-three"><b>↗</b><span>Your next role</span></div><span className="art-caption">THE WAY FORWARD IS YOURS.</span></div></section>
+          <section className="hero-panel"><div className="hero-copy"><span className="hero-label"><span /> A PATH BUILT AROUND YOU</span><h2>Your potential.<br />Meet your possibilities.</h2><p>Connect what you know with where you want to go.<br /> Discover roles, spot skill gaps, and take the next step.</p><Link className="button dark" href="/profile">Shape your profile <span>↗</span></Link><span className="hero-footnote">Start with your story. See the connections.</span></div><div className="path-art" aria-hidden="true"><div className="art-orbit orbit-one" /><div className="art-orbit orbit-two" /><div className="art-grid" /><span className="art-star star-one">✳</span><span className="art-star star-two">✦</span><div className="step-block block-one"><b>◎</b><span>Your skills</span></div><div className="step-block block-two"><b>✧</b><span>Your direction</span></div><div className="step-block block-three"><b>↗</b><span>Your next role</span></div><span className="art-caption">THE WAY FORWARD IS YOURS.</span></div></section>
           <section className="stats-grid" aria-label="Workspace summary">{[{ label: "Profile completeness", value: `${completion}%`, hint: "Give your story a strong foundation", icon: "◎" }, { label: "Your skill toolkit", value: profile.skills.length, hint: "Self-reported skills to build on", icon: "✧" }, { label: "Tracked opportunities", value: entries.length, hint: "Possibilities worth coming back to", icon: "▣" }, { label: "Applications in motion", value: entries.filter(([, s]) => s !== "Saved" && s !== "Rejected").length, hint: "Every step forward counts", icon: "↗" }].map(stat => <article className="stat-card" key={stat.label}><div className="stat-label">{stat.label}<span aria-hidden="true">{stat.icon}</span></div><strong>{stat.value}</strong><p>{stat.hint}</p></article>)}</section>
           <div className="dashboard-columns"><section><div className="section-heading"><div><h2>Possibilities to explore</h2><p>A few example roles connected to your skills.</p></div><Link className="text-button" href="/jobs">View all ↗</Link></div><div className="job-grid compact">{ranked.slice(0, 2).map(jobCard)}</div><div className="matching-note"><span>✧</span><p>Clarity, not guesswork. Matches compare your self-reported skills with each role’s listed skills.</p></div></section><section className="next-step"><span className="eyebrow">YOUR NEXT SMALL STEP</span><h2>Let your work<br />tell your story.</h2><p>A project is more than a line on your profile. It shows how you think, build, and solve problems.</p><div className="step-check"><span>01</span><div><strong>Add a project you’re proud of</strong><small>What did you build? What did you learn?</small></div></div><Link className="text-button" href="/profile">Update your profile ↗</Link></section></div>
         </>}
@@ -117,10 +100,8 @@ export function CareerWorkspace({ view }: { view: View }) {
           <p className="muted-note">This is a personal demo tracker. Changing a status does not submit an application or contact an employer.</p>
         </>}
         <footer className="page-footer"><span>CareerForge <span className="footer-dot">✳</span> A little closer to what’s next.</span><button onClick={() => { if (window.confirm("Reset your demo profile and tracker? This only clears CareerForge demo data in this browser.")) save(initialWorkspace, "Demo workspace reset."); }}>Reset demo</button></footer>
-      </main>
-    </div>
     <dialog ref={dialogRef} className="role-dialog" aria-labelledby="role-title" onCancel={() => triggerRef.current?.focus()} onClick={e => { if (e.target === e.currentTarget) { const rect = e.currentTarget.getBoundingClientRect(); if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) closeRole(); } }}>{selected && <><button className="modal-close" onClick={closeRole} aria-label="Close role details">×</button><span className={`company-mark ${selected.color}`}>{selected.initials}</span><p className="eyebrow">FICTIONAL DEMO OPPORTUNITY</p><h2 id="role-title">{selected.title}</h2><p>{selected.company} · {selected.location}</p><div className="tag-row"><span className="tag">{selected.mode}</span><span className="tag">{selected.type}</span></div><h3>About the role</h3><p>{selected.description}</p><h3>Your skill connection</h3><p>{matchSkills(profile.skills, selected.skills).score}% of listed skills match your self-reported profile.</p><div className="tag-row">{selected.skills.map(skill => <span key={skill} className={`tag ${matchSkills(profile.skills, [skill]).score ? "skill-have" : "skill-missing"}`}>{matchSkills(profile.skills, [skill]).score ? "✓ " : "+ "}{skill}</span>)}</div><p className="muted-note">Green skills are in your profile. Other skills are gaps to explore. No live vacancy or application submission is available.</p><button className="button primary" onClick={() => toggleSaved(selected)}>{workspace.applications[selected.id] ? "Remove from tracker" : "Save opportunity"}</button></>}</dialog>
-  </div>;
+  </AppShell>;
 }
 
 function Bookmark() {
