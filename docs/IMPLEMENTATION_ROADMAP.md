@@ -341,7 +341,11 @@ Correction locally verified: explicitly assert that offline state and its workin
 sign-in link, while preserving configured-suite redirect expectations. Rebuild
 locally with public Supabase values empty before rerunning the production smoke.
 All six corrected cases passed on that fresh offline build, as did lint,
-TypeScript and production build. Remote correction run remains to be checked.
+TypeScript and production build. GitHub run
+[39800105467](https://github.com/hussein-hayek-mu/CareerForge/actions/runs/39800105467)
+completed successfully for pushed commit `2fabbd5`, verifying the corrected Linux
+workflow. P4.2 still includes fresh-setup/live-test lifecycle work; this does not
+complete production deployment or the remaining P4.1 gates.
 
 Offline smoke increment delivered: run existing guest workspace, navigation and
 404 cases against a dedicated production server on port 3200, desktop and mobile.

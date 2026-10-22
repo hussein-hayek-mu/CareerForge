@@ -52,4 +52,8 @@ Correction verification: rebuilt with both public Supabase variables explicitly
 empty in the build process; all six desktop/mobile smoke cases then passed.
 Lint, TypeScript and production build also passed. No app behavior was changed
 or assertion removed: the offline account state and sign-in recovery are now
-tested explicitly. Remote CI must still pass the corrected commit.
+tested explicitly. GitHub run
+[39800105467](https://github.com/hussein-hayek-mu/CareerForge/actions/runs/39800105467)
+completed successfully for exact pushed commit
+`2fabbd52b0dcfc359779fa6adffe383a3d463d39`. This closes the failed offline
+navigation regression and establishes a Linux CI baseline, not hosted readiness.
