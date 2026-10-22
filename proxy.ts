@@ -2,7 +2,14 @@ import { type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 
 export async function proxy(request: NextRequest) {
-  return updateSession(request);
+  const response = await updateSession(request);
+  // These pages can contain account data, including their RSC responses.
+  // Apply after session refresh, which may replace the response object.
+  const path = request.nextUrl.pathname;
+  if (["/", "/account", "/profile", "/jobs", "/applications", "/reset-password"].includes(path) || path.startsWith("/api/v1/") || path === "/auth/callback") {
+    response.headers.set("Cache-Control", "private, no-store");
+  }
+  return response;
 }
 
 export const config = {

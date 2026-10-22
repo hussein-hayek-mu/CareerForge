@@ -19,6 +19,19 @@ test("profile API denies unauthenticated access before reading or saving data", 
   assert.equal((await routes.GET()).status, 401);
   assert.equal((await routes.PUT(request(sample))).status, 401);
 });
+
+test("foreign browser mutations without Origin are denied before accessing private data", async () => {
+  let calls = 0;
+  const routes = profileHandlers(async () => { calls++; return null; });
+  for (const site of ["cross-site", "same-site"]) {
+    const input = new Request("http://localhost:3000/api/v1/profile", { method: "PUT", headers: { "Sec-Fetch-Site": site }, body: JSON.stringify(sample) });
+    assert.equal((await routes.PUT(input)).status, 403);
+  }
+  assert.equal(calls, 0);
+  assert.equal(isSameOrigin(new Request("http://localhost:3000", { headers: { "Sec-Fetch-Site": "same-origin" } })), true);
+  assert.equal(isSameOrigin(new Request("http://localhost:3000")), true);
+  assert.equal(isSameOrigin(new Request("http://localhost:3000", { headers: { Origin: "null" } })), false);
+});
 test("profile API validates inputs, rejects owner/role injection and cross-origin writes", async () => {
   let writes = 0;
   const routes = profileHandlers(async () => ({ read: async () => sample, write: async p => { writes++; return p; } }));

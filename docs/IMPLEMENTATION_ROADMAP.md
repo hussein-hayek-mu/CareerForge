@@ -261,6 +261,16 @@ recorded performance baseline with any exceptions explained.
 
 **P4.1 - Security, privacy and operational readiness. Open.**
 
+First focused review delivered; evidence and remaining gates are in
+[SECURITY_REVIEW.md](SECURITY_REVIEW.md). Foreign browser mutations without Origin
+are denied using Fetch Metadata, and the proxy applies no-store after session
+refresh on account-aware pages/API/callbacks. Lint, TypeScript, 30 local tests and
+production build passed. Production HTTP smoke verified no-store on six pages
+and profile API, anonymous 401, foreign mutations 403 and preserved media caching.
+Production dependency audit reported zero advisories. Owner-scoped providers/RLS
+migrations were inspected; live DB isolation was not rerun. Host trust, distributed
+abuse controls, headers/CSP and operational/privacy gates remain open.
+
 - Review owner access, admin privileges, origin/callback host validation,
   redirects, session cookie/cache behavior, input bounds and dependency risks.
 - Add abuse controls appropriate to exposed auth/mutation routes; provider

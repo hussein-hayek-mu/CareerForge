@@ -15,6 +15,9 @@ export function requestOrigin(request: Request): string {
   return url.origin;
 }
 export function isSameOrigin(request: Request): boolean {
+  // Browsers can omit Origin. Fetch Metadata still identifies foreign initiators.
+  const site = request.headers.get("sec-fetch-site");
+  if (site === "cross-site" || site === "same-site") return false;
   const origin = request.headers.get("origin");
   // Browser mutations must originate from this app, including phone LAN URLs.
   // Non-browser callers without Origin still need valid credentials/session.
