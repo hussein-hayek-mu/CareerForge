@@ -53,9 +53,12 @@ Strictly validate path/query/body fields; reject owner/role/catalog injection.
 TrackerEntry: `{ jobId, status, revision, createdAt, updatedAt, job: Job }`.
 Catalog Job adds `isActive` and `isFictional` to current UI fields. Do not send
 user_id to clients unless a feature requires it. Unknown job identifiers return
-404, malformed payloads 400, anonymous requests 401, inactive new saves 409,
+404, malformed payloads 400, anonymous requests 401, visible inactive saves 409,
 stale revisions 409 and unavailable storage 503. A missing PATCH target is 404.
 Cross-user guesses behave like missing owner entries, never reveal another row.
+An inactive role hidden by catalog RLS also returns 404; the API cannot reveal
+its existence. A job deactivated during insertion returns 409. This preserves
+the database visibility boundary without using a privileged lookup.
 
 First return an existing owner entry unchanged, including an inactive role.
 For a missing entry, create with insert-on-conflict-do-nothing, then read the
@@ -110,3 +113,8 @@ local keys until an explicit user decision. Store no private profile locally.
 P1.1 is a contract, not implemented persistence. P1.2 implements the schema/RLS;
 P1.3 implements endpoints and UI. Future application-agent tables must migrate
 this state deliberately rather than silently reinterpret manual statuses.
+
+P1.3 delivery: signed-in pages now use authenticated jobs/applications APIs.
+Saved roles, status changes and removals persist in Supabase; mutations use
+revision conditions, refresh confirmed state and expose recovery messages.
+Guest storage is unchanged, and earlier account-local saves are not imported.

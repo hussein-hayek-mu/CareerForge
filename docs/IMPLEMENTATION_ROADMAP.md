@@ -36,8 +36,7 @@ Skills remain self-reported. Fictional jobs must stay clearly labeled.
 
 **Done** means implemented with recorded checks. **Partial** means usable but
 with the stated gap. **Open** means work remains. **Deferred** means recorded
-future scope, outside the current release. No work is currently in progress;
-the next functional task is P1.3.
+future scope, outside the current release. No work is currently in progress; the next account task is P2.1.
 
 | ID | Capability | Status | Evidence and remaining boundary |
 | --- | --- | --- | --- |
@@ -48,12 +47,12 @@ the next functional task is P1.3.
 | D05 | Registration/login/logout | Partial | SSR HttpOnly sessions, origin validation, safe API errors, private account screen. Real signup email delivery/callback requires owner verification; recovery flow missing. |
 | D06 | Private profile editing | Done | Validated profile summaries/skills, save/reload, error recovery and cross-user isolation tested. This is not full normalized experience/education CRUD. |
 | D07 | Account-aware workspace | Done | Server verifies session and reads owner profile; dashboard, skill ranking and role gaps use saved data. `/profile` leads signed-in users to `/account`; read failures do not substitute demo data. |
-| D08 | Jobs and transparent matching | Partial | Six static fictional roles, search/work-mode/saved filters, detail dialog, normalized skill matching and missing skills. Database catalog seeded; API/UI integration and admin maintenance remain. |
-| D09 | Saved roles and manual tracker | Partial | Functional local save/remove/status updates; per-account browser keys separate from guest demo. Server tables/RLS exist; API/UI persistence and cross-device sync remain. |
+| D08 | Jobs and transparent matching | Partial | Six database-seeded fictional roles for accounts; static guest catalog, search/work-mode/saved filters, detail dialog and transparent skill gaps. Catalog administration remains deferred. |
+| D09 | Saved roles and manual tracker | Done | Signed-in save/remove/status updates persist in Supabase across sessions/devices with revision conflicts and recovery. Guest tracker stays local; older account-local saves remain unimported. |
 | D10 | Guest demo | Done | Browser-local editable sample profile/tracker, reset, malformed-storage recovery, no sample upload into accounts. |
 | D11 | Shared responsive design | Done | Graphite/chartreuse system, branded SVGs, sidebar collapse preference, mobile drawer, private profile identity and dark auth forms. Further release audit remains required. |
 | D12 | Motion hero | Done | Enhanced original local film with aurora ribbons, orbital trails, forge pulses and sparks; continuous playback while scrolling, hidden-tab pause, playback control, reduced-motion/save-data and poster fallback. |
-| D13 | Automated verification | Partial | 15 local tests; auth/navigation/demo/film browser coverage; live two-account and RLS scripts. No comprehensive production, physical-device or performance validation. |
+| D13 | Automated verification | Partial | 20 local tests; auth/navigation/demo/film browser coverage; live cross-browser tracker, two-account and RLS scripts. No comprehensive production, physical-device or performance validation. |
 | D14 | Hosting and release operations | Open | No verified hosted release, production environment, recovery drill or remote CI result for the latest work. |
 
 Source map: UI in `src/components/`; static jobs/matching in
@@ -109,7 +108,12 @@ to development only; never edit applied migrations or reset shared data.
 Acceptance: constraints reject unknown jobs/statuses/duplicates; both users are
 isolated for every operation; repeated migration/seed runs preserve data.
 
-**P1.3 - Add APIs and connect the UI. Open. Depends on P1.2.**
+**P1.3 - Add APIs and connect the UI. Done.**
+
+Authenticated jobs/applications routes, revision-conditional writes, account UI
+integration, pending controls, refresh/error/conflict recovery and route loading
+are implemented. Cross-browser/phone persistence, two-user isolation, duplicate
+saves, failed writes/refresh recovery and removal passed live development tests.
 
 Authenticated list/save/remove/status endpoints use existing validation,
 same-origin mutation checks, no-store responses and safe errors. Derive owner
@@ -312,7 +316,7 @@ Known limitations and next task:
 | --- | --- |
 | MVP architecture | npm single Next.js app; no separate backend or early native app. |
 | Data boundary | Verified server session + Supabase RLS for private data; guest demo stays explicit. |
-| Next implementation | P1.1 contract and P1.2 database/RLS complete; P1.3 API/UI integration next. |
+| Next implementation | P1 complete; P2.1 real confirmation/session recovery next, then password recovery and onboarding coherence. |
 | Real email flow | Owner verification outstanding; no passwords requested in chat. |
 | Database environment | Use working development connection; recheck direct-host availability only when needed. No secrets in documentation. |
 | Remote release | Latest feature commits are local at this baseline; push/CI/hosting remain separate steps. |
@@ -347,3 +351,23 @@ owner CRUD, both directions of isolation, catalog/column grants, defaults and
 constraints, stale revisions, inactive history, restricted catalog deletion and
 account-deletion cascade; the full test transaction rolled back. No UI/API
 tracker persistence is claimed: P1.3 remains open. No paid services/dependencies.
+
+P1.3 delivery: authenticated `/api/v1/jobs` and `/api/v1/applications`
+list/save/status/remove routes now back the account workspace. Owner IDs are
+server-derived, duplicate saves preserve status, revision conditions prevent
+stale edits/deletes, and database errors are sanitized. Account pages load
+server data; the client refreshes after writes and tab focus, supports explicit
+refresh, blocks pending/uncertain edits and retains last confirmed data on
+failures. Guests remain local; previous account-local keys are preserved without
+automatic import. Inactive roles hidden by RLS return 404 without privileged
+existence checks, documented in TRACKER_CONTRACT.md.
+
+Verification: lint, types, 20 local tests and production build passed; four
+desktop/mobile guest/navigation cases passed; live tests proved two independent
+account sessions share tracker state, phone status persistence/reload/removal,
+duplicate-save preservation, stale edit/delete conflicts, cross-user denial,
+failed write/refresh recovery and anonymous denial after logout. Temporary
+identities/profiles/tracker rows were removed. Desktop/mobile tracker screenshots
+were inspected. Existing RLS checks were previously verified in P1.2; no schema
+changes or paid services/dependencies in this increment. Real signup email,
+physical-phone verification and remote CI/deployment remain unverified.

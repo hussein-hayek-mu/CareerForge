@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { useAccountTracker } from "./use-account-tracker";
+import type { TrackerData } from "@/lib/tracker/schemas";
 import type { AccountProfile } from "@/lib/account/schemas";
 import { AppShell } from "./app-shell";
 import { CareerLaunchpad, ProfileIdentity } from "./career-visuals";
@@ -17,23 +19,15 @@ function subscribe(callback: () => void) {
 function snapshot(key: string) { try { return localStorage.getItem(key); } catch { return null; } }
 function serverSnapshot() { return null; }
 
-function readTracker(raw: string | null): Workspace["applications"] {
-  try {
-    const value: unknown = JSON.parse(raw ?? "{}");
-    if (!value || typeof value !== "object" || Array.isArray(value)) return {};
-    return Object.fromEntries(Object.entries(value).filter(([id, status]) =>
-      jobs.some(job => job.id === id) && statuses.includes(status)
-    ));
-  } catch { return {}; }
-}
-
-export function CareerWorkspace({ view, account }: { view: View; account?: { id: string; profile: AccountProfile } }) {
-  const currentStorageKey = account ? `careerforge-tracker-v1:${account.id}` : storageKey;
-  const raw = useSyncExternalStore(subscribe, () => snapshot(currentStorageKey), serverSnapshot);
+export function CareerWorkspace({ view, account }: { view: View; account?: { id: string; profile: AccountProfile; tracker: TrackerData } }) {
+  const remote = useAccountTracker(account?.tracker);
+  const catalog = remote.data?.jobs ?? jobs;
+  const allJobs = [...new Map([...catalog, ...(remote.data?.applications.map(entry => entry.job) ?? [])].map(job => [job.id, job])).values()];
+  const raw = useSyncExternalStore(subscribe, () => account ? null : snapshot(storageKey), serverSnapshot);
   const [notice, setNotice] = useState("");
   const [temporary, setTemporary] = useState<Workspace | null>(null);
   const workspace = account
-    ? { profile: account.profile, applications: temporary?.applications ?? readTracker(raw) }
+    ? { profile: account.profile, applications: Object.fromEntries((remote.data?.applications ?? []).map(entry => [entry.jobId, entry.status])) }
     : temporary ?? readWorkspace(raw);
   const [query, setQuery] = useState("");
   const [mode, setMode] = useState("All work modes");
@@ -43,14 +37,14 @@ export function CareerWorkspace({ view, account }: { view: View; account?: { id:
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const profile = workspace.profile;
   const entries = Object.entries(workspace.applications);
-  const ranked = [...jobs].sort((a, b) => matchSkills(profile.skills, b.skills).score - matchSkills(profile.skills, a.skills).score);
+  const ranked = [...catalog].sort((a, b) => matchSkills(profile.skills, b.skills).score - matchSkills(profile.skills, a.skills).score);
   const filtered = ranked.filter(job => `${job.title} ${job.company} ${job.location} ${job.skills.join(" ")}`.toLowerCase().includes(query.toLowerCase()) && (mode === "All work modes" || mode === job.mode) && (!savedOnly || !!workspace.applications[job.id]));
   const completion = Math.round([profile.name, profile.headline, profile.location, profile.bio, profile.education, profile.project, profile.skills.length].filter(Boolean).length / 7 * 100);
   const initials = profile.name.split(" ").filter(Boolean).map(n => n[0]).slice(0, 2).join("") || "You";
 
   function save(next: Workspace, message: string) {
     try {
-      localStorage.setItem(currentStorageKey, JSON.stringify(account ? next.applications : next));
+      localStorage.setItem(storageKey, JSON.stringify(next));
       setTemporary(null);
       window.dispatchEvent(new Event("careerforge-update"));
       setNotice(message);
@@ -60,6 +54,7 @@ export function CareerWorkspace({ view, account }: { view: View; account?: { id:
     }
   }
   function toggleSaved(job: Job) {
+    if (account) { void remote.mutate(job.id); return; }
     const applications = { ...workspace.applications };
     if (applications[job.id]) delete applications[job.id];
     else applications[job.id] = "Saved";
@@ -71,6 +66,11 @@ export function CareerWorkspace({ view, account }: { view: View; account?: { id:
     const text = (name: string) => String(fields.get(name) ?? "").trim();
     save({ ...workspace, profile: { name: text("name"), headline: text("headline"), location: text("location"), bio: text("bio"), education: text("education"), project: text("project"), skills: [...new Set(text("skills").split(",").map(s => s.trim()).filter(Boolean))] } }, "Profile saved in this browser. Your skill matches are up to date.");
   }
+  function changeStatus(job: Job, status: (typeof statuses)[number]) {
+    if (account) { void remote.mutate(job.id, status); return; }
+    save({ ...workspace, applications: { ...workspace.applications, [job.id]: status } }, "Application status updated in this browser.");
+  }
+  function busy(id: string) { return !!account && (!!remote.error || remote.pending.includes(id)); }
   function openRole(job: Job, trigger: HTMLButtonElement) {
     triggerRef.current = trigger;
     setSelected(job);
@@ -81,7 +81,7 @@ export function CareerWorkspace({ view, account }: { view: View; account?: { id:
     const match = matchSkills(profile.skills, job.skills);
     const status = workspace.applications[job.id];
     return <article className="job-card" key={job.id}>
-      <div className="job-top"><span className={`company-mark ${job.color}`}>{job.initials}</span><span className="job-company">{job.company}<small>Fictional company</small></span><button className={`icon-button ${status ? "is-saved" : ""}`} aria-label={`${status ? "Remove" : "Save"} ${job.title}`} aria-pressed={!!status} onClick={() => toggleSaved(job)}><Bookmark /></button></div>
+      <div className="job-top"><span className={`company-mark ${job.color}`}>{job.initials}</span><span className="job-company">{job.company}<small>Fictional company</small></span><button className={`icon-button ${status ? "is-saved" : ""}`} aria-label={`${status ? "Remove" : "Save"} ${job.title}`} aria-pressed={!!status} disabled={busy(job.id)} aria-busy={remote.pending.includes(job.id)} onClick={() => toggleSaved(job)}><Bookmark /></button></div>
       <button className="job-title" onClick={e => openRole(job, e.currentTarget)}>{job.title}</button>
       <p className="job-description">{job.description}</p>
       <p className="job-location">⌖ {job.location}</p>
@@ -93,7 +93,10 @@ export function CareerWorkspace({ view, account }: { view: View; account?: { id:
   }
 
   return <AppShell pageTitle={{ overview: "Overview", profile: "My profile", jobs: "Find opportunities", applications: "Applications" }[view]} displayName={profile.name} applicationCount={entries.length} privateAccount={!!account}>
-        <div className={`demo-info ${account ? "account-workspace-info" : ""}`}>{account ? "Matches use your saved account profile. Jobs are fictional. Your tracker stays in this browser; no applications are submitted." : "Fictional jobs. Sample profile. Edits stay in this browser; no applications are submitted."}</div>
+        <div className={`demo-info ${account ? "account-workspace-info" : ""}`}>{account ? "Matches use your saved account profile. Jobs are fictional. Your tracker syncs to your account; no applications are submitted." : "Fictional jobs. Sample profile. Edits stay in this browser; no applications are submitted."}</div>
+        {account && <div className="tracker-sync-info"><p>Your online tracker syncs across devices. Earlier browser-only saves remain on this device and were not imported.</p><button className="text-button" onClick={() => void remote.refresh()}>Refresh opportunities</button></div>}
+        {remote.error && <div className="account-error" role="alert">{remote.error} <Link href="/login">Sign in</Link></div>}
+        {remote.message && <div className="notice" role="status">{remote.message}</div>}
         {notice && <div className="notice" role="status">✓ {notice}<button aria-label="Dismiss notification" onClick={() => setNotice("")}>×</button></div>}
         {view === "overview" && <>
           <div className="page-heading"><div><p className="eyebrow">YOUR NEXT CHAPTER</p><h1>Make your next <em>move.</em></h1><p>Build the skills. Find your direction. Ship your next chapter.</p></div><Link className="button primary" href="/jobs">Explore opportunities <span>↗</span></Link></div>
@@ -102,7 +105,7 @@ export function CareerWorkspace({ view, account }: { view: View; account?: { id:
           <div className="dashboard-columns"><section><div className="section-heading"><div><h2>Possibilities to explore</h2><p>A few example roles connected to your skills.</p></div><Link className="text-button" href="/jobs">View all ↗</Link></div><div className="job-grid compact">{ranked.slice(0, 2).map(jobCard)}</div><div className="matching-note"><span>✧</span><p>Clarity, not guesswork. Matches compare your self-reported skills with each role’s listed skills.</p></div></section><section className="next-step"><span className="eyebrow">YOUR NEXT SMALL STEP</span><h2>Let your work<br />tell your story.</h2><p>A project is more than a line on your profile. It shows how you think, build, and solve problems.</p><div className="step-check"><span>01</span><div><strong>Add a project you’re proud of</strong><small>What did you build? What did you learn?</small></div></div><Link className="text-button" href={account ? "/account" : "/profile"}>Update your profile ↗</Link></section></div>
         </>}
         {view === "jobs" && <>
-          <div className="page-heading"><div><p className="eyebrow">FIND YOUR DIRECTION</p><h1>Good things ahead<span>.</span></h1><p>Explore example roles and see where your skills connect.</p></div><span className="outline-label">{jobs.length} demo opportunities</span></div>
+          <div className="page-heading"><div><p className="eyebrow">FIND YOUR DIRECTION</p><h1>Good things ahead<span>.</span></h1><p>Explore example roles and see where your skills connect.</p></div><span className="outline-label">{catalog.length} demo opportunities</span></div>
           <div className="filter-bar"><label className="search-input"><span aria-hidden="true">⌕</span><input aria-label="Search opportunities" placeholder="Search a role, skill, or location" value={query} onChange={e => setQuery(e.target.value)} /></label><select aria-label="Work mode" value={mode} onChange={e => setMode(e.target.value)}>{["All work modes", "Remote", "Hybrid", "On-site"].map(m => <option key={m}>{m}</option>)}</select><label className="checkbox-label"><input type="checkbox" checked={savedOnly} onChange={e => setSavedOnly(e.target.checked)} />Saved only</label></div>
           <div className="results-heading"><span>{filtered.length} opportunities</span><span>Sorted by skill match</span></div><div className="job-grid">{filtered.map(jobCard)}</div>{!filtered.length && <div className="empty-state"><h2>No opportunities found</h2><p>Try a different search or save a role to see it here.</p><button className="button primary" onClick={() => { setQuery(""); setMode("All work modes"); setSavedOnly(false); }}>Clear filters</button></div>}
           <p className="muted-note">Skill match = matched required skills ÷ listed required skills. This is a demo comparison, not a hiring prediction.</p>
@@ -114,11 +117,11 @@ export function CareerWorkspace({ view, account }: { view: View; account?: { id:
         {view === "applications" && <>
           <div className="page-heading"><div><p className="eyebrow">ONE STEP AT A TIME</p><h1>Keep things moving<span>.</span></h1><p>A little organization for your next big opportunity.</p></div><Link href="/jobs" className="button primary">Find a role ↗</Link></div>
           <div className="pipeline">{statuses.map(status => <div key={status}><span className={`status-dot status-${status.toLowerCase()}`} /><span>{status}</span><strong>{entries.filter(([, s]) => s === status).length}</strong></div>)}</div>
-          {entries.length ? <section className="panel tracker"><div className="section-heading"><div><h2>Your opportunities</h2><p>Update statuses manually as your search progresses.</p></div></div>{jobs.filter(j => workspace.applications[j.id]).map(job => <article className="tracker-row" key={job.id}><span className={`company-mark ${job.color}`}>{job.initials}</span><div className="tracker-role"><button className="job-title" onClick={e => openRole(job, e.currentTarget)}>{job.title}</button><p>{job.company} · {job.location}</p></div><label className="status-select"><span className="sr-only">Status for {job.title}</span><select value={workspace.applications[job.id]} onChange={e => save({ ...workspace, applications: { ...workspace.applications, [job.id]: e.target.value as (typeof statuses)[number] } }, "Application status updated in this browser.")}>{statuses.map(status => <option key={status}>{status}</option>)}</select></label><button className="remove-button" onClick={() => toggleSaved(job)} aria-label={`Remove ${job.title} from tracker`}>×</button></article>)}</section> : <div className="empty-state"><span className="empty-icon">↗</span><h2>Your next chapter is still unwritten.</h2><p>Save an opportunity that catches your eye.<br />Keep track of every next step right here.</p><Link href="/jobs" className="button primary">Explore opportunities ↗</Link></div>}
+          {entries.length ? <section className="panel tracker"><div className="section-heading"><div><h2>Your opportunities</h2><p>Update statuses manually as your search progresses.</p></div></div>{allJobs.filter(j => workspace.applications[j.id]).map(job => <article className="tracker-row" key={job.id}><span className={`company-mark ${job.color}`}>{job.initials}</span><div className="tracker-role"><button className="job-title" onClick={e => openRole(job, e.currentTarget)}>{job.title}</button><p>{job.company} · {job.location}{"isActive" in job && !job.isActive ? " · No longer active" : ""}</p></div><label className="status-select"><span className="sr-only">Status for {job.title}</span><select value={workspace.applications[job.id]} disabled={busy(job.id)} onChange={e => changeStatus(job, e.target.value as (typeof statuses)[number])}>{statuses.map(status => <option key={status}>{status}</option>)}</select></label><button className="remove-button" disabled={busy(job.id)} onClick={() => toggleSaved(job)} aria-label={`Remove ${job.title} from tracker`}>×</button></article>)}</section> : <div className="empty-state"><span className="empty-icon">↗</span><h2>Your next chapter is still unwritten.</h2><p>Save an opportunity that catches your eye.<br />Keep track of every next step right here.</p><Link href="/jobs" className="button primary">Explore opportunities ↗</Link></div>}
           <p className="muted-note">This is a personal demo tracker. Changing a status does not submit an application or contact an employer.</p>
         </>}
         <footer className="page-footer"><span>CareerForge <span className="footer-dot">✳</span> A little closer to what’s next.</span>{!account && <button onClick={() => { if (window.confirm("Reset your demo profile and tracker? This only clears CareerForge demo data in this browser.")) save(initialWorkspace, "Demo workspace reset."); }}>Reset demo</button>}</footer>
-    <dialog ref={dialogRef} className="role-dialog" aria-labelledby="role-title" onCancel={() => triggerRef.current?.focus()} onClick={e => { if (e.target === e.currentTarget) { const rect = e.currentTarget.getBoundingClientRect(); if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) closeRole(); } }}>{selected && <><button className="modal-close" onClick={closeRole} aria-label="Close role details">×</button><span className={`company-mark ${selected.color}`}>{selected.initials}</span><p className="eyebrow">FICTIONAL DEMO OPPORTUNITY</p><h2 id="role-title">{selected.title}</h2><p>{selected.company} · {selected.location}</p><div className="tag-row"><span className="tag">{selected.mode}</span><span className="tag">{selected.type}</span></div><h3>About the role</h3><p>{selected.description}</p><h3>Your skill connection</h3><p>{matchSkills(profile.skills, selected.skills).score}% of listed skills match your self-reported profile.</p><div className="tag-row">{selected.skills.map(skill => <span key={skill} className={`tag ${matchSkills(profile.skills, [skill]).score ? "skill-have" : "skill-missing"}`}>{matchSkills(profile.skills, [skill]).score ? "✓ " : "+ "}{skill}</span>)}</div><p className="muted-note">Green skills are in your profile. Other skills are gaps to explore. No live vacancy or application submission is available.</p><button className="button primary" onClick={() => toggleSaved(selected)}>{workspace.applications[selected.id] ? "Remove from tracker" : "Save opportunity"}</button></>}</dialog>
+    <dialog ref={dialogRef} className="role-dialog" aria-labelledby="role-title" onCancel={() => triggerRef.current?.focus()} onClick={e => { if (e.target === e.currentTarget) { const rect = e.currentTarget.getBoundingClientRect(); if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) closeRole(); } }}>{selected && <><button className="modal-close" onClick={closeRole} aria-label="Close role details">×</button><span className={`company-mark ${selected.color}`}>{selected.initials}</span><p className="eyebrow">FICTIONAL DEMO OPPORTUNITY</p><h2 id="role-title">{selected.title}</h2><p>{selected.company} · {selected.location}</p><div className="tag-row"><span className="tag">{selected.mode}</span><span className="tag">{selected.type}</span></div><h3>About the role</h3><p>{selected.description}</p><h3>Your skill connection</h3><p>{matchSkills(profile.skills, selected.skills).score}% of listed skills match your self-reported profile.</p><div className="tag-row">{selected.skills.map(skill => <span key={skill} className={`tag ${matchSkills(profile.skills, [skill]).score ? "skill-have" : "skill-missing"}`}>{matchSkills(profile.skills, [skill]).score ? "✓ " : "+ "}{skill}</span>)}</div><p className="muted-note">Green skills are in your profile. Other skills are gaps to explore. No live vacancy or application submission is available.</p><button className="button primary" disabled={busy(selected.id)} onClick={() => toggleSaved(selected)}>{workspace.applications[selected.id] ? "Remove from tracker" : "Save opportunity"}</button></>}</dialog>
   </AppShell>;
 }
 

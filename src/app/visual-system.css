@@ -137,3 +137,7 @@ h1 { font-size: clamp(34px, 3.5vw, 55px); font-weight: 550; line-height: 1.13; l
 }
 
 .account-workspace-info::before { content: 'YOUR WORKSPACE / '; }
+
+.tracker-sync-info { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 12px 0; font-size: 11px; color: #a9b59e; flex-wrap: wrap; }
+.tracker-sync-info p { margin: 0; max-width: 700px; line-height: 1.6; }
+button:disabled, select:disabled { opacity: .55; cursor: wait; }

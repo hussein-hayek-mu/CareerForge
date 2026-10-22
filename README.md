@@ -74,8 +74,10 @@ URL when the direct hostname is unavailable. Never edit an applied SQL migration
 Visit `/register` to create your own account, `/login` to sign in, and `/account`
 to edit your private profile. The real account never imports sample profile data.
 Jobs remain fictional. Signed-in dashboards and matches use the saved account
-profile; saved roles and application statuses still persist only in this
-browser, separately for each account. Guests retain the local sample workspace.
+profile. Saved roles and application statuses persist in Supabase and sync
+across browsers/devices on navigation, refresh or tab focus. Guests retain the
+local sample workspace. Earlier account-local saves are preserved in browser
+storage but are not automatically imported into the online tracker.
 
 In Supabase **Authentication → URL Configuration**, allow
 `http://localhost:3000/auth/callback` for email confirmation. For testing signup
@@ -147,19 +149,21 @@ confirmation screen at desktop and phone widths. It reuses a running dev server.
 
 `test:rls` uses a rolled-back database transaction to check profile and tracker
 ownership, protected fields, catalog permissions, stale revisions, inactive
-history and deletion rules. The jobs/tracker tables are a database foundation;
-the UI tracker still uses browser storage until roadmap task P1.3.
+history and deletion rules. Signed-in jobs and tracker screens use these tables
+through authenticated APIs; failed reads never substitute guest demo data.
 `test:account:live` requires
 the dev server and development database; it creates two temporary confirmed
 `@careerforge.invalid` identities, verifies real login, cookie flags, persistence,
 isolation, and logout, then deletes those identities and their profile data.
+It also verifies cross-browser/phone tracker persistence, duplicate saves,
+stale-edit conflicts, failed writes/refresh recovery and removal.
 Never run this live test against production. No test signup emails are sent.
 
 ## Pending
 
 - Confirm real signup email delivery and callback allowlists for each teammate.
-- Persist saved jobs and application statuses in Supabase; matching already
-  uses the authenticated user's saved profile.
+- Complete account recovery, confirmation error/resend flows and onboarding
+  coherence; profile, matching and tracker persistence are implemented.
 - Expand education/project summaries into normalized records when their editing
   contracts are agreed. Skills remain self-reported.
 - Add password recovery and deployment configuration before a public release.

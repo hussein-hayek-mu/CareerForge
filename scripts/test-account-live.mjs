@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { verifyTrackerLive } from "./verify-tracker-live.mjs";
 import { randomUUID } from "node:crypto";
 import { mkdir } from "node:fs/promises";
 import nextEnv from "@next/env";
@@ -84,6 +85,7 @@ try {
   const frontend = a.page.locator(".job-card").filter({ has: a.page.getByRole("button", { name: "Junior Frontend Developer", exact: true }) });
   await expect(frontend).toContainText("25% skill match");
   await a.page.getByRole("button", { name: "Save Junior Frontend Developer", exact: true }).click();
+  await expect(a.page.getByRole("status")).toContainText("saved to your account tracker");
   await a.page.goto("/applications");
   await expect(a.page.locator(".tracker-row")).toHaveCount(1);
   await a.page.goto("/profile");
@@ -115,6 +117,12 @@ try {
   await expect(b.page.locator(".tracker-row")).toHaveCount(0);
   await b.page.goto("/account");
 
+  stage = "cross-browser tracker verification";
+  const second = await signIn(users[0], phone);
+  stage = "cross-browser tracker verification";
+  currentPage = a.page;
+  await verifyTrackerLive({ a, b, second, userB: users[1].id });
+
   stage = "save failure recovery";
   await a.page.route("**/api/v1/profile", route => route.request().method() === "PUT"
     ? route.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ error: { message: "Temporary test outage" } }) }) : route.continue());
@@ -128,6 +136,7 @@ try {
   await a.page.getByRole("button", { name: "Sign out", exact: true }).click();
   await expect(a.page).toHaveURL(`${baseURL}/login`);
   assert.equal((await a.context.request.get("/api/v1/profile")).status(), 401);
+  assert.equal((await a.context.request.get("/api/v1/applications")).status(), 401);
   await a.page.goto("/account");
   await expect(a.page).toHaveURL(`${baseURL}/login`);
   await b.page.getByRole("button", { name: "Sign out", exact: true }).click();
@@ -136,6 +145,7 @@ try {
   console.log("PASS: real login, HttpOnly sessions, Supabase persistence, two-user isolation, phone layout, save-error recovery, logout, anonymous denial");
 } catch (error) {
   console.error("Live account verification failed at", stage, "(", error.code ?? error.name, ")");
+  if (error.name === "Error") console.error(error.message);
   if (currentPage) {
     console.error("Visible account state:", await currentPage.getByRole("heading", { level: 1 }).allTextContents().catch(() => []));
     console.error("Form message:", await currentPage.getByRole("alert").allTextContents().catch(() => []));
@@ -143,11 +153,11 @@ try {
   }
   process.exitCode = 1;
 } finally {
-  await browser?.close();
   await db.query("rollback").catch(() => {});
   try {
     await db.query("delete from auth.users where id = any($1::uuid[])", [users.map(u => u.id)]);
     console.log("Temporary live-test accounts and profiles removed.");
   } catch { console.error("Test cleanup failed; inspect reserved @careerforge.invalid test accounts."); process.exitCode = 1; }
   await db.end().catch(() => {});
+  await browser?.close();
 }
