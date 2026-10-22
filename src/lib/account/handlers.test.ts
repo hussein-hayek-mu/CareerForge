@@ -6,6 +6,18 @@ import { emptyProfile, profileFromRow, profileSchema, profileToRow } from "./sch
 import { isSameOrigin, requestOrigin } from "./http";
 
 const sample = { ...emptyProfile, name: "User A", skills: ["React"] };
+test("limited profile writes use verified identity, retain read access and perform no writes", async () => {
+  let writes = 0;
+  const handler = profileHandlers(async () => ({ userId: "verified-owner", read: async () => sample, write: async p => { writes++; return p; } }), (scope, id) => {
+    assert.equal(scope, "profile"); assert.equal(id, "verified-owner"); return 20;
+  });
+  const response = await handler.PUT(request(sample));
+  assert.equal(response.status, 429);
+  assert.equal(response.headers.get("Retry-After"), "20");
+  assert.equal(response.headers.get("Cache-Control"), "no-store");
+  assert.equal(writes, 0);
+  assert.equal((await handler.GET()).status, 200);
+});
 const request = (body: unknown, origin = "http://localhost:3000") => new Request("http://localhost:3000/api/v1/profile", { method: "PUT", headers: { "Content-Type": "application/json", Origin: origin }, body: JSON.stringify(body) });
 test("origin validation accepts the real LAN Host while rejecting cross-origin writes", () => {
   const lan = new Request("http://0.0.0.0:3000/api/v1/profile", { headers: { Host: "192.168.10.133:3000", Origin: "http://192.168.10.133:3000" } });
@@ -34,7 +46,7 @@ test("foreign browser mutations without Origin are denied before accessing priva
 });
 test("profile API validates inputs, rejects owner/role injection and cross-origin writes", async () => {
   let writes = 0;
-  const routes = profileHandlers(async () => ({ read: async () => sample, write: async p => { writes++; return p; } }));
+  const routes = profileHandlers(async () => ({ userId: "test-owner", read: async () => sample, write: async p => { writes++; return p; } }));
   for (const body of [{ ...sample, id: "user-b" }, { ...sample, user_id: "user-b" }, { ...sample, role: "admin" }, { ...sample, name: "" }, { ...sample, skills: Array(41).fill("SQL") }, { ...sample, skills: ["x".repeat(61)] }]) {
     assert.equal((await routes.PUT(request(body))).status, 400);
   }
@@ -43,7 +55,7 @@ test("profile API validates inputs, rejects owner/role injection and cross-origi
 });
 test("profile API returns normalized private data and never caches it", async () => {
   let stored = sample;
-  const routes = profileHandlers(async () => ({ read: async () => stored, write: async p => { stored = p; return p; } }));
+  const routes = profileHandlers(async () => ({ userId: "test-owner", read: async () => stored, write: async p => { stored = p; return p; } }));
   const saved = await routes.PUT(request({ ...sample, skills: [" React ", "react", "SQL"] }));
   assert.equal(saved.status, 200);
   assert.deepEqual((await saved.json()).profile.skills, ["react", "SQL"]);

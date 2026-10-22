@@ -261,6 +261,14 @@ recorded performance baseline with any exceptions explained.
 
 **P4.1 - Security, privacy and operational readiness. Open.**
 
+Private-write controls delivered: process-local budgets keyed to server-verified
+user IDs, profile 30/minute and tracker mutations 60/minute. Validate first, deny
+before storage writes, preserve read access and existing ownership/CAS rules.
+Verified no writes on 429, Retry-After/no-store, independent users/scopes,
+and normal request regressions. Lint, TypeScript, 43 tests and production build
+passed. Live DB/UI checks were not rerun for this increment. Distributed controls remain
+a deployment gate; no additional service or migration is required for this pass.
+
 Supplementary abuse-control increment delivered: process-local per-email login
 (10/10 minutes) and registration (3/hour) budgets; existing recovery cooldown
 now rejects new keys at capacity without evicting active protection. Limited

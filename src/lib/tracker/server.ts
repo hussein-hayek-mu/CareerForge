@@ -16,6 +16,7 @@ export function trackerAccess(client: SupabaseClient, userId: string): TrackerAc
     return data ? trackerEntry(data) : null;
   }
   return {
+    userId,
     async jobs() {
       const { data, error } = await client.from("job_postings").select("*").eq("is_active", true).order("id");
       if (error) throw error;

@@ -9,6 +9,7 @@ export async function authorizeProfile(): Promise<ProfileAccess | null> {
   // Use the authenticated Supabase client so Postgres RLS remains active.
   // Prisma's direct database connection is intentionally not used here.
   return {
+    userId: user.id,
     async read() {
       const { data, error } = await supabase.from("profiles").select("full_name,headline,location,bio,education_summary,project_summary,self_reported_skills").eq("id", user.id).maybeSingle();
       if (error) throw new Error("Profile read failed");

@@ -150,7 +150,7 @@ who knows another email can exhaust its local budget; do not treat this as an
 account lock or identity proof. Unknown-email flooding can exhaust store capacity
 and temporarily deny new keys. Deployment-level trusted-client/network limits,
 bot controls where appropriate and provider limits are still needed before a
-public launch. Private profile/tracker write limits remain a separate open item.
+public launch. Private profile/tracker limits are recorded in the next section.
 
 Verification: lint, TypeScript and production build passed; the expanded suite
 passed all 40 tests. New tests cover exact policies, normalized keys, independent
@@ -158,3 +158,29 @@ scopes, time boundaries, saturation without eviction, provider-call denial,
 Retry-After/no-store and unrestricted logout. No real auth attempts, emails,
 database changes, new dependencies or paid services were required. Browser/UI
 tests were not rerun for this server-side increment.
+
+## Verified-user write budgets
+
+The authenticated access objects now carry the verified server-side user ID.
+Profile writes allow 30 validated attempts per minute, tracker save/update/remove
+share 60 per minute. The shared bounded limiter hashes owner keys and separates
+profile/tracker scopes. Request bodies cannot select a budget owner: existing
+strict schemas reject injected user IDs. Each valid attempt counts, including
+conflicts or storage failures, since it can perform database work.
+
+Origin checks and authentication precede validation; valid input then consumes
+the owner's budget before any data operation. Exhaustion returns no-store 429
+with Retry-After. Reads remain available and are not charged. Owner RLS and CAS
+checks are unchanged. The client receives the existing safe API error path.
+
+These controls are process-local and do not limit direct authenticated Supabase
+requests permitted by RLS. They supplement server mutation protection, not a
+database-wide or distributed quota. Target-host edge limits, slow-body controls
+and live account/history verification remain release gates.
+
+Verification: lint, TypeScript, 43 local tests and production build passed.
+Regressions cover denied profile/tracker writes without storage calls, verified
+owner selection, Retry-After/no-store, reads during exhaustion, separate users
+and scopes, and exact policy thresholds. Existing normal write, revision,
+validation and anonymous-denial tests passed. No live database/UI tests were
+rerun for this pass; no emails, schema changes or dependencies were introduced.

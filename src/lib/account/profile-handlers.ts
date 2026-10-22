@@ -1,12 +1,14 @@
 import { failure, isSameOrigin, json } from "./http";
 import { readBoundedJson } from "./request-body";
+import { privateWriteLimit } from "./attempt-limit";
 import { profileSchema, type AccountProfile } from "./schemas";
 
 export type ProfileAccess = {
+  userId: string;
   read: () => Promise<AccountProfile | null>;
   write: (profile: AccountProfile) => Promise<AccountProfile>;
 };
-export function profileHandlers(authorize: () => Promise<ProfileAccess | null>) {
+export function profileHandlers(authorize: () => Promise<ProfileAccess | null>, limit = privateWriteLimit) {
   return {
     async GET() {
       try {
@@ -24,6 +26,12 @@ export function profileHandlers(authorize: () => Promise<ProfileAccess | null>) 
         if (!access) return failure("UNAUTHORIZED", "Sign in to update your profile.", 401);
         const result = profileSchema.safeParse(await readBoundedJson(request, 32768));
         if (!result.success) return failure("INVALID_INPUT", "Check your profile fields. A name is required; use at most 40 skills of 60 characters each.", 400);
+        const wait = limit("profile", access.userId);
+        if (wait) {
+          const response = failure("RATE_LIMITED", "Too many profile updates. Please wait and retry.", 429);
+          response.headers.set("Retry-After", String(wait));
+          return response;
+        }
         return json({ profile: await access.write(result.data) });
       } catch { return failure("PROFILE_UNAVAILABLE", "Your profile could not be saved. Please try again.", 503); }
     }

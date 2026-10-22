@@ -21,7 +21,7 @@ const bytes = (text: string) => new TextEncoder().encode(text);
 test("maximum-length Unicode profile remains accepted within the profile byte limit", async () => {
   const profile = { name: "界".repeat(100), headline: "界".repeat(160), location: "界".repeat(120), bio: "界".repeat(1000), education: "界".repeat(240), project: "界".repeat(1000), skills: Array.from({ length: 40 }, (_, i) => `${i}` + "界".repeat(58)) };
   let saved = false;
-  const handler = profileHandlers(async () => ({ read: async () => profile, write: async value => { saved = true; return value; } }));
+  const handler = profileHandlers(async () => ({ userId: "test-owner", read: async () => profile, write: async value => { saved = true; return value; } }));
   const encoded = JSON.stringify(profile).replace(/界/g, "\\u754c");
   assert.ok(bytes(encoded).length < 32768);
   assert.equal((await handler.PUT(streamed([bytes(encoded)]).request)).status, 200);
@@ -56,8 +56,8 @@ test("malformed JSON, invalid UTF-8 and broken streams return invalid input", as
 
 test("auth, recovery, profile and tracker reject oversized bodies without performing operations", async () => {
   const forbidden = async (): Promise<never> => { assert.fail("Oversized input must not perform a data operation"); };
-  const profile = profileHandlers(async () => ({ read: forbidden, write: forbidden }));
-  const tracker = trackerHandlers(async () => ({ jobs: forbidden, list: forbidden, save: forbidden, update: forbidden, remove: forbidden }));
+  const profile = profileHandlers(async () => ({ userId: "test-owner", read: forbidden, write: forbidden }));
+  const tracker = trackerHandlers(async () => ({ userId: "test-owner", jobs: forbidden, list: forbidden, save: forbidden, update: forbidden, remove: forbidden }));
   for (const handler of [authHandler("login", forbidden), authHandler("register", forbidden), recoveryHandler("forgot", forbidden), recoveryHandler("resend", forbidden), recoveryHandler("password", forbidden), profile.PUT, tracker.POST, (r: Request) => tracker.PATCH(r, "1"), (r: Request) => tracker.DELETE(r, "1")]) {
     const input = streamed([bytes(" ".repeat(33000)), bytes("never consumed")]);
     const response = await handler(input.request);

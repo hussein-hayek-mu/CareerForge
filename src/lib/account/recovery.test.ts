@@ -4,11 +4,19 @@ import { recoveryHandler, emailCooldown, type RecoveryProvider } from "./recover
 import { callbackHandler } from "./callback-handler";
 import { authHandler, type AuthProvider } from "./auth-handlers";
 import { requestOrigin, isSameOrigin } from "./http";
-import { createAttemptLimit, credentialLimit } from "./attempt-limit";
+import { createAttemptLimit, credentialLimit, privateWriteLimit } from "./attempt-limit";
 
 const request = (body: unknown, origin = "http://localhost:3000") => new Request("http://localhost:3000/api/v1/auth/forgot-password", { method: "POST", headers: { "Content-Type": "application/json", Origin: origin }, body: JSON.stringify(body) });
 const provider: RecoveryProvider = { resend: async () => ({ error: null }), forgot: async () => ({ error: null }), changePassword: async () => ({ error: null }) };
 const noLimit = () => 0;
+test("private write budgets isolate verified users and profile/tracker scopes", () => {
+  for (let i = 0; i < 30; i++) assert.equal(privateWriteLimit("profile", "write-budget-owner-a"), 0);
+  assert.ok(privateWriteLimit("profile", "write-budget-owner-a") > 0);
+  assert.equal(privateWriteLimit("profile", "write-budget-owner-b"), 0);
+  for (let i = 0; i < 60; i++) assert.equal(privateWriteLimit("tracker", "write-budget-owner-a"), 0);
+  assert.ok(privateWriteLimit("tracker", "write-budget-owner-a") > 0);
+  assert.equal(privateWriteLimit("tracker", "write-budget-owner-b"), 0);
+});
 
 test("attempt limits normalize email, isolate scopes and expire at the window boundary", () => {
   const limit = createAttemptLimit(3);

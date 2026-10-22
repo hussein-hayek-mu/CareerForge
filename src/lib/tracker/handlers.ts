@@ -1,18 +1,27 @@
 import { failure, isSameOrigin, json } from "@/lib/account/http";
 import { readBoundedJson } from "@/lib/account/request-body";
+import { privateWriteLimit } from "@/lib/account/attempt-limit";
 import { filtersSchema, jobIdSchema, revisionSchema, saveSchema, statusSchema, type TrackerEntry, type CatalogJob } from "./schemas";
 
 export class TrackerError extends Error {
   constructor(public code: string, message: string, public status: number) { super(message); }
 }
 export type TrackerAccess = {
+  userId: string;
   jobs: () => Promise<CatalogJob[]>;
   list: () => Promise<TrackerEntry[]>;
   save: (id: string) => Promise<{ application: TrackerEntry; created: boolean }>;
   update: (id: string, revision: string, status: TrackerEntry["status"]) => Promise<TrackerEntry>;
   remove: (id: string, revision: string) => Promise<void>;
 };
-export function trackerHandlers(authorize: () => Promise<TrackerAccess | null>) {
+export function trackerHandlers(authorize: () => Promise<TrackerAccess | null>, limit = privateWriteLimit) {
+  function limited(access: TrackerAccess) {
+    const wait = limit("tracker", access.userId);
+    if (!wait) return null;
+    const response = failure("RATE_LIMITED", "Too many opportunity updates. Please wait and retry.", 429);
+    response.headers.set("Retry-After", String(wait));
+    return response;
+  }
   async function run(request: Request, action: (access: TrackerAccess) => Promise<Response>) {
     if (request.method !== "GET" && !isSameOrigin(request)) return failure("FORBIDDEN", "This request must come from CareerForge.", 403);
     try {
@@ -44,17 +53,23 @@ export function trackerHandlers(authorize: () => Promise<TrackerAccess | null>) 
     POST: (request: Request) => run(request, async access => {
       const parsed = saveSchema.safeParse(await body(request));
       if (!parsed.success) return invalid();
+      const denied = limited(access);
+      if (denied) return denied;
       const result = await access.save(parsed.data.jobId);
       return json({ application: result.application }, result.created ? 201 : 200);
     }),
     PATCH: (request: Request, id: string) => run(request, async access => {
       const parsed = statusSchema.safeParse(await body(request));
       if (!jobIdSchema.safeParse(id).success || !parsed.success) return invalid();
+      const denied = limited(access);
+      if (denied) return denied;
       return json({ application: await access.update(id, parsed.data.revision, parsed.data.status) });
     }),
     DELETE: (request: Request, id: string) => run(request, async access => {
       const parsed = revisionSchema.safeParse(await body(request));
       if (!jobIdSchema.safeParse(id).success || !parsed.success) return invalid();
+      const denied = limited(access);
+      if (denied) return denied;
       await access.remove(id, parsed.data.revision);
       return new Response(null, { status: 204, headers: { "Cache-Control": "no-store", Vary: "Cookie, Authorization" } });
     })

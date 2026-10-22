@@ -5,8 +5,22 @@ import { trackerHandlers, TrackerError, type TrackerAccess } from "./handlers";
 
 const job = { ...jobs[0], isActive: true, isFictional: true };
 const entry = { jobId: "1", status: "Interview" as const, revision: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa", createdAt: "2026-10-22", updatedAt: "2026-10-22", job };
+test("limited tracker writes share an owner budget while reads remain available", async () => {
+  let writes = 0;
+  const fail = async (): Promise<never> => { writes++; throw new Error("Must not write"); };
+  const handler = trackerHandlers(async () => access({ userId: "verified-owner", save: fail, update: fail, remove: fail }), (scope, id) => {
+    assert.equal(scope, "tracker"); assert.equal(id, "verified-owner"); return 15;
+  });
+  for (const response of [await handler.POST(request("POST", { jobId: "1" })), await handler.PATCH(request("PATCH", { revision: entry.revision, status: "Offer" }), "1"), await handler.DELETE(request("DELETE", { revision: entry.revision }), "1")]) {
+    assert.equal(response.status, 429);
+    assert.equal(response.headers.get("Retry-After"), "15");
+    assert.equal(response.headers.get("Cache-Control"), "no-store");
+  }
+  assert.equal(writes, 0);
+  assert.equal((await handler.GET(request("GET"))).status, 200);
+});
 function access(overrides: Partial<TrackerAccess> = {}): TrackerAccess {
-  return { jobs: async () => [job], list: async () => [entry], save: async () => ({ application: entry, created: false }), update: async () => entry, remove: async () => {}, ...overrides };
+  return { userId: "tracker-test-owner", jobs: async () => [job], list: async () => [entry], save: async () => ({ application: entry, created: false }), update: async () => entry, remove: async () => {}, ...overrides };
 }
 function request(method: string, body?: unknown, headers = {}) {
   return new Request("http://localhost/api/v1/applications", { method, headers: { "Content-Type": "application/json", ...headers }, ...(body === undefined ? {} : { body: JSON.stringify(body) }) });
