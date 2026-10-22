@@ -261,6 +261,15 @@ recorded performance baseline with any exceptions explained.
 
 **P4.1 - Security, privacy and operational readiness. Open.**
 
+Supplementary abuse-control increment delivered: process-local per-email login
+(10/10 minutes) and registration (3/hour) budgets; existing recovery cooldown
+now rejects new keys at capacity without evicting active protection. Limited
+requests return no-store 429/Retry-After before provider calls; logout remains
+available. Lint, TypeScript, 40 local tests and production build passed. No real
+auth attempts/mail sent. Distributed/edge controls and private-write limits
+remain required; process-local limits reset on restart and differ per instance.
+See SECURITY_REVIEW.md for capacity and denial-of-service limitations.
+
 Bounded-body increment delivered: shared streaming JSON reader for credential,
 recovery, profile and tracker payloads enforces byte limits without Content-Length,
 cancels early on overflow and rejects invalid/truncated input safely. Existing

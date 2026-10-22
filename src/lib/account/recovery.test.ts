@@ -4,10 +4,51 @@ import { recoveryHandler, emailCooldown, type RecoveryProvider } from "./recover
 import { callbackHandler } from "./callback-handler";
 import { authHandler, type AuthProvider } from "./auth-handlers";
 import { requestOrigin, isSameOrigin } from "./http";
+import { createAttemptLimit, credentialLimit } from "./attempt-limit";
 
 const request = (body: unknown, origin = "http://localhost:3000") => new Request("http://localhost:3000/api/v1/auth/forgot-password", { method: "POST", headers: { "Content-Type": "application/json", Origin: origin }, body: JSON.stringify(body) });
 const provider: RecoveryProvider = { resend: async () => ({ error: null }), forgot: async () => ({ error: null }), changePassword: async () => ({ error: null }) };
 const noLimit = () => 0;
+
+test("attempt limits normalize email, isolate scopes and expire at the window boundary", () => {
+  const limit = createAttemptLimit(3);
+  assert.equal(limit("login", " Person@Example.com ", 2, 10000, 1000), 0);
+  assert.equal(limit("login", "person@example.com", 2, 10000, 1001), 0);
+  assert.equal(limit("login", "PERSON@example.com", 2, 10000, 1002), 10);
+  assert.equal(limit("register", "person@example.com", 1, 10000, 1002), 0);
+  assert.equal(limit("login", "other@example.com", 2, 10000, 1002), 0);
+  assert.equal(limit("login", "person@example.com", 2, 10000, 11000), 0);
+});
+
+test("saturated attempt storage denies new keys without evicting active protection", () => {
+  const limit = createAttemptLimit(1);
+  assert.equal(limit("login", "a@example.com", 1, 1000, 0), 0);
+  assert.equal(limit("login", "b@example.com", 1, 1000, 1), 1);
+  assert.equal(limit("login", "a@example.com", 1, 1000, 2), 1);
+  assert.equal(limit("login", "b@example.com", 1, 1000, 1000), 0);
+});
+
+test("credential policy allows ten logins or three registrations before limiting", () => {
+  for (const [kind, count] of [["login", 10], ["register", 3]] as const) {
+    for (let i = 0; i < count; i++) assert.equal(credentialLimit(kind, "policy-check@example.invalid"), 0);
+    assert.ok(credentialLimit(kind, "POLICY-CHECK@example.invalid") > 0);
+  }
+});
+
+test("credential limits deny provider access, set retry metadata and leave logout available", async () => {
+  let calls = 0;
+  const auth: AuthProvider = { login: async () => ({ error: null }), register: async () => ({ error: null }), logout: async () => ({ error: null }) };
+  const makeProvider = async () => { calls++; return auth; };
+  for (const kind of ["login", "register"] as const) {
+    const response = await authHandler(kind, makeProvider, () => 42)(request({ email: "person@example.com", password: "password123" }));
+    assert.equal(response.status, 429);
+    assert.equal(response.headers.get("Retry-After"), "42");
+    assert.equal(response.headers.get("Cache-Control"), "no-store");
+  }
+  assert.equal(calls, 0);
+  assert.equal((await authHandler("logout", makeProvider, () => { throw new Error("Logout must not be limited"); })(request({}))).status, 200);
+  assert.equal(calls, 1);
+});
 
 test("production auth trusts only its configured HTTPS origin and fails closed", async () => {
   const previous = { mode: process.env.NODE_ENV, origin: process.env.APP_ORIGIN };

@@ -127,3 +127,34 @@ checks sent chunked oversized bodies to login, register, forgot-password,
 resend-confirmation and password: all returned no-store 400 INVALID_INPUT.
 No email, account writes, new dependencies or schema changes. UI browser checks
 were not rerun for this request-parser change.
+
+## Supplementary auth attempt limits
+
+Login allows ten validated attempts per normalized email in a ten-minute window;
+registration allows three per hour. All attempts count, including successful
+ones, because each invokes the provider. Login and registration have separate
+scopes. Limits do not reveal whether an account exists. Invalid input and foreign
+origins are rejected before consuming this budget; logout is not limited.
+
+The existing shared resend/reset-email cooldown remains one request per minute.
+All three controls now use bounded process-local stores with hashed keys (no
+passwords or raw email addresses). Credential storage allows 5,000 active keys;
+recovery allows 1,000. Full storage denies new keys until the earliest window
+expires, rather than evicting a protected key and allowing email rotation to
+erase its cooldown. Existing keys retain their own thresholds. Denials are
+no-store 429 responses with Retry-After, before provider access.
+
+These are deliberately supplementary controls, not distributed rate limiting.
+Restarts clear them and multiple instances maintain independent budgets. A person
+who knows another email can exhaust its local budget; do not treat this as an
+account lock or identity proof. Unknown-email flooding can exhaust store capacity
+and temporarily deny new keys. Deployment-level trusted-client/network limits,
+bot controls where appropriate and provider limits are still needed before a
+public launch. Private profile/tracker write limits remain a separate open item.
+
+Verification: lint, TypeScript and production build passed; the expanded suite
+passed all 40 tests. New tests cover exact policies, normalized keys, independent
+scopes, time boundaries, saturation without eviction, provider-call denial,
+Retry-After/no-store and unrestricted logout. No real auth attempts, emails,
+database changes, new dependencies or paid services were required. Browser/UI
+tests were not rerun for this server-side increment.

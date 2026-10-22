@@ -1,4 +1,5 @@
 import { credentialsSchema } from "./schemas";
+import { credentialLimit } from "./attempt-limit";
 import { readBoundedJson } from "./request-body";
 import { failure, isSameOrigin, json, requestOrigin } from "./http";
 
@@ -10,7 +11,7 @@ export type AuthProvider = {
   logout: () => Promise<AuthResult>;
 };
 
-export function authHandler(kind: "login" | "register" | "logout", provider: () => Promise<AuthProvider>) {
+export function authHandler(kind: "login" | "register" | "logout", provider: () => Promise<AuthProvider>, limit = credentialLimit) {
   return async function POST(request: Request) {
     if (!isSameOrigin(request)) return failure("FORBIDDEN", "This request must come from CareerForge.", 403);
     try {
@@ -20,6 +21,12 @@ export function authHandler(kind: "login" | "register" | "logout", provider: () 
       }
       const parsed = credentialsSchema.safeParse(await readBoundedJson(request, 2048));
       if (!parsed.success) return failure("INVALID_INPUT", "Enter a valid email and a password between 8 and 128 characters.", 400);
+      const wait = limit(kind, parsed.data.email);
+      if (wait) {
+        const response = failure("RATE_LIMITED", "Too many attempts. Please wait before trying again.", 429);
+        response.headers.set("Retry-After", String(wait));
+        return response;
+      }
       const auth = await provider();
       const result = kind === "login" ? await auth.login(parsed.data) : await auth.register(parsed.data, new URL("/auth/callback", requestOrigin(request)).href);
       if (result.error?.status === 429) return failure("RATE_LIMITED", "Too many attempts. Please wait before trying again.", 429);

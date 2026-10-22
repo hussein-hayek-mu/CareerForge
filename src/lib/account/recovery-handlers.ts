@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { createAttemptLimit } from "./attempt-limit";
 import { readBoundedJson } from "./request-body";
 import { z } from "zod";
 import { failure, isSameOrigin, json, requestOrigin } from "./http";
@@ -14,15 +14,9 @@ export type RecoveryProvider = {
 
 // Bounded process-local cooldown supplements Supabase's provider limits.
 // Distributed abuse controls remain a deployment-hardening task.
-const cooldowns = new Map<string, number>();
+const cooldown = createAttemptLimit(1000);
 export function emailCooldown(email: string, now = Date.now()) {
-  const key = createHash("sha256").update(email).digest("hex");
-  const until = cooldowns.get(key) ?? 0;
-  if (until > now) return Math.ceil((until - now) / 1000);
-  for (const [id, deadline] of cooldowns) if (deadline <= now) cooldowns.delete(id);
-  if (cooldowns.size >= 1000) cooldowns.delete(cooldowns.keys().next().value!);
-  cooldowns.set(key, now + 60000);
-  return 0;
+  return cooldown("recovery", email, 1, 60000, now);
 }
 export function recoveryHandler(kind: "resend" | "forgot" | "password", provider: () => Promise<RecoveryProvider>, limit = emailCooldown) {
   return async (request: Request) => {
