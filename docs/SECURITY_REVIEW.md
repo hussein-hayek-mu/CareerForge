@@ -51,7 +51,7 @@ private-account writes, schema changes or dependency additions were needed.
 
 - Production origin validation is now configured explicitly (see below). Verify
   the actual hosting domain/proxy behavior and HTTPS before deployment sign-off.
-- Distributed auth/mutation abuse controls, bounded request streaming and a
+- Distributed auth/mutation abuse controls and a
   complete public health-endpoint exposure review remain open.
 - Review security headers/CSP with actual auth/video flows and redacted error
   visibility; do not ship an untested strict policy that breaks the app.
@@ -97,3 +97,33 @@ Host -> configured HTTPS redirect despite spoofed forwarded headers, foreign
 mutation -> 403 and trusted anonymous mutation -> 401. No mail, account writes,
 new dependencies or real deployment configuration changes. UI browser tests were
 not rerun for this server-only change; target-host verification remains open.
+
+## Bounded JSON requests
+
+Credential login/register, recovery and tracker payloads now use one streaming
+JSON reader with a 2 KiB byte cap. Profile writes use 32 KiB, allowing the current
+maximum fields/skills even with escaped Unicode while retaining strict field
+limits. The previous profile 16,000-byte header check could reject legitimate
+Unicode while failing to bound undeclared bodies. Logout does not parse a body.
+
+The reader checks declared lengths, counts actual incoming bytes regardless of
+the header, cancels on overflow and parses only bounded text. UTF-8 is decoded
+across chunk boundaries; malformed encoding, JSON, truncated/broken streams and
+oversized payloads follow existing no-store 400 validation responses. Rejected
+streams do not reach data operations. Profile/tracker still authenticate before
+reading a body; foreign-origin mutations are denied first.
+
+This bounds application-level buffering, not upstream proxy buffers or the size
+of a chunk already allocated by the runtime. Slow-body timeouts, connection limits
+and distributed request-rate controls still require deployment-level review.
+
+Verification: final lint, TypeScript, 36 tests and production build passed. The
+first run caught a test-fixture header typing error, corrected before the final
+run. New regressions cover exact-byte limits, split UTF-8, missing/false lengths,
+early cancellation without reading later chunks, invalid encoding/JSON, transport
+failure, maximum escaped-Unicode profile acceptance and all affected mutation
+handlers denying oversized payloads without data operations. Production HTTP
+checks sent chunked oversized bodies to login, register, forgot-password,
+resend-confirmation and password: all returned no-store 400 INVALID_INPUT.
+No email, account writes, new dependencies or schema changes. UI browser checks
+were not rerun for this request-parser change.

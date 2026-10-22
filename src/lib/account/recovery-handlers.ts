@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { readBoundedJson } from "./request-body";
 import { z } from "zod";
 import { failure, isSameOrigin, json, requestOrigin } from "./http";
 
@@ -27,11 +28,7 @@ export function recoveryHandler(kind: "resend" | "forgot" | "password", provider
   return async (request: Request) => {
     if (!isSameOrigin(request)) return failure("FORBIDDEN", "This request must come from CareerForge.", 403);
     try {
-      if (Number(request.headers.get("content-length")) > 2048) return failure("INVALID_INPUT", "Please check your details.", 400);
-      const text = await request.text();
-      if (text.length > 2048) return failure("INVALID_INPUT", "Please check your details.", 400);
-      let input: unknown;
-      try { input = JSON.parse(text); } catch { input = null; }
+      const input = await readBoundedJson(request, 2048);
       if (kind === "password") {
         const parsed = newPasswordSchema.safeParse(input);
         if (!parsed.success) return failure("INVALID_INPUT", "Use a password between 8 and 128 characters.", 400);

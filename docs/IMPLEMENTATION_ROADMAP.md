@@ -261,6 +261,16 @@ recorded performance baseline with any exceptions explained.
 
 **P4.1 - Security, privacy and operational readiness. Open.**
 
+Bounded-body increment delivered: shared streaming JSON reader for credential,
+recovery, profile and tracker payloads enforces byte limits without Content-Length,
+cancels early on overflow and rejects invalid/truncated input safely. Existing
+schema validation and normal operations are preserved. Auth/recovery/tracker:
+2 KiB; profile: 32 KiB for Unicode/escaped maximum-length fields. Lint, TypeScript,
+36 local tests and production build passed. Real HTTP chunked oversized requests
+to all five credential/recovery endpoints returned safe no-store 400 errors.
+No mail sent or account writes performed. Distributed rate/slow-body controls
+remain open; this increment only bounds application JSON buffering.
+
 Trusted-origin increment delivered: production authentication requires a
 server-only HTTPS `APP_ORIGIN`; callback/email destinations cannot be selected by
 Host or forwarded headers. Reject unknown hosts before code exchange or mutation

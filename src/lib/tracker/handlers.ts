@@ -1,4 +1,5 @@
 import { failure, isSameOrigin, json } from "@/lib/account/http";
+import { readBoundedJson } from "@/lib/account/request-body";
 import { filtersSchema, jobIdSchema, revisionSchema, saveSchema, statusSchema, type TrackerEntry, type CatalogJob } from "./schemas";
 
 export class TrackerError extends Error {
@@ -24,10 +25,7 @@ export function trackerHandlers(authorize: () => Promise<TrackerAccess | null>) 
     }
   }
   async function body(request: Request) {
-    if (Number(request.headers.get("content-length")) > 2048) return null;
-    const text = await request.text();
-    if (text.length > 2048) return null;
-    try { return JSON.parse(text); } catch { return null; }
+    return readBoundedJson(request, 2048);
   }
   const invalid = () => failure("INVALID_INPUT", "Check the opportunity, status and revision, then try again.", 400);
   return {

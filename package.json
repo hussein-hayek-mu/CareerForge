@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "typecheck": "next typegen && tsc --noEmit",
     "test:e2e": "playwright test",
-    "test": "tsx --test src/app/api/v1/health/route.test.ts src/lib/supabase/middleware.test.ts src/lib/demo-workspace.test.ts src/lib/account/handlers.test.ts src/lib/tracker/handlers.test.ts src/lib/account/recovery.test.ts",
+    "test": "tsx --test src/app/api/v1/health/route.test.ts src/lib/supabase/middleware.test.ts src/lib/demo-workspace.test.ts src/lib/account/handlers.test.ts src/lib/tracker/handlers.test.ts src/lib/account/recovery.test.ts src/lib/account/request-body.test.ts",
     "db:migrate": "node scripts/db-migrate.mjs",
     "test:rls": "node scripts/test-rls.mjs",
     "test:account:live": "node scripts/test-account-live.mjs",

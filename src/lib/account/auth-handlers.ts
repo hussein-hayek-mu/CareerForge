@@ -1,4 +1,5 @@
 import { credentialsSchema } from "./schemas";
+import { readBoundedJson } from "./request-body";
 import { failure, isSameOrigin, json, requestOrigin } from "./http";
 
 type Credentials = { email: string; password: string };
@@ -17,7 +18,7 @@ export function authHandler(kind: "login" | "register" | "logout", provider: () 
         const result = await (await provider()).logout();
         return result.error ? failure("AUTH_UNAVAILABLE", "Sign out failed. Please try again.", 503) : json({ signedOut: true });
       }
-      const parsed = credentialsSchema.safeParse(await request.json().catch(() => null));
+      const parsed = credentialsSchema.safeParse(await readBoundedJson(request, 2048));
       if (!parsed.success) return failure("INVALID_INPUT", "Enter a valid email and a password between 8 and 128 characters.", 400);
       const auth = await provider();
       const result = kind === "login" ? await auth.login(parsed.data) : await auth.register(parsed.data, new URL("/auth/callback", requestOrigin(request)).href);
