@@ -53,7 +53,7 @@ try {
     const menu = page.getByRole("button", { name: "Open navigation", exact: true });
     const mobileNavigation = await menu.isVisible();
     if (mobileNavigation) await menu.click();
-    await expect(page.getByRole("navigation", { name: "Main navigation" }).getByRole("link", { name: "My account", exact: true })).toHaveAttribute("aria-current", "page");
+    await expect(page.getByRole("navigation", { name: "Main navigation" }).getByRole("link", { name: "My profile", exact: true })).toHaveAttribute("aria-current", "page");
     if (mobileNavigation) await page.getByRole("button", { name: "Close navigation", exact: true }).click();
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
     const sessionCookies = (await context.cookies()).filter(c => c.name.startsWith("sb-"));
@@ -64,10 +64,14 @@ try {
   stage = "owner A login and save";
   const a = await signIn(users[0], { viewport: { width: 1440, height: 1000 } });
   stage = "owner A profile persistence";
+  await expect(a.page.getByRole("region", { name: "Profile getting started" })).toContainText("0 of 3 foundations");
+  await expect(a.page.getByRole("button", { name: "Save profile", exact: true })).toBeDisabled();
   await a.page.getByLabel("Full name").fill("Live Test Owner A");
   await a.page.getByLabel("Your skills", { exact: true }).fill("React, SQL");
   await a.page.getByRole("button", { name: "Save profile", exact: true }).click();
   await expect(a.page.getByRole("status")).toContainText("saved to your account");
+  await expect(a.page.getByRole("link", { name: "See updated matches", exact: true })).toBeVisible();
+  await expect(a.page.locator(".profile-save-state")).toHaveText("No unsaved changes");
   await a.page.reload();
   await expect(a.page.getByLabel("Full name")).toHaveValue("Live Test Owner A");
   await expect(a.page.getByLabel("Your skills", { exact: true })).toHaveValue("React, SQL");
@@ -130,9 +134,15 @@ try {
   await a.page.getByRole("button", { name: "Save profile", exact: true }).click();
   await expect(a.page.locator(".account-error[role=alert]")).toContainText("Temporary test outage");
   await expect(a.page.getByLabel("Full name")).toHaveValue("Unsaved edit");
+  await expect(a.page.locator(".profile-save-state")).toHaveText("Unsaved changes");
+  a.page.once("dialog", dialog => dialog.dismiss());
+  await a.page.getByRole("link", { name: /^Explore your matches/ }).click();
+  await expect(a.page).toHaveURL(`${baseURL}/account`);
+  await expect(a.page.getByLabel("Full name")).toHaveValue("Unsaved edit");
   await a.page.unroute("**/api/v1/profile");
 
   stage = "verified password change without sending email";
+  a.page.once("dialog", dialog => dialog.accept());
   await a.page.goto("/reset-password");
   await a.page.getByLabel("New password", { exact: true }).fill(users[0].password + "-new");
   await a.page.getByLabel("Confirm new password", { exact: true }).fill("mismatching-password");

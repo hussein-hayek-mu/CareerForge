@@ -1,6 +1,7 @@
 # CareerForge implementation roadmap
 
-Updated: 22 October 2026. Code baseline: `6d63b9e`.
+Updated: 22 October 2026. Initial audited baseline: `6d63b9e`; subsequent
+verified increments are recorded below.
 
 ## Purpose and authority
 
@@ -36,7 +37,8 @@ Skills remain self-reported. Fictional jobs must stay clearly labeled.
 
 **Done** means implemented with recorded checks. **Partial** means usable but
 with the stated gap. **Open** means work remains. **Deferred** means recorded
-future scope, outside the current release. P2.1/P2.2 recovery interfaces are implemented; real inbox journeys and remaining session cases require verification.
+future scope, outside the current release. P2.3 onboarding is complete. P2.1/P2.2 recovery interfaces are implemented;
+real inbox journeys and remaining session cases require verification.
 
 | ID | Capability | Status | Evidence and remaining boundary |
 | --- | --- | --- | --- |
@@ -157,7 +159,13 @@ handling, accessible form states and generic responses. Respect provider rate
 limits; do not reveal whether an email has an account. Test successful reset
 and denial of unauthorized password changes.
 
-**P2.3 - Coherent onboarding and account navigation. Open.**
+**P2.3 - Coherent onboarding and account navigation. Done.**
+
+Implemented saved-profile setup guidance, field anchors, save-to-matches action,
+empty-skill guidance and one signed-in profile navigation entry. Unsaved edits
+are labeled and protected for same-tab links/sign-out and native beforeunload
+where supported. Browser Back limitations are explicit. Details:
+[PROFILE_ONBOARDING.md](PROFILE_ONBOARDING.md).
 
 Keep `/profile` compatibility but make the signed-in destination and current
 navigation state clear. Guide an empty account to useful skills and a project;
@@ -328,7 +336,7 @@ Known limitations and next task:
 | --- | --- |
 | MVP architecture | npm single Next.js app; no separate backend or early native app. |
 | Data boundary | Verified server session + Supabase RLS for private data; guest demo stays explicit. |
-| Next implementation | P1 complete; verify P2.1/P2.2 real inbox recovery and remaining session cases, then P2.3 onboarding coherence. |
+| Next implementation | P1 and P2.3 complete; verify remaining P2.1/P2.2 inbox/session cases and begin P3.1 accessibility/interaction audit independently. |
 | Real email flow | Owner verification outstanding; no passwords requested in chat. |
 | Database environment | Use working development connection; recheck direct-host availability only when needed. No secrets in documentation. |
 | Remote release | Latest feature commits are local at this baseline; push/CI/hosting remain separate steps. |
@@ -400,3 +408,20 @@ navigation race (the old login form shared the Email address label). Existing
 authentication cases passed in the earlier run. Live profile/tracker/session
 regressions and temporary-account password-change/new-login checks passed;
 all temporary identities were removed. No email-delivery success is claimed.
+
+P2.3 delivery: private profile setup now links introduction, skills and project
+foundations to the corresponding inputs and reflects saved data only. Saving
+exposes a matches action. Signed-in navigation has one direct My profile entry
+with correct selected state; guest profile/account destinations stay separate.
+Profile fields wait for hydration, disable during saves, and retain unsaved
+edits on failure. Same-tab navigation/sign-out prompt before discarding drafts;
+native unload protection is best effort and browser Back limits are documented.
+
+Verification: lint, typecheck, 27 local tests and production build passed. Four
+desktop/mobile guest/navigation cases passed. The real temporary-account test
+passed blank setup/save states, private navigation, save CTA visibility, failed
+save draft preservation and canceled unsaved navigation, alongside profile,
+tracker, ownership, password-change and logout regressions. A decorative-arrow
+link selector was corrected before the successful rerun. Temporary identities
+were removed and desktop/mobile profile screenshots reviewed. No schema changes,
+new dependencies or paid services. CV/portfolio/AI modules remain deferred.

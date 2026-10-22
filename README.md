@@ -79,6 +79,12 @@ across browsers/devices on navigation, refresh or tab focus. Guests retain the
 local sample workspace. Earlier account-local saves are preserved in browser
 storage but are not automatically imported into the online tracker.
 
+The private profile includes a saved-data setup guide for your introduction,
+skills and project, plus a direct link to updated matches after saving.
+Unsaved edits are labeled and same-tab navigation/sign-out ask before discarding
+them. Save before using browser Back; drafts stay in page memory. See
+[profile onboarding](docs/PROFILE_ONBOARDING.md) for behavior and limits.
+
 In Supabase **Authentication → URL Configuration**, allow
 `http://localhost:3000/auth/callback` for email confirmation. For testing signup
 from a phone, also allow `http://<your-computer-IP>:3000/auth/callback`. Confirm
