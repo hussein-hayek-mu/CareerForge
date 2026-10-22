@@ -31,9 +31,9 @@ mobile drawer focus, Escape and responsive navigation.
 
 ## Remaining audit work
 
-- Private account and tracker states with long content at narrow widths/zoom.
+- Long tracker content and additional private states at narrow widths/zoom.
 - Real 200% browser zoom and text scaling, rather than only CSS viewport proxies.
-- Full text/non-text contrast inventory and error/focus/state contrast review.
+- Complex-background text, non-text contrast and error/focus/state contrast review.
 - Screen-reader review with NVDA or VoiceOver, including dynamic announcements,
   field errors, dialog descriptions and route transitions.
 - Physical-phone testing and a complete touch-target inventory, including tablet
@@ -43,3 +43,28 @@ mobile drawer focus, Escape and responsive navigation.
 
 Keep P3.1 partial until the remaining checks are recorded. Public/inbox account
 recovery, hosted performance and production readiness remain separate tasks.
+
+## Second pass: contrast and long private profiles
+
+On 22 October 2026, a live temporary-account fixture with maximum-length profile
+fields and 40 long skills reproduced horizontal overflow at 320 CSS pixels.
+Skill tags and identity metadata now wrap within their available width. The
+live account suite verifies page width and unclipped identity/skill text at
+320, 768 and 1440 pixels, restores the fixture profile, and deletes its temporary
+accounts. This does not substitute for actual browser zoom or physical devices.
+
+Run `npm.cmd run audit:contrast` against the running development server for a
+JSON report in ignored `test-results/contrast-audit.json`. The recorded run
+sampled 151 text/control/placeholder instances across nine public routes with
+zero failures. The sampler uses the normal/large text thresholds described by
+[W3C contrast guidance](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum).
+Gradients, images/video, opacity and unsupported color formats are skipped;
+pseudo-element decoration and non-text contrast require separate review.
+Consequently this is a conservative sample, not a full contrast inventory.
+
+Four desktop/mobile cases in `tests/e2e/contrast.spec.ts` passed. They verify
+known passing/failing text and placeholders, uncertain-background exclusions,
+and sampled public-route contrast. Lint, TypeScript, 27 local tests and the
+production build passed. The live account suite also passed profile stress,
+tracker persistence/isolation/error recovery, password update and logout checks.
+No recovery email was sent; real inbox recovery remains unverified.

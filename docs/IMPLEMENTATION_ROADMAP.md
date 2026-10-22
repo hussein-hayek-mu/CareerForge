@@ -182,7 +182,7 @@ blank accounts never inherit Alex Morgan's data or guest tracker entries.
 First pass fixes form focus outlines, small job/notification targets, skip-target
 focus, role-dialog initial/return focus and live filter counts. Narrow public
 route checks and keyboard/dialog cases are covered by browser tests. Remaining
-contrast, screen-reader, actual zoom, private-state and physical-device checks
+complex-background/non-text contrast, screen-reader, actual zoom, additional private-state and physical-device checks
 are tracked in [ACCESSIBILITY_REVIEW.md](ACCESSIBILITY_REVIEW.md).
 
 Review every route and state using the quality matrix below. Fix observed
@@ -448,3 +448,14 @@ The existing desktop/mobile navigation cases also passed in the earlier run.
 No new dependencies, paid services or database changes. P3.1 remains partial;
 actual zoom, contrast inventory, assistive technology, private-state layouts
 and physical-phone checks remain in ACCESSIBILITY_REVIEW.md.
+
+P3.1 second pass: fixed horizontal overflow from maximum-length profile skills
+and identity metadata. Live temporary-account checks now cover 40 long skills
+and maximum-length profile fields at 320/768/1440 CSS pixels, including clipped
+identity/skill text. The fixture is restored and temporary identities removed.
+A repeatable solid-background contrast sampler checked 151 public text/control/
+placeholder instances with zero failures; complex surfaces are explicitly skipped.
+Four desktop/mobile contrast regression cases, lint, TypeScript, 27 local tests,
+production build and the live account suite passed. No new dependencies, paid
+services or database changes. P3.1 stays partial pending the manual and complex
+surface checks recorded in ACCESSIBILITY_REVIEW.md.

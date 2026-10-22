@@ -13,7 +13,8 @@
     "db:migrate": "node scripts/db-migrate.mjs",
     "test:rls": "node scripts/test-rls.mjs",
     "test:account:live": "node scripts/test-account-live.mjs",
-    "prisma:generate": "prisma generate"
+    "prisma:generate": "prisma generate",
+    "audit:contrast": "node scripts/audit-contrast.mjs"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.1",
