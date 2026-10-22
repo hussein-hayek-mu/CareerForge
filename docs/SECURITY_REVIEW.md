@@ -51,8 +51,8 @@ private-account writes, schema changes or dependency additions were needed.
 
 - Production origin validation is now configured explicitly (see below). Verify
   the actual hosting domain/proxy behavior and HTTPS before deployment sign-off.
-- Distributed auth/mutation abuse controls and a
-  complete public health-endpoint exposure review remain open.
+- Distributed auth/mutation abuse controls remain open. Public production
+  database probing is now disabled as recorded below.
 - Review security headers/CSP with actual auth/video flows and redacted error
   visibility; do not ship an untested strict policy that breaks the app.
 - Complete live session-expiry/account-switch/history checks on the hosted build,
@@ -184,3 +184,27 @@ owner selection, Retry-After/no-store, reads during exhaustion, separate users
 and scopes, and exact policy thresholds. Existing normal write, revision,
 validation and anonymous-denial tests passed. No live database/UI tests were
 rerun for this pass; no emails, schema changes or dependencies were introduced.
+
+## Baseline headers and public diagnostics
+
+Next configuration now disables X-Powered-By and sets nosniff, DENY framing,
+no-referrer and camera/microphone/geolocation denial headers. The CSP restricts
+base URLs to self, blocks object embeds and prevents framing. It deliberately
+does not add script/style/default source restrictions; those require a separate
+nonce/framework compatibility review. HTTPS/HSTS belongs to the verified target
+deployment and is not enabled speculatively for local HTTP/LAN use.
+
+`/api/v1/health/database` now returns no-store 404 in production before invoking
+Prisma. Local development diagnostics still report connected/unavailable without
+connection details. `/api/v1/health` remains a lightweight public liveness check;
+it is not evidence of database readiness. Production operational DB checks need
+a separately reviewed private mechanism rather than a public query endpoint.
+
+Verification: lint, TypeScript, all 45 tests and production build passed. Unit
+tests prove disabled diagnostics never invoke the checker and local failures are
+sanitized. Real production HTTP checks confirmed headers on overview, login, API
+and media, removed X-Powered-By, database 404/no-store and app-health 200. Edge
+verified overview video playback/pause and hydrated login fields with no observed
+CSP violations or uncaught page errors. This was not a complete authenticated or
+cross-browser security-header audit. No emails, account writes, schema changes,
+dependencies or paid services were introduced.

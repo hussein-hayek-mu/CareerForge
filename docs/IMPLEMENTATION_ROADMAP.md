@@ -261,6 +261,17 @@ recorded performance baseline with any exceptions explained.
 
 **P4.1 - Security, privacy and operational readiness. Open.**
 
+Headers/diagnostics increment delivered: baseline anti-framing, MIME/referrer
+and permission headers; narrowly scoped CSP without untested script restrictions.
+Disable public production database probes before any privileged query while
+preserving local diagnostics and the lightweight public application health route.
+Verified production headers, video playback/pause, login hydration and no-query
+denial regressions. Lint, TypeScript, 45 tests and production build passed; Edge
+reported no observed CSP violations or uncaught errors in those two page flows.
+Production database diagnostics return 404, lightweight app health remains 200.
+Strict script CSP, HSTS/HTTPS deployment verification and other release gates
+remain open. No emails, account writes, new services or dependencies.
+
 Private-write controls delivered: process-local budgets keyed to server-verified
 user IDs, profile 30/minute and tracker mutations 60/minute. Validate first, deny
 before storage writes, preserve read access and existing ownership/CAS rules.

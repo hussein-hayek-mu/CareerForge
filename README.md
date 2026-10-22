@@ -30,8 +30,9 @@ npm run dev
 
 Open <http://localhost:3000>. The four demo pages and
 <http://localhost:3000/api/v1/health> work without Supabase credentials.
-After configuring `DATABASE_URL`, check the database connection at
-<http://localhost:3000/api/v1/health/database>.
+After configuring `DATABASE_URL`, check the development database connection at
+<http://localhost:3000/api/v1/health/database>. This diagnostic is disabled in
+production (404); the public app-health route does not query the database.
 
 Available checks:
 
