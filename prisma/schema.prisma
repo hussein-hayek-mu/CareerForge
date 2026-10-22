@@ -7,5 +7,19 @@ datasource db {
   provider = "postgresql"
 }
 
-// Add application models only after the team agrees on the data model.
 // Supabase-managed auth tables are intentionally not represented here.
+// The auth.users FK, trigger, RLS and grants live in supabase/migrations.
+model Profile {
+  id                 String   @id @db.Uuid
+  role               String   @default("student")
+  fullName           String   @default("") @map("full_name")
+  headline           String   @default("")
+  location           String   @default("")
+  bio                String   @default("")
+  educationSummary   String   @default("") @map("education_summary")
+  projectSummary     String   @default("") @map("project_summary")
+  selfReportedSkills String[] @default([]) @map("self_reported_skills")
+  createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("profiles")
+}
