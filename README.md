@@ -86,6 +86,12 @@ email in the browser used to register; PKCE confirmation is browser-bound. Use
 HTTPS URLs for deployment. The real email-delivery/confirmation flow is not part
 of automated browser tests; those tests mock registration to avoid sending mail.
 
+If an email link fails, try signing in; confirmation may already have succeeded.
+Use `/forgot-password` to reset your password or `/confirm-email` to request
+a fresh confirmation. Open the newest link in the same browser/origin used to
+request it. Password changes require a verified session. See
+[account recovery](docs/ACCOUNT_RECOVERY.md) for callback setup and test limits.
+
 To view from a phone on the same Wi-Fi, run:
 
 ```bash
@@ -166,7 +172,8 @@ Never run this live test against production. No test signup emails are sent.
   coherence; profile, matching and tracker persistence are implemented.
 - Expand education/project summaries into normalized records when their editing
   contracts are agreed. Skills remain self-reported.
-- Add password recovery and deployment configuration before a public release.
+- Verify actual inbox password recovery and deployment configuration before a
+  public release; recovery/resend interfaces and APIs are implemented.
 
 See the [master roadmap](docs/IMPLEMENTATION_ROADMAP.md) for task IDs,
 dependencies, acceptance criteria and the full deferred product backlog.

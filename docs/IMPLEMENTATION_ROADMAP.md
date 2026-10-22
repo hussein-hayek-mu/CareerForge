@@ -36,7 +36,7 @@ Skills remain self-reported. Fictional jobs must stay clearly labeled.
 
 **Done** means implemented with recorded checks. **Partial** means usable but
 with the stated gap. **Open** means work remains. **Deferred** means recorded
-future scope, outside the current release. No work is currently in progress; the next account task is P2.1.
+future scope, outside the current release. P2.1/P2.2 recovery interfaces are implemented; real inbox journeys and remaining session cases require verification.
 
 | ID | Capability | Status | Evidence and remaining boundary |
 | --- | --- | --- | --- |
@@ -44,7 +44,7 @@ future scope, outside the current release. No work is currently in progress; the
 | D02 | CI definition | Partial | `.github/workflows/ci.yml` runs generation, lint, types, unit tests, build. Latest local commits need pushing and remote CI verification. Browser checks are not in CI yet. |
 | D03 | Development database connectivity | Done | Supabase Auth settings and SQL connection verified previously; direct hostname failed, session-pooler connection worked. Environment health is not guaranteed permanently. |
 | D04 | Profile migrations and ownership | Done | Transaction/checksum migration runner, profile trigger, RLS, restricted writable columns, rollback-based two-user tests. |
-| D05 | Registration/login/logout | Partial | SSR HttpOnly sessions, origin validation, safe API errors, private account screen. Real signup email delivery/callback requires owner verification; recovery flow missing. |
+| D05 | Registration/login/logout | Partial | SSR HttpOnly sessions, origin validation, safe API errors, private account screen. Real signup/reset email delivery and callback require owner verification; recovery/resend routes are implemented. |
 | D06 | Private profile editing | Done | Validated profile summaries/skills, save/reload, error recovery and cross-user isolation tested. This is not full normalized experience/education CRUD. |
 | D07 | Account-aware workspace | Done | Server verifies session and reads owner profile; dashboard, skill ranking and role gaps use saved data. `/profile` leads signed-in users to `/account`; read failures do not substitute demo data. |
 | D08 | Jobs and transparent matching | Partial | Six database-seeded fictional roles for accounts; static guest catalog, search/work-mode/saved filters, detail dialog and transparent skill gaps. Catalog administration remains deferred. |
@@ -52,7 +52,7 @@ future scope, outside the current release. No work is currently in progress; the
 | D10 | Guest demo | Done | Browser-local editable sample profile/tracker, reset, malformed-storage recovery, no sample upload into accounts. |
 | D11 | Shared responsive design | Done | Graphite/chartreuse system, branded SVGs, sidebar collapse preference, mobile drawer, private profile identity and dark auth forms. Further release audit remains required. |
 | D12 | Motion hero | Done | Enhanced original local film with aurora ribbons, orbital trails, forge pulses and sparks; continuous playback while scrolling, hidden-tab pause, playback control, reduced-motion/save-data and poster fallback. |
-| D13 | Automated verification | Partial | 20 local tests; auth/navigation/demo/film browser coverage; live cross-browser tracker, two-account and RLS scripts. No comprehensive production, physical-device or performance validation. |
+| D13 | Automated verification | Partial | 27 local tests; auth/recovery/navigation/demo/film browser coverage; live cross-browser tracker, two-account and RLS scripts. No comprehensive production, physical-device or performance validation. |
 | D14 | Hosting and release operations | Open | No verified hosted release, production environment, recovery drill or remote CI result for the latest work. |
 
 Source map: UI in `src/components/`; static jobs/matching in
@@ -127,7 +127,13 @@ expired sessions, unknown roles and cross-user injection are covered.
 
 ### P2 - Complete account journeys
 
-**P2.1 - Real confirmation and session recovery. Open.**
+**P2.1 - Real confirmation and session recovery. Partial.**
+
+Implemented safe confirmation resend with local/provider cooldown, login error
+distinctions, callback recovery messages and isolated PKCE flow forwarding.
+See [ACCOUNT_RECOVERY.md](ACCOUNT_RECOVERY.md). Actual fresh signup -> inbox ->
+callback, resend delivery, allowlists and full expiry/back/account-switch cases
+still need owner/environment verification.
 
 Owner checks signup using their own email and browser; verify delivery, allowed
 local/phone/hosted callback URLs, expired/reused confirmation links and useful
@@ -138,7 +144,13 @@ logout and account switching do not display another user's cached UI/data.
 Acceptance: fresh signup -> confirmation -> private profile works; failed
 confirmation and expired sessions offer a working recovery path.
 
-**P2.2 - Password recovery. Open.**
+**P2.2 - Password recovery. Partial.**
+
+Forgot/reset routes, verified-owner password updates, fixed recovery redirects,
+password confirmation and safe errors are implemented. Real password changes
+and old/new password login behavior were tested with temporary accounts.
+Email delivery and actual emailed recovery callback remain owner checks; UI
+email tests are mocked and must not be treated as delivery verification.
 
 Implement forgot/reset password, validated callback/session flow, expired-link
 handling, accessible form states and generic responses. Respect provider rate
@@ -316,7 +328,7 @@ Known limitations and next task:
 | --- | --- |
 | MVP architecture | npm single Next.js app; no separate backend or early native app. |
 | Data boundary | Verified server session + Supabase RLS for private data; guest demo stays explicit. |
-| Next implementation | P1 complete; P2.1 real confirmation/session recovery next, then password recovery and onboarding coherence. |
+| Next implementation | P1 complete; verify P2.1/P2.2 real inbox recovery and remaining session cases, then P2.3 onboarding coherence. |
 | Real email flow | Owner verification outstanding; no passwords requested in chat. |
 | Database environment | Use working development connection; recheck direct-host availability only when needed. No secrets in documentation. |
 | Remote release | Latest feature commits are local at this baseline; push/CI/hosting remain separate steps. |
@@ -371,3 +383,20 @@ identities/profiles/tracker rows were removed. Desktop/mobile tracker screenshot
 were inspected. Existing RLS checks were previously verified in P1.2; no schema
 changes or paid services/dependencies in this increment. Real signup email,
 physical-phone verification and remote CI/deployment remain unverified.
+
+Account-access recovery increment: a read-only check of confirmation/sign-in
+flags established that the existing development email was already confirmed.
+No email addresses, passwords or tokens were printed or changed by diagnostics.
+Added password reset/resend pages and APIs, safe callback routing/recovery,
+local/provider cooldowns and hydration-safe POST auth forms. Details and
+verification boundaries are in ACCOUNT_RECOVERY.md. Live temporary-account
+tests verified password mismatch handling, actual password change, rejection
+of the old password and login with the new one; temporary data was removed.
+No test emails were sent. Actual owner inbox/callback success remains pending.
+
+Recovery verification: lint, typecheck, 27 local tests and production build
+passed. Four final desktop/mobile recovery cases passed after fixing a test
+navigation race (the old login form shared the Email address label). Existing
+authentication cases passed in the earlier run. Live profile/tracker/session
+regressions and temporary-account password-change/new-login checks passed;
+all temporary identities were removed. No email-delivery success is claimed.

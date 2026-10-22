@@ -132,6 +132,17 @@ try {
   await expect(a.page.getByLabel("Full name")).toHaveValue("Unsaved edit");
   await a.page.unroute("**/api/v1/profile");
 
+  stage = "verified password change without sending email";
+  await a.page.goto("/reset-password");
+  await a.page.getByLabel("New password", { exact: true }).fill(users[0].password + "-new");
+  await a.page.getByLabel("Confirm new password", { exact: true }).fill("mismatching-password");
+  await a.page.getByRole("button", { name: "Update password", exact: true }).click();
+  await expect(a.page.locator(".form-error[role=alert]")).toContainText("do not match");
+  await a.page.getByLabel("Confirm new password", { exact: true }).fill(users[0].password + "-new");
+  await a.page.getByRole("button", { name: "Update password", exact: true }).click();
+  await expect(a.page.getByRole("status")).toContainText("password has been updated");
+  await a.page.goto("/account");
+
   stage = "logout and anonymous denial";
   await a.page.getByRole("button", { name: "Sign out", exact: true }).click();
   await expect(a.page).toHaveURL(`${baseURL}/login`);
@@ -139,6 +150,12 @@ try {
   assert.equal((await a.context.request.get("/api/v1/applications")).status(), 401);
   await a.page.goto("/account");
   await expect(a.page).toHaveURL(`${baseURL}/login`);
+  stage = "new password works and previous password is rejected";
+  assert.equal((await a.context.request.post("/api/v1/auth/login", { data: { email: users[0].email, password: users[0].password } })).status(), 401);
+  assert.equal((await a.context.request.post("/api/v1/auth/login", { data: { email: users[0].email, password: users[0].password + "-new" } })).status(), 200);
+  assert.equal((await a.context.request.get("/api/v1/profile")).status(), 200);
+  await a.context.request.post("/api/v1/auth/logout");
+  console.log("PASS: verified password update, mismatch validation, old-password rejection and new-password login; no recovery mail sent");
   await b.page.getByRole("button", { name: "Sign out", exact: true }).click();
   await expect(b.page).toHaveURL(`${baseURL}/login`);
   assert.deepEqual(errors, []);

@@ -141,3 +141,7 @@ h1 { font-size: clamp(34px, 3.5vw, 55px); font-weight: 550; line-height: 1.13; l
 .tracker-sync-info { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 12px 0; font-size: 11px; color: #a9b59e; flex-wrap: wrap; }
 .tracker-sync-info p { margin: 0; max-width: 700px; line-height: 1.6; }
 button:disabled, select:disabled { opacity: .55; cursor: wait; }
+
+.auth-recovery-links { display: flex; flex-wrap: wrap; gap: 12px 20px; margin: 24px 0; font-size: 12px; line-height: 1.6; }
+.auth-recovery-links a { color: #d1f79b; text-decoration: underline; text-underline-offset: 4px; }
+.auth-panel > .confirmation { font-size: 12px; line-height: 1.8; }

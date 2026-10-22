@@ -1,15 +1,11 @@
-import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { requestOrigin } from "@/lib/account/http";
+import { callbackHandler } from "@/lib/account/callback-handler";
 
-export async function GET(request: Request) {
-  const code = new URL(request.url).searchParams.get("code");
-  if (code) {
-    try {
-      const client = await createClient();
-      const { error } = await client.auth.exchangeCodeForSession(code);
-      if (!error) return NextResponse.redirect(new URL("/account", requestOrigin(request)), { headers: { "Cache-Control": "no-store" } });
-    } catch { /* Show a clean recovery page without exposing provider errors. */ }
-  }
-  return NextResponse.redirect(new URL("/login?confirmation=failed", requestOrigin(request)), { headers: { "Cache-Control": "no-store" } });
-}
+export const GET = callbackHandler(async (code, flowId) => {
+  const client = await createClient();
+  const result = await client.auth.exchangeCodeForSession(code, flowId ? { flowId } : undefined);
+  // The installed SDK returns redirectType at runtime, but its public response
+  // declaration omits it. Narrow the field without trusting callback queries.
+  const redirectType = "redirectType" in result.data && typeof result.data.redirectType === "string" ? result.data.redirectType : null;
+  return { data: { redirectType }, error: result.error };
+});
