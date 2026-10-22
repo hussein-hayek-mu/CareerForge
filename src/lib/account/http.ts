@@ -6,6 +6,16 @@ export function failure(code: string, message: string, status: number) {
 }
 export function requestOrigin(request: Request): string {
   const url = new URL(request.url);
+  if (process.env.NODE_ENV === "production" || process.env.APP_ORIGIN) {
+    const configured = process.env.APP_ORIGIN;
+    if (!configured) throw new Error("Trusted application origin is not configured");
+    const trusted = new URL(configured);
+    if (trusted.protocol !== "https:" || trusted.username || trusted.password || trusted.pathname !== "/" || trusted.search || trusted.hash) throw new Error("Invalid application origin");
+    // Forwarded host/protocol headers cannot choose auth destinations.
+    const host = request.headers.get("host") ?? url.host;
+    if (host.toLowerCase() !== trusted.host.toLowerCase()) throw new Error("Untrusted request host");
+    return trusted.origin;
+  }
   // Next's internal URL can use 0.0.0.0 when listening on the LAN. The browser
   // sends the actual destination in Host, including a phone's LAN address.
   const host = request.headers.get("host");
@@ -21,5 +31,8 @@ export function isSameOrigin(request: Request): boolean {
   const origin = request.headers.get("origin");
   // Browser mutations must originate from this app, including phone LAN URLs.
   // Non-browser callers without Origin still need valid credentials/session.
-  return !origin || origin === requestOrigin(request);
+  try {
+    const trusted = requestOrigin(request);
+    return !origin || origin === trusted;
+  } catch { return false; }
 }

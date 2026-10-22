@@ -3,10 +3,45 @@ import { test } from "node:test";
 import { recoveryHandler, emailCooldown, type RecoveryProvider } from "./recovery-handlers";
 import { callbackHandler } from "./callback-handler";
 import { authHandler, type AuthProvider } from "./auth-handlers";
+import { requestOrigin, isSameOrigin } from "./http";
 
 const request = (body: unknown, origin = "http://localhost:3000") => new Request("http://localhost:3000/api/v1/auth/forgot-password", { method: "POST", headers: { "Content-Type": "application/json", Origin: origin }, body: JSON.stringify(body) });
 const provider: RecoveryProvider = { resend: async () => ({ error: null }), forgot: async () => ({ error: null }), changePassword: async () => ({ error: null }) };
 const noLimit = () => 0;
+
+test("production auth trusts only its configured HTTPS origin and fails closed", async () => {
+  const previous = { mode: process.env.NODE_ENV, origin: process.env.APP_ORIGIN };
+  try {
+    Object.assign(process.env, { NODE_ENV: "production", APP_ORIGIN: "https://careerforge.example" });
+    const trusted = new Request("http://internal:3000/auth/callback?code=test", { headers: { Host: "careerforge.example", Origin: "https://careerforge.example", "X-Forwarded-Proto": "http", "X-Forwarded-Host": "evil.example" } });
+    assert.equal(requestOrigin(trusted), "https://careerforge.example");
+    assert.equal(isSameOrigin(trusted), true);
+    let calls = 0;
+    const callback = callbackHandler(async () => { calls++; return { data: {}, error: null }; });
+    const success = await callback(trusted);
+    assert.equal(success.headers.get("Location"), "https://careerforge.example/account");
+    for (const host of ["evil.example", "careerforge.example.evil.example", "careerforge.example:8443", "careerforge.example@evil.example"]) {
+      const forged = new Request(trusted, { headers: { Host: host, Origin: `https://${host}` } });
+      assert.equal(isSameOrigin(forged), false);
+      const response = await callback(forged);
+      assert.equal(response.status, 503);
+      assert.equal(response.headers.get("Location"), null);
+    }
+    assert.equal(calls, 1);
+    for (const value of [undefined, "http://careerforge.example", "https://careerforge.example/path", "https://user:pass@careerforge.example", "not-a-url", "https://careerforge.example?next=evil"]) {
+      if (value === undefined) delete process.env.APP_ORIGIN;
+      else process.env.APP_ORIGIN = value;
+      assert.equal(isSameOrigin(trusted), false);
+      assert.equal((await callback(trusted)).status, 503);
+    }
+    assert.equal(calls, 1);
+  } finally {
+    if (previous.mode === undefined) Reflect.deleteProperty(process.env, "NODE_ENV");
+    else Object.assign(process.env, { NODE_ENV: previous.mode });
+    if (previous.origin === undefined) delete process.env.APP_ORIGIN;
+    else process.env.APP_ORIGIN = previous.origin;
+  }
+});
 
 test("email recovery validates and blocks foreign origins before requesting mail", async () => {
   let calls = 0;

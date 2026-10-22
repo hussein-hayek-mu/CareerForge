@@ -261,6 +261,16 @@ recorded performance baseline with any exceptions explained.
 
 **P4.1 - Security, privacy and operational readiness. Open.**
 
+Trusted-origin increment delivered: production authentication requires a
+server-only HTTPS `APP_ORIGIN`; callback/email destinations cannot be selected by
+Host or forwarded headers. Reject unknown hosts before code exchange or mutation
+authorization; unconfigured localhost/LAN development behavior is preserved.
+Lint, TypeScript, 31 local tests and production build passed. Production HTTP
+smoke verified forged-host rejection, fixed HTTPS callback destination despite
+forwarded-header spoofing, foreign mutation 403 and trusted anonymous mutation
+401. No mail sent. Set `APP_ORIGIN` and the corresponding Supabase redirect URL
+before production auth use; no real deployment configuration was changed.
+
 First focused review delivered; evidence and remaining gates are in
 [SECURITY_REVIEW.md](SECURITY_REVIEW.md). Foreign browser mutations without Origin
 are denied using Fetch Metadata, and the proxy applies no-store after session

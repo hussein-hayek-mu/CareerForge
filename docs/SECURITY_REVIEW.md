@@ -49,10 +49,8 @@ mutation 403, and video HEAD 200 without no-store. Unit coverage also checks
 no-store for callback/API paths and unchanged LAN-origin behavior. No emails,
 private-account writes, schema changes or dependency additions were needed.
 
-- `requestOrigin` currently derives the host/protocol from request/proxy headers
-  for local/LAN compatibility. Before hosting, verify the deployment rejects
-  unknown Host values and overwrites forwarded protocol; define a canonical
-  production origin/allowlist if those assumptions cannot be established.
+- Production origin validation is now configured explicitly (see below). Verify
+  the actual hosting domain/proxy behavior and HTTPS before deployment sign-off.
 - Distributed auth/mutation abuse controls, bounded request streaming and a
   complete public health-endpoint exposure review remain open.
 - Review security headers/CSP with actual auth/video flows and redacted error
@@ -66,3 +64,36 @@ private-account writes, schema changes or dependency additions were needed.
 The owner's earlier “done” is recorded as reported completion of an email check,
 not explicit evidence that both confirmation and password recovery succeeded.
 Do not repeatedly block independent development on this ambiguity.
+
+## Trusted application origin
+
+Production auth now requires server-only `APP_ORIGIN`, for example
+`https://careerforge.example.com`. Use an exact HTTPS origin with no credentials,
+path, query or fragment. Add its `/auth/callback` URL to Supabase's allowed
+redirects. Previews need their own configured origin/allowlist entry. This does
+not choose or deploy a hosting domain.
+
+Auth origin resolution compares the incoming Host (or request URL host if no
+Host exists) with the configured host/port, then uses the configured origin.
+Forwarded host/protocol cannot change it. Wrong hosts or invalid/missing
+production configuration deny mutations and return a no-store, no-referrer 503
+callback response without exchanging the code or issuing a redirect. Mutation
+denials use the existing generic 403. Public demo pages can still render.
+
+Without `APP_ORIGIN`, non-production localhost/LAN operation retains its previous
+behavior. If explicitly configured in development, the same strict origin policy
+applies there. Public page access is not a global Host firewall; the deployment
+must still enforce its domain routing and HTTPS. Alternate domains should redirect
+at the hosting edge before auth starts, rather than be added as implicit trusted
+origins. Switching origins mid-PKCE flow can lose browser verifier cookies.
+
+Verification for this increment: lint, TypeScript, 31 local tests and production
+build passed after correcting a test-cleanup TypeScript error caught by the
+first run. Unit cases cover missing/invalid production configuration, credentials
+or paths in origins, forged hosts/ports, fixed success redirects and no exchange
+on rejected callbacks. A separate local production server with a temporary
+example origin confirmed forged callback Host -> 503 without Location, trusted
+Host -> configured HTTPS redirect despite spoofed forwarded headers, foreign
+mutation -> 403 and trusted anonymous mutation -> 401. No mail, account writes,
+new dependencies or real deployment configuration changes. UI browser tests were
+not rerun for this server-only change; target-host verification remains open.
