@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { verifyTrackerLive } from "./verify-tracker-live.mjs";
+import { verifyCVLive } from "./verify-cv-live.mjs";
 import { verifyProfileLayout } from "./verify-profile-layout.mjs";
 import { randomUUID } from "node:crypto";
 import { mkdir } from "node:fs/promises";
@@ -80,6 +81,8 @@ try {
   assert.equal(aProfile.profile.name, "Live Test Owner A");
   stage = "maximum-length private profile layouts";
   await verifyProfileLayout(a.context);
+  stage = "saved-profile CV preview and PDF";
+  await verifyCVLive(a.context);
   await a.page.evaluate(() => window.scrollTo(0, 0));
   await a.page.screenshot({ path: "test-results/account-desktop.png", fullPage: true, animations: "disabled" });
 

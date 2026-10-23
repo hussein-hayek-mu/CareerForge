@@ -47,6 +47,18 @@ future module; this guidance review does not establish report-wide conformance.
 
 ## Current release boundary
 
+Product increment delivered under the 23 October instructions: private
+saved-profile CV preview at `/cv`, with browser print/PDF output. It reuses
+owner-scoped profile reads, no-store and noindex; empty sections are omitted and
+text is escaped. This is a basic M6 slice, not uploaded-CV parsing, deterministic
+CV/job analysis, AI tailoring, normalized work history, public portfolio or
+versioned CV persistence. Unit checks verify source fidelity and safe escaping;
+live temporary-account checks verified saved data, no-store/noindex, reflow at
+320/1440 and PDF output. Anonymous browser access redirects to login. Existing
+live profile/tracker/isolation/password/logout checks passed and temp identities
+were removed; no email/LLM calls. Lint, TypeScript, 50 tests and production build
+passed. Details: [CV_PREVIEW.md](CV_PREVIEW.md).
+
 23 October execution update: follow the owner's autonomous completion instructions,
 continue coherent implementation batches without recommendation-only stops, and
 do not let hosting/credentials block independent product work. Report review

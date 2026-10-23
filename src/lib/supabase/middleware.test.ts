@@ -30,7 +30,7 @@ test("unconfigured Supabase allows the scaffold to run without contacting auth",
       assert.equal(response.headers.get("x-middleware-next"), "1");
       assert.equal(response.headers.get("location"), null);
       assert.deepEqual(response.cookies.getAll(), []);
-      for (const path of ["/", "/account", "/jobs", "/applications", "/profile", "/reset-password", "/api/v1/profile", "/auth/callback"]) {
+      for (const path of ["/", "/account", "/cv", "/jobs", "/applications", "/profile", "/reset-password", "/api/v1/profile", "/auth/callback"]) {
         const guarded = await proxy(new NextRequest(`http://localhost:3000${path}`));
         assert.equal(guarded.headers.get("cache-control"), "private, no-store");
       }
