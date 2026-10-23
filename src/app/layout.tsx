@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import "./visual-system.css";
+import "./feature-system.css";
 
 export const metadata: Metadata = {
   title: "CareerForge — Build your next chapter",

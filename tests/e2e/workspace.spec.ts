@@ -1,8 +1,9 @@
 import { expect, test } from "@playwright/test";
+import { features } from "../../src/lib/features";
 test("guest direct navigation cannot open private features even with stored demo data", async ({ page }) => {
   await page.goto("/");
   await page.evaluate(() => localStorage.setItem("careerforge-demo-v1", JSON.stringify({ profile: { name: "Unauthorized local user" } })));
-  for (const path of ["/profile", "/account", "/jobs", "/applications", "/cv", "/skill-checks"]) {
+  for (const path of ["/profile", "/features", ...features.map(feature => feature.href).filter(path => path !== "/")]) {
     await page.goto(path);
     await expect(page).toHaveURL(/\/login$/);
     await expect(page.getByLabel("Email address")).toBeVisible();

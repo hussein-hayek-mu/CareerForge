@@ -93,9 +93,9 @@ h1, h2, h3, p { margin: 0; }
 .recovery-actions .button { min-height: 44px; max-width: 100%; white-space: normal; text-align: center; }
 :focus-visible { outline: 2px solid var(--green); outline-offset: 5px; }
 input, select, textarea { accent-color: var(--green); }
-.app-shell { --sidebar-width: 236px; min-height: 100vh; }
-.app-sidebar { position: fixed; inset: 0 auto 0 0; width: var(--sidebar-width); display: flex; flex-direction: column; z-index: 20; padding: 29px 15px 20px; background: #151914; border-right: 1px solid var(--line); overflow-y: auto; }
-.app-sidebar-brand { display: flex; align-items: center; gap: 6px; justify-content: space-between; margin-bottom: 45px; }
+.app-shell { --sidebar-width: 260px; min-height: 100vh; }
+.app-sidebar { position: fixed; inset: 0 auto 0 0; width: var(--sidebar-width); display: flex; flex-direction: column; z-index: 20; padding: 24px 15px 20px; background: #151914; border-right: 1px solid var(--line); overflow: hidden; }
+.app-sidebar-brand { display: flex; align-items: center; gap: 6px; justify-content: space-between; margin-bottom: 24px; flex-shrink: 0; }
 .brand { display: flex; align-items: center; gap: 10px; font-size: 21px; font-weight: 650; letter-spacing: -1px; white-space: nowrap; }
 .brand-mark { display: grid; place-items: center; width: 33px; height: 35px; border-radius: 9px; background: var(--green); color: #233714; flex-shrink: 0; box-shadow: 0 0 25px #c5ed850a; }
 .app-brand-name > span { color: var(--green); }

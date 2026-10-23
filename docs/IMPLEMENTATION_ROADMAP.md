@@ -47,6 +47,24 @@ future module; this guidance review does not establish report-wide conformance.
 
 ## Current release boundary
 
+23 October feature-organization increment: reviewed the actual report's scope,
+module requirements and acceptance criteria against existing routes. Added a
+private `/features` directory, grouped sidebar and ten dedicated Planned/Stretch
+destinations. Every student tool now has a stable navigation/page target; My CV
+remains separate. Scope and page ownership, including remaining M1–M7 requirements
+and reserved role-restricted Admin work, are mapped in [FEATURE_MAP.md](FEATURE_MAP.md).
+These destinations do not implement the future modules or change their status.
+No fabricated results, enabled upload/submission controls or new paid integrations.
+
+Verification: lint, types, 53 tests and production build passed; four desktop/mobile
+public-entry and all-feature guest-guard browser cases passed. The development
+temporary-account suite passed all ten planned destinations, active/no-store/noindex
+states, collapse persistence, mobile last-item navigation and narrow reflow, alongside
+existing profile/CV/tracker/account checks; test identities were deleted without mail.
+Directory/mobile screenshots reviewed. A wrapping mobile step-number issue found
+visually was fixed and separately checked at 320px. Full screen-reader/contrast and
+physical-device audits remain open; no deployment or latest remote CI verification.
+
 23 October owner UI correction: public visitors now have a homepage with login/
 registration entry; workspace features require authentication. My CV has a
 standalone sidebar entry. The React/SQL fundamentals-check pilot stores DB-graded
