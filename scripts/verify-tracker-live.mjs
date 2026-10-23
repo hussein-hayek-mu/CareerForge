@@ -66,6 +66,24 @@ export async function verifyTrackerLive({ a, b, second, userB }) {
   await a.page.reload();
   await expect(a.page.locator(".tracker-row")).toHaveCount(0);
   assert.equal((await list(a)).length, 0);
+  // Keyboard/dialog assertions moved here because jobs are now account-only.
+  assert.equal((await a.context.request.post("/api/v1/applications", { data: { jobId: "1" } })).status(), 201);
+  await a.page.goto("/applications");
+  const remove = a.page.getByRole("button", { name: "Remove Junior Frontend Developer from tracker", exact: true });
+  const bounds = await remove.boundingBox();
+  assert.ok(bounds.width >= 44 && bounds.height >= 44);
+  const trigger = a.page.getByRole("button", { name: "Junior Frontend Developer", exact: true });
+  await trigger.click();
+  const dialog = a.page.getByRole("dialog", { name: "Junior Frontend Developer", exact: true });
+  await expect(dialog.getByRole("button", { name: "Close role details" })).toBeFocused();
+  await a.page.keyboard.press("Escape");
+  await expect(trigger).toBeFocused();
+  await trigger.click();
+  await dialog.getByRole("button", { name: "Remove from tracker", exact: true }).click();
+  await expect(a.page.locator(".tracker-row")).toHaveCount(0);
+  await a.page.keyboard.press("Escape");
+  await expect(dialog).not.toBeVisible();
+  await expect(a.page.locator("#main-content")).toBeFocused();
   await a.page.goto("/account");
   console.log("PASS: cross-browser/phone tracker persistence, duplicate-save preservation, conflict recovery, owner isolation, failed write/refresh recovery and removal");
 }

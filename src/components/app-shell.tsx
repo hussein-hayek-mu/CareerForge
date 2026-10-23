@@ -13,9 +13,11 @@ function subscribe(callback: () => void) {
 }
 function snapshot() { try { return localStorage.getItem(preferenceKey) === "true"; } catch { return false; } }
 
-export type IconName = "overview" | "profile" | "jobs" | "applications" | "account" | "menu" | "close" | "panel" | "arrow";
+export type IconName = "overview" | "profile" | "jobs" | "applications" | "account" | "menu" | "close" | "panel" | "arrow" | "cv" | "checks";
 export function AppIcon({ name }: { name: IconName }) {
   const paths: Record<IconName, string> = {
+    cv: "M6 3h9l4 4v14H6z M14 3v5h5 M9 12h7 M9 16h7",
+    checks: "M12 3l8 4v5c0 5-8 9-8 9s-8-4-8-9V7z M8 12l3 3 5-6",
     overview: "M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z",
     profile: "M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0 M4 21v-3a8 6 0 0 1 16 0v3",
     jobs: "M3 7h18v14H3z M8 7V3h8v4 M3 12h18 M10 12v3h4v-3",
@@ -30,6 +32,7 @@ export function AppIcon({ name }: { name: IconName }) {
 const items: { label: string; href: string; icon: IconName }[] = [
   { label: "Overview", href: "/", icon: "overview" },
   { label: "My profile", href: "/profile", icon: "profile" },
+  { label: "Skill checks", href: "/skill-checks", icon: "checks" },
   { label: "Find opportunities", href: "/jobs", icon: "jobs" },
   { label: "Applications", href: "/applications", icon: "applications" }
 ];
@@ -54,6 +57,7 @@ export function AppShell({ children, pageTitle, displayName = "Your workspace", 
       <nav aria-label="Main navigation" id={mobile ? "mobile-navigation" : "desktop-navigation"}>
         <p className="app-nav-heading">WORKSPACE <span>{privateAccount ? "PERSONAL" : "DEMO"}</span></p>
         {navigationItems.map(item => <Link key={item.href} href={item.href} aria-label={item.label} aria-current={pathname === item.href ? "page" : undefined} title={item.label} className={`app-nav-item ${pathname === item.href ? "selected" : ""}`} onClick={() => drawer.current?.close()}><AppIcon name={item.icon} /><span className="app-nav-label">{item.label}</span>{item.href === "/applications" && applicationCount > 0 && <span className="app-nav-count">{applicationCount}</span>}</Link>)}
+        <p className="app-nav-heading account-group-label">DOCUMENTS</p><Link href="/cv" aria-label="My CV" title="My CV" aria-current={pathname === "/cv" ? "page" : undefined} className={`app-nav-item ${pathname === "/cv" ? "selected" : ""}`} onClick={() => drawer.current?.close()}><AppIcon name="cv" /><span className="app-nav-label">My CV</span></Link>
         {!privateAccount && <><p className="app-nav-heading account-group-label">ACCOUNT</p>
         <Link href="/account" aria-label="My account" aria-current={pathname === "/account" ? "page" : undefined} title="My account" className={`app-nav-item ${pathname === "/account" ? "selected" : ""}`} onClick={() => drawer.current?.close()}><AppIcon name="account" /><span className="app-nav-label">My account</span><span className="private-indicator" aria-hidden="true" /></Link></>}
       </nav>

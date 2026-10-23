@@ -12,7 +12,7 @@ test("missing pages offer accessible recovery without narrow-screen overflow", a
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: test.info().outputPath("missing-page.png"), fullPage: true });
   await page.getByRole("link", { name: "Explore opportunities" }).click();
-  await expect(page).toHaveURL(/\/jobs$/);
+  await expect(page).toHaveURL(/\/login$/);
   await page.goto("/this-page-does-not-exist");
   await page.getByRole("link", { name: "Back to overview" }).click();
   await expect(page).toHaveURL(/\/$/);

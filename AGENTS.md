@@ -19,6 +19,12 @@ scope and preserve unrelated changes. User instructions take precedence.
 
 ## Product quality standards
 
+Owner UI/access contract (23 October): guests see the public homepage and auth/
+recovery entry only; feature pages require server-verified authentication. My CV
+has its own sidebar entry. Only selected skills with a current supported passing
+check enter CV skills. React/SQL basics checks are limited assessment evidence,
+not proof of mastery. Add future AI/academic sidebar entries when functional.
+
 Apply the owner's senior engineering/product instructions and
 `helper/Codex_NextJS_Production_Quality_Workflow.pdf` incrementally:
 - Inspect the relevant implementation before editing; preserve the existing

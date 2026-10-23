@@ -28,8 +28,10 @@ copy .env.example .env.local
 npm run dev
 ```
 
-Open <http://localhost:3000>. The four demo pages and
+Open <http://localhost:3000>. The public homepage and
 <http://localhost:3000/api/v1/health> work without Supabase credentials.
+Workspace features require sign-in. My CV and Skill checks have separate sidebar
+entries; currently React/SQL fundamentals checks can qualify selected CV skills.
 After configuring `DATABASE_URL`, check the development database connection at
 <http://localhost:3000/api/v1/health/database>. This diagnostic is disabled in
 production (404); the public app-health route does not query the database.

@@ -2,8 +2,10 @@
 
 P4.2 adds `npm run test:e2e:ci` using `playwright.ci.config.ts`. It selects the
 existing workspace, navigation and missing-page tests, for six desktop/mobile
-cases. They cover guest profile edits/reload, matching/filtering, role details,
-save/status/remove/reload, responsive navigation/focus and missing-page recovery.
+cases. Following the owner's homepage-only guest requirement, they now cover
+public navigation, responsive entry, direct private-route denial despite stored
+demo data, sign-in/registration links and missing-page recovery. Private profile,
+matching and tracker operations are covered by the authenticated live suite.
 They do not verify live accounts, email, RLS or database migrations.
 
 The configuration starts a production server at `127.0.0.1:3200`, refuses to
@@ -43,9 +45,10 @@ The first GitHub run for `e9594b9` passed install/generation/lint/types/unit/bui
 but failed the two navigation cases: the truly unconfigured build correctly
 displayed `/account` unavailable rather than redirecting to login. The earlier
 local build contained configured public values and did not reproduce that state.
-The offline config now explicitly identifies this scenario; navigation asserts
-the unavailable heading and follows its sign-in link. Configured-suite behavior
-still requires a direct anonymous login redirect. Verify with a freshly built
+The subsequent fix explicitly asserted that offline state and its sign-in link.
+The owner's later homepage-only guest requirement supersedes that contract:
+cookie-free account navigation now redirects directly to sign-in even offline.
+The old offlineAuth metadata flag is removed. Verify with a freshly built
 unconfigured production app, not only child-server environment overrides.
 
 Correction verification: rebuilt with both public Supabase variables explicitly

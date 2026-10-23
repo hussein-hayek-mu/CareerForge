@@ -6,9 +6,16 @@ Live flow assertions and cleanup completed; Edge process shutdown was slow.
 Open My profile, save the details you want included, then choose **Preview your
 saved-profile CV** (or open `/cv`). The page reads the verified account's saved
 profile through its authenticated Supabase client. It includes only entered name,
-headline, location, biography, education/project summaries and skills; empty
+headline, location, biography, education/project summaries and eligible skills; empty
 sections are omitted. No generated qualifications or demonstration profile data
 are inserted. Saved source data remains unchanged by previewing or printing.
+
+Updated access/skills contract: My CV now has a dedicated sidebar entry. Only
+selected React/SQL skills with a stored passing current fundamentals check appear
+in the CV skills list. Other skills remain self-reported in the profile and are
+excluded from the CV until a supported check is passed. See
+[PUBLIC_ENTRY_AND_SKILL_CHECKS.md](PUBLIC_ENTRY_AND_SKILL_CHECKS.md) for the pilot's
+limits; passing a basics quiz is not proof of professional mastery.
 
 Choose **Print / save as PDF**, then use the browser print dialog's PDF destination.
 Review pagination, margins, paper size and browser header/footer settings before

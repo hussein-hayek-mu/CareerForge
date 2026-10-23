@@ -18,12 +18,13 @@ test("contrast sampler detects weak text and placeholders and skips uncertain ba
 test("sampled public text contrast stays above its threshold", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   let checked = 0;
-  for (const path of ["/", "/profile", "/jobs", "/applications", "/login?confirmation=failed", "/register", "/forgot-password", "/confirm-email", "/reset-password"]) {
+  for (const path of ["/", "/login?confirmation=failed", "/register", "/forgot-password", "/confirm-email", "/reset-password"]) {
     await page.goto(path);
     await expect(page.getByRole("heading").first()).toBeVisible();
     const result = await textContrast(page);
     expect(result.samples.filter((sample: { passes: boolean }) => !sample.passes), path).toEqual([]);
     checked += result.samples.length;
   }
-  expect(checked).toBeGreaterThan(100);
+  // Guest workspace text is no longer public; sample the actual public surfaces.
+  expect(checked).toBeGreaterThan(25);
 });

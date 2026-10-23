@@ -47,6 +47,21 @@ future module; this guidance review does not establish report-wide conformance.
 
 ## Current release boundary
 
+23 October owner UI correction: public visitors now have a homepage with login/
+registration entry; workspace features require authentication. My CV has a
+standalone sidebar entry. The React/SQL fundamentals-check pilot stores DB-graded
+results and permits only selected, passed current checks into CV skills. This
+supersedes the earlier public guest demo and automatic inclusion of self-reported
+CV skills. It is not proof of mastery or broad assessment completion. Details:
+[PUBLIC_ENTRY_AND_SKILL_CHECKS.md](PUBLIC_ENTRY_AND_SKILL_CHECKS.md).
+
+Verification: additive development migration and Prisma generation completed;
+53 local tests, lint, TypeScript, production build, database grading/RLS checks
+and the final temporary-account suite passed. Of 28 initial browser cases, 23
+passed and five outdated access/contrast/icon assumptions were corrected; all
+five targeted reruns passed. Homepage/CV screenshots reviewed. No emails/AI
+calls or production deployment. Broader assessment remains a pilot, not complete.
+
 Product increment delivered under the 23 October instructions: private
 saved-profile CV preview at `/cv`, with browser print/PDF output. It reuses
 owner-scoped profile reads, no-store and noindex; empty sections are omitted and
@@ -77,7 +92,8 @@ across devices. Deploy a demonstrable version after release checks pass.
 
 Keep AI, live job search, automatic applications, native mobile, workshops,
 and the larger academic/career modules outside this first release.
-Skills remain self-reported. Fictional jobs must stay clearly labeled.
+Profile skills remain self-reported; CV skills require the supported passing
+fundamentals checks. Fictional jobs must stay clearly labeled.
 
 ## Status ledger
 
@@ -97,10 +113,10 @@ real inbox journeys and remaining session cases require verification.
 | D07 | Account-aware workspace | Done | Server verifies session and reads owner profile; dashboard, skill ranking and role gaps use saved data. `/profile` leads signed-in users to `/account`; read failures do not substitute demo data. |
 | D08 | Jobs and transparent matching | Partial | Six database-seeded fictional roles for accounts; static guest catalog, search/work-mode/saved filters, detail dialog and transparent skill gaps. Catalog administration remains deferred. |
 | D09 | Saved roles and manual tracker | Done | Signed-in save/remove/status updates persist in Supabase across sessions/devices with revision conflicts and recovery. Guest tracker stays local; older account-local saves remain unimported. |
-| D10 | Guest demo | Done | Browser-local editable sample profile/tracker, reset, malformed-storage recovery, no sample upload into accounts. |
+| D10 | Public entry and guest access | Done | Public homepage with sign-in/registration; direct private feature URLs require login. Prior editable guest demo is superseded by owner's 23 October instruction. No local demo state grants account access. |
 | D11 | Shared responsive design | Done | Graphite/chartreuse system, branded SVGs, sidebar collapse preference, mobile drawer, private profile identity and dark auth forms. Further release audit remains required. |
 | D12 | Motion hero | Done | Enhanced original local film with aurora ribbons, orbital trails, forge pulses and sparks; continuous playback while scrolling, hidden-tab pause, playback control, reduced-motion/save-data and poster fallback. |
-| D13 | Automated verification | Partial | 27 local tests; auth/recovery/navigation/demo/film browser coverage; live cross-browser tracker, two-account and RLS scripts. No comprehensive production, physical-device or performance validation. |
+| D13 | Automated verification | Partial | 53 local tests; public-entry/auth/recovery/film/accessibility browser coverage; real skill-grading/RLS and authenticated CV/tracker/dialog checks. Historical demo cases are superseded by homepage-only guest access. No comprehensive production or physical-device validation. |
 | D14 | Hosting and release operations | Open | No verified hosted release, production environment, recovery drill or remote CI result for the latest work. |
 
 Source map: UI in `src/components/`; static jobs/matching in

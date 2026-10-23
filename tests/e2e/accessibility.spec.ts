@@ -9,10 +9,11 @@ test("skip navigation, form focus and narrow layouts remain usable from the keyb
   await page.getByRole("link", { name: "Skip to content", exact: true }).focus();
   await page.keyboard.press("Enter");
   await expect(page.locator("#main-content")).toBeFocused();
-  await page.goto("/profile");
-  await page.getByLabel("Full name").focus();
+  await page.goto("/login");
+  await expect(page.getByLabel("Email address")).toBeEnabled();
+  await page.getByLabel("Email address").focus();
   await page.keyboard.press("Tab");
-  const location = page.getByLabel("Location", { exact: true });
+  const location = page.getByLabel("Password", { exact: true });
   await expect(location).toBeFocused();
   const outline = await location.evaluate(node => ({ style: getComputedStyle(node).outlineStyle, width: getComputedStyle(node).outlineWidth }));
   expect(outline.style).not.toBe("none");
@@ -21,32 +22,12 @@ test("skip navigation, form focus and narrow layouts remain usable from the keyb
   // browser zoom; it is not a claim of a physical device/assistive-tech audit.
   for (const width of [320, 360, 640]) {
     await page.setViewportSize({ width, height: 900 });
-    for (const path of ["/", "/profile", "/jobs", "/applications", "/login", "/register", "/forgot-password", "/confirm-email", "/reset-password"]) {
+    for (const path of ["/", "/login", "/register", "/forgot-password", "/confirm-email", "/reset-password"]) {
       await page.goto(path);
+      await expect(page.getByRole("heading").first()).toBeVisible();
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `${path} at ${width}px`).toBe(true);
     }
   }
 });
 
-test("role dialog returns focus after removing its original trigger and touch actions stay reachable", async ({ page }) => {
-  await page.goto("/jobs");
-  await page.getByRole("button", { name: "Save Junior Frontend Developer", exact: true }).click();
-  await page.goto("/applications");
-  const remove = page.getByRole("button", { name: "Remove Junior Frontend Developer from tracker", exact: true });
-  const bounds = await remove.boundingBox();
-  expect(bounds?.width).toBeGreaterThanOrEqual(44);
-  expect(bounds?.height).toBeGreaterThanOrEqual(44);
-  const trigger = page.getByRole("button", { name: "Junior Frontend Developer", exact: true });
-  await trigger.click();
-  const dialog = page.getByRole("dialog", { name: "Junior Frontend Developer", exact: true });
-  await expect(dialog).toBeVisible();
-  await expect(dialog.getByRole("button", { name: "Close role details" })).toBeFocused();
-  await page.keyboard.press("Escape");
-  await expect(trigger).toBeFocused();
-  await trigger.click();
-  await dialog.getByRole("button", { name: "Remove from tracker", exact: true }).click();
-  await expect(page.locator(".tracker-row")).toHaveCount(0);
-  await page.keyboard.press("Escape");
-  await expect(dialog).not.toBeVisible();
-  await expect(page.locator("#main-content")).toBeFocused();
-});
+// Private tracker/dialog coverage belongs to the authenticated live suite.

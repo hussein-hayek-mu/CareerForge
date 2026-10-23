@@ -7,6 +7,19 @@ datasource db {
   provider = "postgresql"
 }
 
+// Server-graded checks: client writes denied; grading RPC and ownership FK in SQL.
+model SkillCheckAttempt {
+  id      String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId  String @map("user_id") @db.Uuid
+  skill   String
+  version Int
+  score   Int
+  passed  Boolean
+  takenAt DateTime @default(now()) @map("taken_at") @db.Timestamptz(6)
+  @@index([userId, takenAt(sort: Desc)], map: "skill_check_owner_time_idx")
+  @@map("skill_check_attempts")
+}
+
 // Supabase-managed auth tables are intentionally not represented here.
 // The auth.users FK, trigger, RLS and grants live in supabase/migrations.
 model Profile {

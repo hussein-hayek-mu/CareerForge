@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "typecheck": "next typegen && tsc --noEmit",
     "test:e2e": "playwright test",
-    "test": "tsx --test src/app/api/v1/health/route.test.ts src/lib/supabase/middleware.test.ts src/lib/demo-workspace.test.ts src/lib/account/handlers.test.ts src/lib/tracker/handlers.test.ts src/lib/account/recovery.test.ts src/lib/account/request-body.test.ts scripts/deployment-config.test.mjs src/components/profile-cv.test.tsx",
+    "test": "tsx --test src/app/api/v1/health/route.test.ts src/lib/supabase/middleware.test.ts src/lib/demo-workspace.test.ts src/lib/account/handlers.test.ts src/lib/tracker/handlers.test.ts src/lib/account/recovery.test.ts src/lib/account/request-body.test.ts scripts/deployment-config.test.mjs src/components/profile-cv.test.tsx src/lib/skill-checks.test.ts",
     "db:migrate": "node scripts/db-migrate.mjs",
     "test:rls": "node scripts/test-rls.mjs",
     "test:account:live": "node scripts/test-account-live.mjs",
@@ -18,7 +18,8 @@
     "audit:performance": "node scripts/audit-performance.mjs",
     "test:e2e:ci": "playwright test --config playwright.ci.config.ts",
     "check:deployment": "node scripts/check-deployment.mjs",
-    "build:deploy": "npm run check:deployment && npm run prisma:generate && next build"
+    "build:deploy": "npm run check:deployment && npm run prisma:generate && next build",
+    "test:skill-checks": "node scripts/test-skill-checks.mjs"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.1",

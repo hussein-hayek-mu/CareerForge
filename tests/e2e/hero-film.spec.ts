@@ -11,7 +11,7 @@ test("original hero video plays silently, loops, and supports pause/resume", asy
   })).toEqual({ muted: true, loop: true, inline: true, ready: true });
   await video.evaluate(node => { (node as HTMLVideoElement).currentTime = 4.8; });
   await expect.poll(() => video.evaluate(node => (node as HTMLVideoElement).seeking)).toBe(false);
-  await page.locator(".launchpad").screenshot({ path: testInfo.outputPath("hero-film.png"), animations: "disabled" });
+  await page.locator(".public-hero").screenshot({ path: testInfo.outputPath("hero-film.png"), animations: "disabled" });
   await page.getByRole("button", { name: "Pause background video", exact: true }).click();
   await expect.poll(() => video.evaluate(node => (node as HTMLVideoElement).paused)).toBe(true);
   await page.getByRole("button", { name: "Play background video", exact: true }).click();
@@ -23,12 +23,12 @@ test("original hero video plays silently, loops, and supports pause/resume", asy
   // A tall desktop viewport can still include the hero while the footer is
   // visible. Use a short viewport to ensure the video really leaves view.
   await page.setViewportSize({ width: page.viewportSize()?.width ?? 1440, height: 420 });
-  await page.locator(".page-footer").scrollIntoViewIfNeeded();
+  await page.locator(".public-footer").scrollIntoViewIfNeeded();
   expect(await video.evaluate(node => node.getBoundingClientRect().bottom < 0)).toBe(true);
   const before = await video.evaluate(node => (node as HTMLVideoElement).currentTime);
   await expect.poll(() => video.evaluate(node => (node as HTMLVideoElement).currentTime)).toBeGreaterThan(before + .2);
   await expect.poll(() => video.evaluate(node => (node as HTMLVideoElement).paused)).toBe(false);
-  await page.locator(".launchpad").scrollIntoViewIfNeeded();
+  await page.locator(".public-hero").scrollIntoViewIfNeeded();
   await expect.poll(() => video.evaluate(node => (node as HTMLVideoElement).paused)).toBe(false);
 });
 
@@ -51,7 +51,7 @@ test("a blocked video retains its poster and leaves the hero usable", async ({ p
   await page.goto("/");
   await expect(page.locator(".hero-film-poster")).toBeVisible();
   await expect(page.getByRole("button", { name: /background video/ })).toHaveCount(0);
-  await expect(page.getByRole("link", { name: "Build your profile", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Start your journey", exact: true })).toBeVisible();
 });
 
 test("data saving defaults to the poster without requesting the video", async ({ page }) => {

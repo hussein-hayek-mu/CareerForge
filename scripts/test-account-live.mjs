@@ -164,6 +164,7 @@ try {
   await expect(a.page).toHaveURL(`${baseURL}/login`);
   assert.equal((await a.context.request.get("/api/v1/profile")).status(), 401);
   assert.equal((await a.context.request.get("/api/v1/applications")).status(), 401);
+  assert.equal((await a.context.request.post("/api/v1/skill-checks", { data: {} })).status(), 401);
   await a.page.goto("/account");
   await expect(a.page).toHaveURL(`${baseURL}/login`);
   stage = "new password works and previous password is rejected";

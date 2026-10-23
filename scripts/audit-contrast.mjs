@@ -6,7 +6,7 @@ const browser = await chromium.launch({ channel: process.platform === "win32" ? 
 try {
   const page = await browser.newPage({ baseURL: process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000", reducedMotion: "reduce" });
   const results = [];
-  for (const path of ["/", "/profile", "/jobs", "/applications", "/login?confirmation=failed", "/register", "/forgot-password", "/confirm-email", "/reset-password"]) {
+  for (const path of ["/", "/login?confirmation=failed", "/register", "/forgot-password", "/confirm-email", "/reset-password"]) {
     await page.goto(path);
     await page.getByRole("heading").first().waitFor();
     const result = await textContrast(page);
