@@ -35,11 +35,18 @@ Apply the owner's senior engineering/product instructions and
   analytics, submissions or successful operations.
 - Full-product scope includes M1 profile/onboarding, M2 career/skill analysis,
   M3 academic planner, M4 job matching, M5 learning/project recommendations and
-  M6 CV analysis/portfolio building. Track missing work without expanding the
+  M6 CV analysis/portfolio building, M7 Application Agent and the admin dashboard
+  (confirmed in the actual report, sections 4/5.10). Track missing work without expanding the
   current release silently. Preserve the already implemented application tracker.
-- Mobile is separate from the web app. The owner's newer instructions describe
-  Flutter; older helper plans describe Expo. Reconcile against the actual report
-  before mobile implementation; neither requires changing the current web app.
+- Mobile is separate from the web app. The actual report sections 6/8/17/19
+  specify React Native/Expo; prior Flutter wording is not the report's stack.
+- Follow the owner's 23 October autonomous execution instructions: group coherent
+  work, continue independent implementation when external services are blocked,
+  prioritize security/core workflows over cosmetics, and avoid repeat audits or
+  recommendation-only turns. Do not promise unmeasured completion dates.
+- Generated applicant facts must trace to source profile/CV data; deterministic
+  code computes scores. Require approval of each specific application and its
+  contents before any supported submission, regardless of older auto-submit text.
 - Inspect diffs, preserve unrelated work and commit coherent verified increments
   under the owner's standing authorization. Do not infer deployment or paid-service
   authorization from a workflow example.

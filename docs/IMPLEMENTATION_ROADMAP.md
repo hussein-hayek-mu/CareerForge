@@ -1,6 +1,6 @@
 # CareerForge implementation roadmap
 
-Updated: 22 October 2026. Initial audited baseline: `6d63b9e`; subsequent
+Updated: 23 October 2026. Initial audited baseline: `6d63b9e`; subsequent
 verified increments are recorded below.
 
 ## Purpose and authority
@@ -46,6 +46,17 @@ Likewise verify the report's exact data/API contracts before implementing each
 future module; this guidance review does not establish report-wide conformance.
 
 ## Current release boundary
+
+23 October execution update: follow the owner's autonomous completion instructions,
+continue coherent implementation batches without recommendation-only stops, and
+do not let hosting/credentials block independent product work. Report review
+(actual helper PDF, sections 4–8, 18–20 and relevant FR/acceptance/grounding text)
+confirms M1–M7 plus Admin as full scope; M8/M9 are stretch. The actual mobile
+stack is React Native/Expo. Earlier M1–M6/Flutter guidance was incomplete; this
+correction does not claim full report conformance or implementation. The owner
+requires specific application/content approval before submission. Near-term
+delivery remains a demonstrable web release, then richer profiles, portfolio/CV
+and analysis. The prior month/week ranges were provisional, not verified deadlines.
 
 Deliver a responsive web application for students and early-career developers:
 sign up, confirm email, sign in, edit a private profile, browse seeded fictional
@@ -367,6 +378,16 @@ Acceptance: fresh checkout/setup works; remote checks pass for the release
 commit; no abandoned test identities, secrets or debug artifacts.
 
 **P4.3 - Deploy and demonstrate. Open. Depends on release gates.**
+
+Preparation delivered: explicit Vercel build command generates Prisma and runs
+a redacted offline configuration preflight before Next build. No migrations run
+automatically. Prepare exact-origin/callback setup and rollback/smoke instructions;
+actual deployment, credential validity and hosted flows require separate evidence.
+Lint, TypeScript and 48 tests passed; the complete guarded deployment build passed
+using synthetic configuration. Local preflight correctly reports missing
+APP_ORIGIN without exposing values. An initial invocation could not resolve npm
+as a project module; invoking installed npm completed the check. Runbook:
+[DEPLOYMENT.md](DEPLOYMENT.md). No hosting action, migration or real AI call.
 
 Prepare hosting/environment/callback configuration, reviewed production
 migrations and fictional seeds, HTTPS and smoke-test instructions. Deploy when
