@@ -1,5 +1,18 @@
 # AGENTS.md — CareerForge standing rules (read before every task)
 
+## Current authority — 28 October 2026
+
+Read [the owner's current standards and requirements](OWNER_WORKING_STANDARDS_AND_REQUIREMENTS.md)
+and the root `../AGENTS.md` and `../docs/IMPLEMENTATION_ROADMAP.md` first.
+The owner requires autonomous, coherent progress across useful subtasks, using
+the existing npm web architecture. The one-task/session, fixed-file-list,
+pnpm/monorepo and stop-on-routine-ambiguity rules below are historical and
+superseded. Permitted public job ingestion may use HTTP/HTML parsing under the
+new source contract; the blanket scraping prohibition below is superseded for
+that scope. Access-control, secrecy, grounding and ownership protections remain.
+
+## Historical build-plan instructions
+
 You are building CareerForge from `docs/CareerForge_Software_Engineering_Report.pdf` (the spec) and `BUILD_PLAN.md` (the task order).
 
 ## Working rules

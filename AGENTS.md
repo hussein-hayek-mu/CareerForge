@@ -10,6 +10,11 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## CareerForge delivery workflow
 
+Read `helper/OWNER_WORKING_STANDARDS_AND_REQUIREMENTS.md` for the owner's
+28 October standing engineering/UX instructions and claim-validation, live-job,
+roadmap.sh and trainer/certificate requirements. Continue useful coherent work
+autonomously; historical helper one-task/session and pnpm rules are superseded.
+
 Read `docs/IMPLEMENTATION_ROADMAP.md` before starting project work. It is the
 current status ledger and ordered queue; older increment plans are historical.
 Follow the roadmap's work protocol: select a focused task, verify its acceptance

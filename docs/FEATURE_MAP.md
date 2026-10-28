@@ -1,5 +1,13 @@
 # CareerForge feature and page map
 
+28 October owner update: see
+[standing standards and product contracts](../helper/OWNER_WORKING_STANDARDS_AND_REQUIREMENTS.md)
+and roadmap R1–R4. Portfolio and Skill checks own evidence-aware presentation
+and assessment; Profile owns claim/evidence records; Jobs owns live-source
+ingestion; Learning roadmap owns concrete roadmap.sh-linked suggestions.
+Workshops/certificates require trainer/admin workflows and do not yet have an
+implemented destination. Existing page statuses below remain unchanged.
+
 Updated 23 October 2026. This maps the actual software engineering report to
 student-facing pages. A page's existence does **not** establish module completion.
 

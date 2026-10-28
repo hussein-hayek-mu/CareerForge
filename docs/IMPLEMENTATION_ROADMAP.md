@@ -158,6 +158,30 @@ data access uses the authenticated Supabase client.
 
 ## Ordered implementation queue
 
+### Owner requirements update — 28 October 2026
+
+The owner's standing engineering/architecture/UX instructions and additional
+product requirements are preserved in
+[the helper requirements record](../helper/OWNER_WORKING_STANDARDS_AND_REQUIREMENTS.md).
+They supersede historical helper restrictions on one task per session and pnpm.
+Continue coherent useful increments autonomously, verifying and committing stable
+milestones. Existing release evidence and external authorization boundaries remain.
+
+The following scoped requirements extend the full-product backlog. They do not
+mark the current release or planned destinations complete:
+
+| ID | Status | Requirement / acceptance reference | Dependencies and next action |
+| --- | --- | --- | --- |
+| R1 | Open; limited quiz pilot exists | Source-grounded portfolio with claim-specific validation, reviewed timed skill assessments, degree evidence and scoped language assessment; helper R1 | Define normalized claim/evidence and assessment-attempt contracts, RLS and accommodations before migration/UI. Current five-question checks are untimed and do not verify identity or mastery. |
+| R2 | Open | Real jobs through free permitted APIs or permitted public HTTP/HTML ingestion; helper R2 | Verify source terms/availability; define bounded adapters, freshness, deduplication and failure states. Existing jobs remain fictional. No access-control bypass or arbitrary URL fetcher. |
+| R3 | Open | Concrete roadmap.sh-linked gap suggestions and tangible exercises; helper R3 | Ground in target/gaps, verify source links/reuse, define progress persistence and empty states. No external content imported or partnership claimed. |
+| R4 | Open | Trainer agreements, workshops and verifiable scoped certificates; helper R4 | Establish trainer/admin permissions and completion evidence before issuing certificates; support minimal verification, revocation and privacy. No trainer contacted or agreement executed. |
+
+Near-term: verify skill-check keyboard lifecycle, then continue independent core
+release work and profile/evidence foundations. Inbox/hosting blockers do not
+prevent implementation. These records define scope, not a production-readiness
+claim or authorization for paid integrations/publication.
+
 Complete one coherent item at a time. Dependencies below describe the order;
 independent owner email checks can run alongside implementation. Review scope
 again before each phase, rather than implementing the whole future backlog.
