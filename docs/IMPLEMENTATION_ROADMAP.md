@@ -1,6 +1,6 @@
 # CareerForge implementation roadmap
 
-Updated: 23 October 2026. Initial audited baseline: `6d63b9e`; subsequent
+Updated: 28 October 2026. Initial audited baseline: `6d63b9e`; subsequent
 verified increments are recorded below.
 
 ## Purpose and authority
@@ -112,6 +112,18 @@ Keep AI, live job search, automatic applications, native mobile, workshops,
 and the larger academic/career modules outside this first release.
 Profile skills remain self-reported; CV skills require the supported passing
 fundamentals checks. Fictional jobs must stay clearly labeled.
+
+### P3.1 skill-check keyboard focus — 28 October 2026
+
+Implemented a focused keyboard improvement: starting a check focuses its
+heading; cancel or successful submission restores the originating skill button.
+Initial page loads keep normal focus; failed requests retain the form/answers.
+Acceptance criteria are those three transitions without changing grading/access.
+Lint, TypeScript, all 53 existing tests and production build passed. The sandbox
+initially blocked tests with Windows `uv_os_get_passwd` ENOMEM; the authorized
+outside-sandbox rerun passed. These tests do not exercise the new focus behavior;
+authenticated browser and assistive-technology verification remain open. P3.1
+remains partial. This is a local increment, with no deployment or database change.
 
 ## Status ledger
 
