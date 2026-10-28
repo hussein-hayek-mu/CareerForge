@@ -7,6 +7,21 @@ datasource db {
   provider = "postgresql"
 }
 
+// Owner/public access and source-grounded writes are enforced by SQL/RPCs.
+model Portfolio {
+  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId            String @unique @map("user_id") @db.Uuid
+  slug              String @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  template          String @default("studio")
+  sections          String[] @default(["about", "project", "skills"])
+  revision          String @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  isPublic          Boolean @default(false) @map("is_public")
+  publishedSnapshot Json? @map("published_snapshot")
+  publishedAt       DateTime? @map("published_at") @db.Timestamptz(6)
+  updatedAt         DateTime @default(dbgenerated("clock_timestamp()")) @map("updated_at") @db.Timestamptz(6)
+  @@map("portfolios")
+}
+
 // Server-graded checks: client writes denied; grading RPC and ownership FK in SQL.
 model SkillCheckAttempt {
   id      String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid

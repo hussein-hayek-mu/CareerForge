@@ -1,9 +1,10 @@
 # CareerForge
 
 CareerForge is a two-person university capstone project. The Next.js web MVP
-includes a browsable demo and real Supabase email/password accounts with private
-profile persistence. AI, live job discovery, and automatic applications are out
-of scope for this increment.
+includes a public sign-in entry and real Supabase email/password accounts with
+private profiles, fictional job matching, tracking, assessed-skill CVs and
+profile-derived portfolios. AI, live job discovery, and automatic applications
+remain planned.
 
 ## Implementation roadmap
 
@@ -39,6 +40,10 @@ Learning roadmap now offers a pilot: select a fictional role for concrete
 gap-based exercises and original roadmap.sh links. Target selection survives
 reload in the URL; saved schedules and completion tracking remain planned.
 See [learning roadmap behavior](docs/LEARNING_ROADMAP.md).
+My portfolio offers two templates, saved private choices and explicit publication
+of selected profile facts. Shared links show an approved snapshot; later draft
+edits stay private until republished. Make private revokes subsequent public reads.
+See [portfolio behavior and report scope](docs/PORTFOLIO.md).
 After configuring `DATABASE_URL`, check the development database connection at
 <http://localhost:3000/api/v1/health/database>. This diagnostic is disabled in
 production (404); the public app-health route does not query the database.

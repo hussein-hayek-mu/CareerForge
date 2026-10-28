@@ -127,6 +127,29 @@ remains partial. This is a local increment, with no deployment or database chang
 
 ## Status ledger
 
+M6/R1 portfolio slice delivered — 28 October. Re-read the actual report's
+FR-6.4/6.5, UC-5, Portfolio data model/API and M6 acceptance. Added profile-derived
+private previews, two templates, persisted section choices and explicitly approved
+public snapshots with revocation. Private edits do not silently modify published
+facts; source tokens and revisions reject unreviewed/stale changes. Contract and
+boundaries: [PORTFOLIO.md](PORTFOLIO.md). Experience/certification/contact records
+and CV analysis/versioning remain; no full-M6 completion claim.
+
+Verification: all 76 unit/render tests, lint, types and production build passed.
+Migration plus ownership/publication verifier passed in a rollback trial; the
+additive development migration, Prisma generation and applied-schema verifier then
+passed. Focused and full temporary-account browser suites passed, including
+templates/save/reload, consent-gated publication, selected-field privacy,
+source/revision/failure recovery, 320/768/1440 layouts, public 404 after unpublish,
+and existing timed assessment/CV/PDF/profile/learning/tracker/password/isolation
+flows. Test publications revoked and accounts deleted; transaction tests rolled
+back. Screenshots reviewed. Browser testing exposed the ignored root proxy;
+moving it beside `src/app` activates session refresh/no-store and the public 404
+guard before streaming. Initial 200-for-not-found failure is resolved. Public
+requests have bounded timeouts. All four final desktop/mobile public-entry and
+guest-guard smoke cases passed with the corrected proxy. No AI, real-person publication, production
+migration, deployment or latest remote CI verification.
+
 R1 core lifecycle delivered — 28 October: server-created timed skill-check
 sessions, stable resume/deadline, DB-enforced expiry, idempotent grading and
 10-minute standard/100-minute extended time. Legacy direct untimed grading is
@@ -194,7 +217,7 @@ real inbox journeys and remaining session cases require verification.
 | D10 | Public entry and guest access | Done | Public homepage with sign-in/registration; direct private feature URLs require login. Prior editable guest demo is superseded by owner's 23 October instruction. No local demo state grants account access. |
 | D11 | Shared responsive design | Done | Graphite/chartreuse system, branded SVGs, sidebar collapse preference, mobile drawer, private profile identity and dark auth forms. Further release audit remains required. |
 | D12 | Motion hero | Done | Enhanced original local film with aurora ribbons, orbital trails, forge pulses and sparks; continuous playback while scrolling, hidden-tab pause, playback control, reduced-motion/save-data and poster fallback. |
-| D13 | Automated verification | Partial | 53 local tests; public-entry/auth/recovery/film/accessibility browser coverage; real skill-grading/RLS and authenticated CV/tracker/dialog checks. Historical demo cases are superseded by homepage-only guest access. No comprehensive production or physical-device validation. |
+| D13 | Automated verification | Partial | 76 local tests; public-entry/auth/recovery/film/accessibility coverage; real skill/session/portfolio grading/RLS and authenticated CV/portfolio/tracker/dialog checks. Historical demo cases are superseded by homepage-only guest access. No comprehensive production or physical-device validation. |
 | D14 | Hosting and release operations | Open | No verified hosted release, production environment, recovery drill or remote CI result for the latest work. |
 
 Source map: UI in `src/components/`; static jobs/matching in
@@ -220,13 +243,13 @@ mark the current release or planned destinations complete:
 
 | ID | Status | Requirement / acceptance reference | Dependencies and next action |
 | --- | --- | --- | --- |
-| R1 | Partial: timed lifecycle implemented | Source-grounded portfolio with claim-specific validation, reviewed timed skill assessments, degree evidence and scoped language assessment; helper R1 | React/SQL pilot now has server deadlines, extended-time mode, resume, expiry and idempotent grading. Practical tasks, bank review, normalized claim/evidence records, portfolio and degree/language validation remain; no proof of identity/mastery. |
+| R1 | Partial: timed checks and portfolio snapshots implemented | Source-grounded portfolio with claim-specific validation, reviewed timed skill assessments, degree evidence and scoped language assessment; helper R1 | React/SQL lifecycle and profile-derived portfolio templates/publication work. Practical tasks, bank review, normalized claim/evidence records and degree/language validation remain; no proof of identity/mastery. |
 | R2 | Open | Real jobs through free permitted APIs or permitted public HTTP/HTML ingestion; helper R2 | Verify source terms/availability; define bounded adapters, freshness, deduplication and failure states. Existing jobs remain fictional. No access-control bypass or arbitrary URL fetcher. |
 | R3 | Partial: learning pilot delivered | Concrete roadmap.sh-linked gap suggestions and tangible exercises; helper R3 | Saved-profile/catalog gaps now produce original tasks, review criteria and source links. Target remains in URL. Persisted targets/progress and adaptive schedules remain open; no imported content or partnership. |
 | R4 | Open | Trainer agreements, workshops and verifiable scoped certificates; helper R4 | Establish trainer/admin permissions and completion evidence before issuing certificates; support minimal verification, revocation and privacy. No trainer contacted or agreement executed. |
 
-Near-term: verify skill-check keyboard lifecycle, then continue independent core
-release work and profile/evidence foundations. Inbox/hosting blockers do not
+Near-term: continue normalized profile/evidence foundations and permitted live
+job integration, retaining core release checks. Inbox/hosting blockers do not
 prevent implementation. These records define scope, not a production-readiness
 claim or authorization for paid integrations/publication.
 

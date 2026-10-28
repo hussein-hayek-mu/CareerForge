@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { NextRequest } from "next/server";
 import { updateSession } from "./middleware";
-import { proxy } from "../../../proxy";
+import { proxy } from "../../proxy";
 
 test("unconfigured Supabase allows the scaffold to run without contacting auth", async (t) => {
   t.mock.method(globalThis, "fetch", async () => {

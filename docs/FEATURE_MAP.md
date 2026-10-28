@@ -59,7 +59,7 @@ read the same registry. Shared UI is not duplicated between modules.
 | Project ideas | `/projects` | M5 / FR-5.3 | Planned: multi-gap project recommendations with rationale; personal project editing belongs in Profile. |
 | My CV | `/cv` | M6 / FR-6.6 baseline slice | Saved-profile preview and browser PDF work; baseline/tailored version storage and exact application version retrieval remain. |
 | CV analysis | `/cv-analysis` | M6 / FR-6.1–6.3 | Planned: private PDF/DOCX storage/parsing, deterministic job comparison, section feedback. |
-| My portfolio | `/portfolio` | M6 / FR-6.4–6.5 | Planned: source-grounded templates, preview, explicit visibility and publication controls. |
+| My portfolio | `/portfolio`, shared `/p/[slug]` | M6 / FR-6.4–6.5 pilot | Two templates, private saved choices, source-grounded preview, explicit selected-field publication and revocation. Experience/certification/contact records and full M6 CV analysis/versioning remain. See [portfolio contract](PORTFOLIO.md). |
 | Application agent | `/application-agent` | M7 / FR-7.1–7.5, 7.9–7.10, 7.12–7.14 | Planned: policy/grounding gates, materials, form mapping, approval, idempotent permitted submission and Mock ATS. |
 | Applications | `/applications` | M7 / FR-7.6–7.7 | Private manual tracker works; exact document/channel references, full status event history and integrations remain. |
 | Application insights | `/application-insights` | M7 / FR-7.8, 7.11 | Planned: factual outcome rates, timestamps, explanations and recommendation feedback. |
