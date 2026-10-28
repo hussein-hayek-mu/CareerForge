@@ -43,7 +43,9 @@ when functional, rather than empty links or implied working integrations.
 ## Assessment pilot
 
 React and SQL each have a versioned five-question fundamentals check; pass mark
-4/5. There is no time limit. Profile skills remain self-reported. Only a selected
+4/5. The initial untimed flow is superseded by server-created 10-minute attempts
+with a 100-minute extended-time option. See [timed lifecycle](TIMED_SKILL_CHECKS.md).
+Profile skills remain self-reported. Only a selected
 skill with a passing current supported check enters the generated CV skills list.
 Unsupported skills stay excluded rather than receiving a false verification badge.
 Retaking unsuccessfully does not revoke an earlier pass of the same version.
@@ -51,7 +53,7 @@ Retaking unsuccessfully does not revoke an earlier pass of the same version.
 This is evidence of correct quiz answers, not proof of identity, independent
 performance, professional proficiency or mastery. The pilot bank is small and
 its SQL is in the repository; it is not designed as an anti-cheating boundary.
-Practical tasks, reviewed rubrics, broader skill coverage, expiry/revocation and
+Practical tasks, reviewed rubrics, broader skill coverage, result expiry/revocation and
 appeals remain future assessment work. Never relabel these results issuer-verified.
 
 SQL migration `202610230001_skill_checks.sql` stores private attempts and private

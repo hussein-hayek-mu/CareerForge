@@ -104,6 +104,13 @@
 .learning-empty { margin: 32px 0; }
 .learning-empty p { max-width: 640px; margin: 16px auto; line-height: 1.8; }
 .role-learning-link { display: flex; align-items: center; min-height: 44px; margin: 16px 0; white-space: normal; }
+.check-timing { margin: 24px 0; max-width: 640px; }
+.check-timing label { display: block; font-size: 14px; margin-bottom: 10px; }
+.check-timing select { color: var(--ink); background: var(--raised); border: 1px solid var(--line); border-radius: 8px; padding: 12px; min-height: 48px; max-width: 100%; }
+.check-timing p { margin-top: 12px; }
+.check-clock { margin: 20px 0; font-size: 14px; line-height: 1.7; }
+.check-clock [role="timer"] { font: 24px var(--mono); color: var(--green); }
+.check-clock [role="status"] { color: var(--green); }
 @media (max-width: 760px) {
   .learning-target, .learning-step { padding: 20px; }
   .learning-target-form, .learning-summary { flex-direction: column; align-items: stretch; }

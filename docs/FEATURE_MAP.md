@@ -52,7 +52,7 @@ read the same registry. Shared UI is not duplicated between modules.
 | Overview | `/` | Shared workspace | Saved-account summary; guests receive public homepage. |
 | Profile | `/account` (`/profile` alias) | M1 / FR-1.1–1.9 | Private summary editing works; normalized education, work/projects, proficiency, certifications, goals and application preferences remain. |
 | Career analysis | `/career-analysis` | M2 / FR-2.1–2.4 | Planned: career taxonomy, deterministic ranking, target career, prioritized gaps, persistence and grounded explanation. |
-| Skill checks | `/skill-checks` | Owner assessment extension | React/SQL basics pilot; broader assessment, bank governance and stronger evidence remain. Passing is not proof of mastery. |
+| Skill checks | `/skill-checks` | Owner assessment extension | React/SQL basics pilot with server-enforced timing, extended-time mode, resume and idempotent grading; practical assessment, bank governance and stronger evidence remain. Passing is not proof of mastery. |
 | Academic planner | `/academic-planner` | M3 / FR-3.1–3.3 | Planned: courses, grades/semesters, credits and career-linked prioritization. |
 | Find opportunities | `/jobs` | M4 / FR-4.1–4.5 | Fictional jobs and simple skill matching work; active/expiry rules, richer scoring, persisted reasoning and dataset demand remain. |
 | Learning roadmap | `/learning-roadmap` | M5 / FR-5.1–5.2 pilot | Saved-profile gaps produce concrete exercises and roadmap.sh links. Persisted plans, completion and adaptive monthly ordering remain. See [learning pilot](LEARNING_ROADMAP.md). |

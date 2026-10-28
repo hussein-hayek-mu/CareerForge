@@ -12,6 +12,7 @@ import { chromium, devices, expect } from "@playwright/test";
 
 nextEnv.loadEnvConfig(process.cwd());
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000";
+const assessmentOnly = process.argv.includes("--assessment-only");
 const users = [randomUUID(), randomUUID()].map(id => ({ id, email: `${id}@careerforge.invalid`, password: `Test-${randomUUID()}!` }));
 const db = new Client({ connectionString: process.env.DATABASE_URL, connectionTimeoutMillis: 15000, statement_timeout: 15000 });
 let browser;
@@ -81,6 +82,12 @@ try {
   await expect(a.page.getByLabel("Your skills", { exact: true })).toHaveValue("React, SQL");
   const aProfile = await (await a.context.request.get("/api/v1/profile")).json();
   assert.equal(aProfile.profile.name, "Live Test Owner A");
+  if (assessmentOnly) {
+    stage = "focused timed-assessment and CV verification";
+    await verifyCVLive(a.context);
+    assert.deepEqual(errors, []);
+    console.log("PASS: focused development assessment/CV browser checks");
+  } else {
   stage = "maximum-length private profile layouts";
   await verifyProfileLayout(a.context);
   stage = "saved-profile CV preview and PDF";
@@ -183,6 +190,7 @@ try {
   await expect(b.page).toHaveURL(`${baseURL}/login`);
   assert.deepEqual(errors, []);
   console.log("PASS: real login, HttpOnly sessions, Supabase persistence, two-user isolation, phone layout, save-error recovery, logout, anonymous denial");
+  }
 } catch (error) {
   console.error("Live account verification failed at", stage, "(", error.code ?? error.name, ")");
   if (error.name === "Error") console.error(error.message);

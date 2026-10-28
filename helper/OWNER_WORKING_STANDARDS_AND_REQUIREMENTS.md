@@ -59,6 +59,10 @@ Treat these instructions as the default standard for every task I give you unles
 
 ## Additional product requirements (owner text)
 
+28 October follow-up: commit every major change and prioritize the main product
+work. Complete verified core workflows before spending further effort on cosmetic
+refinements. Preserve useful increments as separate reviewable commits.
+
 > An ai that makes a portfolio for the customer but it verfies via questions that are well prepared and a time limit if he really has such skills validation is required
 >
 > There are different cllaims each claim requires a specific validation for example: degree, skill, language proficiency ... faking is easy that's why i need an ai that scans and eliminates fakers.
@@ -93,8 +97,10 @@ define expiry, retries, interrupted submissions, replay/idempotency and cooldown
 Use reviewed question banks, avoid exposing answer keys, and define accommodations
 before the attempt starts. A browser countdown is informational, never authority.
 Keep failed/expired outcomes distinguishable from transport errors; provide a
-review/appeal path. Existing React/SQL five-question checks have no time limit
-and remain a limited pilot, not completion of this requirement.
+review/appeal path. The original React/SQL five-question checks were untimed.
+The 28 October timed-lifecycle increment adds server-enforced standard/extended
+attempts; reviewed practical assessments and claim-specific credentials remain
+required. The five-question banks are still a limited pilot.
 
 ### R2 — Real job discovery
 

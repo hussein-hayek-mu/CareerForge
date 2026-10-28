@@ -16,8 +16,28 @@ model SkillCheckAttempt {
   score   Int
   passed  Boolean
   takenAt DateTime @default(now()) @map("taken_at") @db.Timestamptz(6)
+  session SkillCheckSession?
   @@index([userId, takenAt(sort: Desc)], map: "skill_check_owner_time_idx")
   @@map("skill_check_attempts")
+}
+
+// Session writes, timing constraints, owner RLS and the one-active-owner partial
+// unique index are enforced by the reviewed SQL migration/RPCs.
+model SkillCheckSession {
+  id          String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId      String @map("user_id") @db.Uuid
+  skill       String
+  version     Int
+  timingMode  String @map("timing_mode")
+  startedAt   DateTime @map("started_at") @db.Timestamptz(6)
+  deadlineAt  DateTime @map("deadline_at") @db.Timestamptz(6)
+  state       String @default("active")
+  resultId    String? @unique @map("result_id") @db.Uuid
+  result      SkillCheckAttempt? @relation(fields: [resultId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  finishedAt  DateTime? @map("finished_at") @db.Timestamptz(6)
+
+  @@index([userId, startedAt(sort: Desc)], map: "skill_check_session_owner_time_idx")
+  @@map("skill_check_sessions")
 }
 
 // Supabase-managed auth tables are intentionally not represented here.

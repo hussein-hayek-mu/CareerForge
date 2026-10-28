@@ -1,7 +1,18 @@
 import { z } from "zod";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-export const checkSubmission = z.object({ skill: z.enum(["React", "SQL"]), version: z.literal(1), answers: z.record(z.string().max(8), z.number().int().min(0).max(2)).refine(value => Object.keys(value).length === 5) }).strict();
+export const checkSubmission = z.object({ sessionId: z.uuid(), answers: z.record(z.string().max(8), z.number().int().min(0).max(2)).refine(value => Object.keys(value).length === 5) }).strict();
+export const sessionActionSchema = z.discriminatedUnion("action", [
+  z.object({ action: z.literal("start"), skill: z.enum(["React", "SQL"]), version: z.literal(1), timingMode: z.enum(["standard", "extended"]) }).strict(),
+  z.object({ action: z.literal("cancel"), sessionId: z.uuid() }).strict()
+]);
+export const checkSessionSchema = z.object({
+  id: z.uuid(), skill: z.enum(["React", "SQL"]), version: z.literal(1),
+  timingMode: z.enum(["standard", "extended"]), state: z.enum(["active", "expired"]),
+  startedAt: z.iso.datetime({ offset: true }), deadlineAt: z.iso.datetime({ offset: true }), serverNow: z.iso.datetime({ offset: true })
+}).strict().refine(session => Date.parse(session.deadlineAt) - Date.parse(session.startedAt) === (session.timingMode === "extended" ? 6000000 : 600000));
+export const sessionReplySchema = z.object({ session: checkSessionSchema.nullable() }).strict();
+export type CheckSession = z.infer<typeof checkSessionSchema>;
 export const bankSchema = z.array(z.object({ skill: z.enum(["React", "SQL"]), version: z.literal(1), questions: z.array(z.object({ id: z.string(), prompt: z.string(), options: z.array(z.string()).length(3) }).strict()).length(5) }).strict());
 export const resultSchema = z.object({ skill: z.string(), version: z.number(), score: z.number(), passed: z.boolean(), taken_at: z.string() });
 export const submissionResultSchema = z.object({

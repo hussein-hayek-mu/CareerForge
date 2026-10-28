@@ -127,6 +127,21 @@ remains partial. This is a local increment, with no deployment or database chang
 
 ## Status ledger
 
+R1 core lifecycle delivered — 28 October: server-created timed skill-check
+sessions, stable resume/deadline, DB-enforced expiry, idempotent grading and
+10-minute standard/100-minute extended time. Legacy direct untimed grading is
+revoked; historical passes remain. Active attempts continue while browsing the
+list, with explicit end/discard behavior and recovery for uncertain submissions.
+Contract/evidence: [TIMED_SKILL_CHECKS.md](TIMED_SKILL_CHECKS.md).
+All 67 tests, lint, types, production build, migration trial, applied development
+DB policy/grading verifier and Prisma generation passed. Full development live
+regressions passed; focused timer/list/extended-time UI fixture also passed.
+Temporary accounts deleted; transaction tests rolled back. Initial stale dev
+module export was isolated and resolved by restart; no diagnostics remain.
+No production migration, AI, email, deployment or remote CI. R1 remains partial
+for stronger evidence/practical assessments and degree/language validation.
+The prior learning/assessment-hardening milestone is local commit `947b1b5`.
+
 28 October implementation batch: delivered P3.1/R1 assessment lifecycle
 hardening and an R3 learning pilot. Starting/cancelling/completing checks preserves
 keyboard context; answered drafts ask before discard/navigation and remain on
@@ -205,7 +220,7 @@ mark the current release or planned destinations complete:
 
 | ID | Status | Requirement / acceptance reference | Dependencies and next action |
 | --- | --- | --- | --- |
-| R1 | Open; limited quiz pilot exists | Source-grounded portfolio with claim-specific validation, reviewed timed skill assessments, degree evidence and scoped language assessment; helper R1 | Define normalized claim/evidence and assessment-attempt contracts, RLS and accommodations before migration/UI. Current five-question checks are untimed and do not verify identity or mastery. |
+| R1 | Partial: timed lifecycle implemented | Source-grounded portfolio with claim-specific validation, reviewed timed skill assessments, degree evidence and scoped language assessment; helper R1 | React/SQL pilot now has server deadlines, extended-time mode, resume, expiry and idempotent grading. Practical tasks, bank review, normalized claim/evidence records, portfolio and degree/language validation remain; no proof of identity/mastery. |
 | R2 | Open | Real jobs through free permitted APIs or permitted public HTTP/HTML ingestion; helper R2 | Verify source terms/availability; define bounded adapters, freshness, deduplication and failure states. Existing jobs remain fictional. No access-control bypass or arbitrary URL fetcher. |
 | R3 | Partial: learning pilot delivered | Concrete roadmap.sh-linked gap suggestions and tangible exercises; helper R3 | Saved-profile/catalog gaps now produce original tasks, review criteria and source links. Target remains in URL. Persisted targets/progress and adaptive schedules remain open; no imported content or partnership. |
 | R4 | Open | Trainer agreements, workshops and verifiable scoped certificates; helper R4 | Establish trainer/admin permissions and completion evidence before issuing certificates; support minimal verification, revocation and privacy. No trainer contacted or agreement executed. |

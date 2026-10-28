@@ -14,6 +14,9 @@ Read `helper/OWNER_WORKING_STANDARDS_AND_REQUIREMENTS.md` for the owner's
 28 October standing engineering/UX instructions and claim-validation, live-job,
 roadmap.sh and trainer/certificate requirements. Continue useful coherent work
 autonomously; historical helper one-task/session and pnpm rules are superseded.
+The owner's 28 October reminder prioritizes substantive core workflows over
+cosmetics and requires commits for major changes. Commit each verified milestone
+before expanding scope; preserve unrelated IDE settings.
 
 Read `docs/IMPLEMENTATION_ROADMAP.md` before starting project work. It is the
 current status ledger and ordered queue; older increment plans are historical.
