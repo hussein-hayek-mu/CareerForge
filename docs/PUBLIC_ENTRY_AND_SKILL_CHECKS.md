@@ -1,5 +1,30 @@
 # Public entry, workspace navigation and CV skill checks
 
+## 28 October lifecycle hardening
+
+Starting a check focuses its heading; cancelling without answers or completing
+a submission returns focus to the originating skill button. Answered forms ask
+before cancellation or same-tab link navigation; rejected confirmation retains
+the answers. Native unload protection is best effort; browser Back remains a
+limitation, as with profile drafts. Answers are page-memory drafts, not synced.
+
+The client validates the saved result's skill/version, bounded score, total,
+pass consistency and timestamp before showing success. Malformed or mismatched
+responses retain the form. Failed requests retain answers and re-enable controls.
+An unconfirmed network outcome directs the user to reload/check the recorded
+result, since a request may have committed before its response was lost.
+Existing database grading, cooldown and RLS are unchanged. This does not add
+timing, question governance, identity checks or stronger credential validation.
+
+The development CV verifier now covers start/cancel/return focus, cancelled draft
+discard/navigation, simulated failure and malformed result recovery, followed
+by a real passing submission, private CV eligibility, cooldown and forgery denial.
+The unit suite checks result consistency. Execution evidence is in the roadmap.
+
+Authentication transport/provider outages now return a sanitized 503 rather
+than incorrect-password feedback; genuine invalid credentials remain 401.
+Regression checks cover login and registration transport/timeout/5xx responses.
+
 Owner-directed UI/access change, 23 October 2026. Public homepage organization
 was informed by the requested [MuGate reference](https://mugate.org/); CareerForge
 keeps its own identity and original motion assets.

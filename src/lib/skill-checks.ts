@@ -4,6 +4,11 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 export const checkSubmission = z.object({ skill: z.enum(["React", "SQL"]), version: z.literal(1), answers: z.record(z.string().max(8), z.number().int().min(0).max(2)).refine(value => Object.keys(value).length === 5) }).strict();
 export const bankSchema = z.array(z.object({ skill: z.enum(["React", "SQL"]), version: z.literal(1), questions: z.array(z.object({ id: z.string(), prompt: z.string(), options: z.array(z.string()).length(3) }).strict()).length(5) }).strict());
 export const resultSchema = z.object({ skill: z.string(), version: z.number(), score: z.number(), passed: z.boolean(), taken_at: z.string() });
+export const submissionResultSchema = z.object({
+  skill: z.enum(["React", "SQL"]), version: z.literal(1),
+  score: z.number().int().min(0).max(5), total: z.literal(5),
+  passed: z.boolean(), takenAt: z.iso.datetime({ offset: true })
+}).strict().refine(result => result.passed === (result.score >= 4));
 export type SkillBank = z.infer<typeof bankSchema>[number];
 export type CheckResult = z.infer<typeof resultSchema>;
 

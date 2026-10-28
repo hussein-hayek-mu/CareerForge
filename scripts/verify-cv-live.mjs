@@ -15,9 +15,34 @@ export async function verifyCVLive(context) {
     await page.goto("/skill-checks");
     const card = page.locator(".check-card").filter({ has: page.getByRole("heading", { name: "React", exact: true }) });
     await card.getByRole("button", { name: "Start check", exact: true }).click();
+    await expect(page.getByRole("heading", { name: "React basics", exact: true })).toBeFocused();
+    await page.getByRole("button", { name: "Cancel", exact: true }).click();
+    await expect(card.getByRole("button", { name: "Start check", exact: true })).toBeFocused();
+    await card.getByRole("button", { name: "Start check", exact: true }).click();
+    await page.locator('input[name="r1"][value="1"]').check();
+    page.once("dialog", dialog => dialog.dismiss());
+    await page.getByRole("button", { name: "Cancel", exact: true }).click();
+    await expect(page.locator('input[name="r1"][value="1"]')).toBeChecked();
+    page.once("dialog", dialog => dialog.dismiss());
+    await page.getByRole("link", { name: "View my CV", exact: true }).click();
+    await expect(page).toHaveURL(/\/skill-checks$/);
+    await expect(page.locator('input[name="r1"][value="1"]')).toBeChecked();
     for (const [id, value] of Object.entries({ r1: 1, r2: 2, r3: 1, r4: 2, r5: 0 })) await page.locator(`input[name="${id}"][value="${value}"]`).check();
+    const submission = "**/api/v1/skill-checks";
+    await page.route(submission, route => route.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ error: { message: "Temporary assessment outage" } }) }));
+    await page.getByRole("button", { name: "Submit answers", exact: true }).click();
+    await expect(page.locator(".form-error[role=alert]")).toContainText("Temporary assessment outage");
+    await expect(page.locator('input[name="r1"][value="1"]')).toBeChecked();
+    await expect(page.getByRole("button", { name: "Submit answers", exact: true })).toBeEnabled();
+    await page.unroute(submission);
+    await page.route(submission, route => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ result: { skill: "React", score: 5, passed: true } }) }));
+    await page.getByRole("button", { name: "Submit answers", exact: true }).click();
+    await expect(page.locator(".form-error[role=alert]")).toContainText("could not be verified");
+    await expect(page.getByRole("heading", { name: "React basics", exact: true })).toBeVisible();
+    await page.unroute(submission);
     await page.getByRole("button", { name: "Submit answers", exact: true }).click();
     await expect(page.getByRole("status")).toContainText("5/5");
+    await expect(card.getByRole("button")).toBeFocused();
     const limited = await context.request.post("/api/v1/skill-checks", { data: { skill: "React", version: 1, answers: { r1: 1, r2: 2, r3: 1, r4: 2, r5: 0 } } });
     assert.equal(limited.status(), 429);
     assert.ok(Number(limited.headers()["retry-after"]) > 0);
@@ -42,6 +67,6 @@ export async function verifyCVLive(context) {
     assert.equal(pdf.subarray(0, 5).toString(), "%PDF-");
     assert.ok(pdf.length > 1000);
     await writeFile("test-results/cv-preview.pdf", pdf);
-    console.log("PASS: skills absent before assessment, real UI pass unlocks only React, forgery/cooldown denial, CV navigation/reflow and printable PDF");
+    console.log("PASS: assessment focus/start/cancel/return, draft cancellation/navigation protection, failed and malformed result recovery, real UI pass unlocks only React, forgery/cooldown denial, CV navigation/reflow and printable PDF");
   } finally { await page.close(); }
 }

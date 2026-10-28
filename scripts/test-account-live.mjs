@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { verifyTrackerLive } from "./verify-tracker-live.mjs";
 import { verifyCVLive } from "./verify-cv-live.mjs";
 import { verifyFeaturesLive } from "./verify-features-live.mjs";
+import { verifyLearningLive } from "./verify-learning-live.mjs";
 import { verifyProfileLayout } from "./verify-profile-layout.mjs";
 import { randomUUID } from "node:crypto";
 import { mkdir } from "node:fs/promises";
@@ -84,6 +85,8 @@ try {
   await verifyProfileLayout(a.context);
   stage = "saved-profile CV preview and PDF";
   await verifyCVLive(a.context);
+  stage = "gap-based learning exercises and resource links";
+  await verifyLearningLive(a.context);
   stage = "feature directory and dedicated module navigation";
   await verifyFeaturesLive(a.context);
   await a.page.evaluate(() => window.scrollTo(0, 0));

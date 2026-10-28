@@ -20,5 +20,5 @@ export async function POST(request: Request) {
       return response;
     }
     return json({ result: data });
-  } catch { return failure("CHECK_UNAVAILABLE", "Your check could not be saved. Your CV skills have not changed; please retry.", 503); }
+  } catch { return failure("CHECK_UNAVAILABLE", "Your result could not be confirmed. Reload to check your recorded result before retrying.", 503); }
 }

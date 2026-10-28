@@ -127,6 +127,39 @@ remains partial. This is a local increment, with no deployment or database chang
 
 ## Status ledger
 
+28 October implementation batch: delivered P3.1/R1 assessment lifecycle
+hardening and an R3 learning pilot. Starting/cancelling/completing checks preserves
+keyboard context; answered drafts ask before discard/navigation and remain on
+failure. Saved grading is schema-validated before success. Uncertain request
+outcomes offer recorded-result verification rather than claiming no write occurred.
+Transport/provider auth outages now return 503 instead of invalid-password 401.
+
+Learning roadmap now uses authenticated saved-profile/catalog gaps for original
+exercises, review criteria and verified roadmap.sh links. Targets are explicit
+and preserved in the URL; role details link directly to their plan. Empty, covered,
+missing-skill, unavailable and invalid-target states are explicit. The registry
+marks M5 as Pilot; nine planned/stretch destinations remain. Details and remaining
+boundaries: [LEARNING_ROADMAP.md](LEARNING_ROADMAP.md) and
+[assessment lifecycle](PUBLIC_ENTRY_AND_SKILL_CHECKS.md).
+
+Verification: 61 unit/render tests, lint, TypeScript and production build passed.
+Four desktop/mobile public-entry and guest-guard cases passed. Authenticated
+development checks passed new assessment failure/focus/draft cases, exact learning
+gaps and links, URL reload/invalid targets, no-store/noindex, 320/768/1440 reflow,
+planned navigation, and existing profile/CV/PDF/tracker/password/isolation flows.
+Desktop/320px learning screenshots reviewed. The final role-link integration
+and the entire final authenticated suite passed; temporary identities were deleted.
+The final review also covered prototype-like unknown skill names with regression
+checks; all 61 tests passed.
+
+Initial live login failed when the sandboxed server could not reach Auth; the
+network-enabled server passed. One public mobile run was interrupted by that
+restart; all four passed on rerun. The new error assertion initially also matched
+Next's route announcer; scoped assertions passed. Temporary identities were removed
+after each completed run. No AI, schema change, live vacancies, completion tracking,
+deployment or remote CI is claimed. P3.1/R1 remain partial; timed assessments,
+issuer verification and persisted learning plans are still open.
+
 **Done** means implemented with recorded checks. **Partial** means usable but
 with the stated gap. **Open** means work remains. **Deferred** means recorded
 future scope, outside the current release. P2.3 onboarding is complete. P2.1/P2.2 recovery interfaces are implemented;
@@ -174,7 +207,7 @@ mark the current release or planned destinations complete:
 | --- | --- | --- | --- |
 | R1 | Open; limited quiz pilot exists | Source-grounded portfolio with claim-specific validation, reviewed timed skill assessments, degree evidence and scoped language assessment; helper R1 | Define normalized claim/evidence and assessment-attempt contracts, RLS and accommodations before migration/UI. Current five-question checks are untimed and do not verify identity or mastery. |
 | R2 | Open | Real jobs through free permitted APIs or permitted public HTTP/HTML ingestion; helper R2 | Verify source terms/availability; define bounded adapters, freshness, deduplication and failure states. Existing jobs remain fictional. No access-control bypass or arbitrary URL fetcher. |
-| R3 | Open | Concrete roadmap.sh-linked gap suggestions and tangible exercises; helper R3 | Ground in target/gaps, verify source links/reuse, define progress persistence and empty states. No external content imported or partnership claimed. |
+| R3 | Partial: learning pilot delivered | Concrete roadmap.sh-linked gap suggestions and tangible exercises; helper R3 | Saved-profile/catalog gaps now produce original tasks, review criteria and source links. Target remains in URL. Persisted targets/progress and adaptive schedules remain open; no imported content or partnership. |
 | R4 | Open | Trainer agreements, workshops and verifiable scoped certificates; helper R4 | Establish trainer/admin permissions and completion evidence before issuing certificates; support minimal verification, revocation and privacy. No trainer contacted or agreement executed. |
 
 Near-term: verify skill-check keyboard lifecycle, then continue independent core

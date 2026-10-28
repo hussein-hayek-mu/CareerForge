@@ -55,7 +55,7 @@ read the same registry. Shared UI is not duplicated between modules.
 | Skill checks | `/skill-checks` | Owner assessment extension | React/SQL basics pilot; broader assessment, bank governance and stronger evidence remain. Passing is not proof of mastery. |
 | Academic planner | `/academic-planner` | M3 / FR-3.1–3.3 | Planned: courses, grades/semesters, credits and career-linked prioritization. |
 | Find opportunities | `/jobs` | M4 / FR-4.1–4.5 | Fictional jobs and simple skill matching work; active/expiry rules, richer scoring, persisted reasoning and dataset demand remain. |
-| Learning roadmap | `/learning-roadmap` | M5 / FR-5.1–5.2 | Planned: persisted gap-linked monthly plan, completion and adaptive ordering. |
+| Learning roadmap | `/learning-roadmap` | M5 / FR-5.1–5.2 pilot | Saved-profile gaps produce concrete exercises and roadmap.sh links. Persisted plans, completion and adaptive monthly ordering remain. See [learning pilot](LEARNING_ROADMAP.md). |
 | Project ideas | `/projects` | M5 / FR-5.3 | Planned: multi-gap project recommendations with rationale; personal project editing belongs in Profile. |
 | My CV | `/cv` | M6 / FR-6.6 baseline slice | Saved-profile preview and browser PDF work; baseline/tailored version storage and exact application version retrieval remain. |
 | CV analysis | `/cv-analysis` | M6 / FR-6.1–6.3 | Planned: private PDF/DOCX storage/parsing, deterministic job comparison, section feedback. |

@@ -9,7 +9,7 @@ export async function verifyFeaturesLive(context) {
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("A place for every next step.");
     const nav = page.locator(".app-sidebar nav");
     const plannedLinks = await nav.locator('a[title$="(planned)"], a[title$="(stretch)"]').evaluateAll(links => links.map(link => ({ href: link.getAttribute("href"), label: link.getAttribute("aria-label") })));
-    assert.equal(plannedLinks.length, 10);
+    assert.equal(plannedLinks.length, 9);
     await page.screenshot({ path: "test-results/features-1440.png", fullPage: true, animations: "disabled" });
     for (const { href, label } of plannedLinks) {
       const response = await page.goto(href);
@@ -52,6 +52,6 @@ export async function verifyFeaturesLive(context) {
     await page.screenshot({ path: "test-results/features-390.png", fullPage: true, animations: "disabled" });
     await page.goto("/application-agent");
     await page.screenshot({ path: "test-results/agent-390.png", fullPage: true, animations: "disabled" });
-    console.log("PASS: ten honest planned/stretch destinations, active links, no-store/noindex, sidebar persistence, narrow reflow and last mobile navigation item");
+    console.log("PASS: nine honest planned/stretch destinations, active links, no-store/noindex, sidebar persistence, narrow reflow and last mobile navigation item");
   } finally { await page.close(); }
 }

@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 
-export function useUnsavedProfileGuard(dirty: boolean) {
+export function useUnsavedProfileGuard(dirty: boolean, message = "Leave without saving your profile changes?") {
   useEffect(() => {
     if (!dirty) return;
     const unload = (event: BeforeUnloadEvent) => { event.preventDefault(); event.returnValue = ""; };
@@ -12,10 +12,10 @@ export function useUnsavedProfileGuard(dirty: boolean) {
       if (!link || link.hasAttribute("download") || (link.target && link.target !== "_self")) return;
       const url = new URL(link.href, location.href);
       if (url.origin === location.origin && url.pathname === location.pathname && url.search === location.search) return;
-      if (!window.confirm("Leave without saving your profile changes?")) { event.preventDefault(); event.stopPropagation(); }
+      if (!window.confirm(message)) { event.preventDefault(); event.stopPropagation(); }
     };
     window.addEventListener("beforeunload", unload);
     document.addEventListener("click", navigate, true);
     return () => { window.removeEventListener("beforeunload", unload); document.removeEventListener("click", navigate, true); };
-  }, [dirty]);
+  }, [dirty, message]);
 }
