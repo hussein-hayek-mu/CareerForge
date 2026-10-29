@@ -127,6 +127,16 @@ remains partial. This is a local increment, with no deployment or database chang
 
 ## Status ledger
 
+Builder theme and preview refinement delivered — 29 October. The notes panel,
+toolbar, editing hint and draft notice now use CareerForge's shared palette;
+workspace buttons remain chartreuse when document colors or light/dark mode change.
+The portfolio preview has symmetric gutters and a centered, fluid 1120px maximum
+width. Document themes and CV print layout remain independent. Focused development
+browser checks passed theme isolation, centered bounds and reflow at 320/768/1440/
+1920px, existing editing/navigation, photo controls and PDF output. Lint and
+production build passed; desktop/mobile screenshots were reviewed. Temporary test
+accounts were removed. The supplied JSX remains byte-for-byte unchanged.
+
 M6 unified builder integration delivered — 29 October. The owner supplied an
 updated component and requested one CV & Portfolio navigation entry inside the
 project. `/documents` is the canonical AppShell destination; `/cv` and `/portfolio`

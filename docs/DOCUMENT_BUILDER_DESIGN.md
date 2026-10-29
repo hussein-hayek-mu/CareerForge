@@ -58,6 +58,11 @@ provider, validated grounded output and source facts instead of fictional fallba
 
 ## Integration and acceptance
 
+The surrounding notes, toolbar, hints and draft notice use CareerForge's own
+palette. Preview theme choices affect the document only. The portfolio canvas
+is fluid and centered, with symmetric gutters and a 1120px maximum width.
+
+
 The source remains JSX with a TypeScript import declaration and narrowly scoped
 lint exceptions. Wrapper CSS handles existing global-style collisions, narrow
 layouts and shell-free printing without rewriting the supplied component. It also

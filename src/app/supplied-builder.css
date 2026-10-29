@@ -1,8 +1,8 @@
 /* Integration styles only; the supplied PortfolioBuilder.jsx stays unchanged. */
 .document-workspace { padding: 0; max-width: none; container-type: inline-size; container-name: document-workspace; }
-.supplied-builder-page { display: flex; flex-direction: column; height: calc(100dvh - 75px); min-height: 0; background: #0c0e17; }
-.supplied-builder-bar { flex: none; min-height: 52px; padding: 8px 20px; display: flex; align-items: center; justify-content: space-between; gap: 8px 24px; flex-wrap: wrap; background: #121522; color: #b8c0d5; font-size: 12px; line-height: 1.6; border-bottom: 1px solid #ffffff20; }
-.supplied-builder-bar a { display: inline-flex; align-items: center; min-height: 36px; color: #d7dcff; text-decoration: underline; text-underline-offset: 3px; }
+.supplied-builder-page { display: flex; flex-direction: column; height: calc(100dvh - 75px); min-height: 0; background: var(--paper); --workspace-paper: var(--paper); --workspace-surface: var(--surface); --workspace-raised: var(--raised); --workspace-ink: var(--ink); --workspace-muted: var(--muted); --workspace-line: var(--line); --workspace-accent: var(--green); --workspace-accent-ink: var(--accent-ink); }
+.supplied-builder-bar { flex: none; min-height: 52px; padding: 8px 20px; display: flex; align-items: center; justify-content: space-between; gap: 8px 24px; flex-wrap: wrap; background: var(--workspace-paper); color: var(--workspace-muted); font-size: 12px; line-height: 1.6; border-bottom: 1px solid var(--workspace-line); }
+.supplied-builder-bar a { display: inline-flex; align-items: center; min-height: 36px; color: var(--workspace-accent); text-decoration: underline; text-underline-offset: 3px; }
 .supplied-builder-bar nav { display: flex; flex-wrap: wrap; gap: 18px; }
 .supplied-builder-bar p { margin: 0; }
 .supplied-builder-page .pb { flex: 1; min-height: 0; height: auto; }
@@ -17,6 +17,33 @@
 .supplied-builder-page .pb .dl { flex-wrap: wrap; max-width: 100%; }
 /* The supplied observer misses newly added skill nodes; keep their text visible. */
 .supplied-builder-page .pb .chips .chip.rv:not(.in) { opacity: 1; }
+/* Workspace controls follow CareerForge; document colors belong to the preview. */
+.document-workspace .supplied-builder-page .pb .panel,
+.document-workspace .supplied-builder-page .pb .toolbar,
+.document-workspace .supplied-builder-page .pb .hint { background: var(--workspace-paper); color: var(--workspace-ink); border-color: var(--workspace-line); }
+.document-workspace .supplied-builder-page .pb .panel .sub,
+.document-workspace .supplied-builder-page .pb .panel .meta,
+.document-workspace .supplied-builder-page .pb .panel .note,
+.document-workspace .supplied-builder-page .pb .toolbar small,
+.document-workspace .supplied-builder-page .pb .toolbar label,
+.document-workspace .supplied-builder-page .pb .hint { color: var(--workspace-muted); }
+.document-workspace .supplied-builder-page .pb .panel textarea { background: var(--workspace-surface); border-color: var(--workspace-line); color: var(--workspace-ink); }
+.document-workspace .supplied-builder-page .pb .panel textarea:focus { border-color: var(--workspace-accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--workspace-accent) 20%, transparent); }
+.document-workspace .supplied-builder-page .pb .panel .link { color: var(--workspace-accent); }
+.document-workspace .supplied-builder-page .pb .panel .btn.primary { background: var(--workspace-accent); color: var(--workspace-accent-ink); box-shadow: none; }
+.document-workspace .supplied-builder-page .pb .panel .btn.primary:hover:not(:disabled) { background: color-mix(in srgb, var(--workspace-accent) 88%, white); }
+.document-workspace .supplied-builder-page .pb .toolbar .seg { background: var(--workspace-surface); }
+.document-workspace .supplied-builder-page .pb .toolbar .seg button { color: var(--workspace-muted); }
+.document-workspace .supplied-builder-page .pb .toolbar .seg button.on { background: var(--workspace-accent); color: var(--workspace-accent-ink); }
+.document-workspace .supplied-builder-page .pb .toolbar .seg button:hover:not(.on) { background: var(--workspace-raised); color: var(--workspace-ink); }
+.document-workspace .supplied-builder-page .pb .toolbar .modebtn,
+.document-workspace .supplied-builder-page .pb .toolbar .btn.sm { background: var(--workspace-surface); border-color: var(--workspace-line); color: var(--workspace-ink); }
+.document-workspace .supplied-builder-page .pb .toolbar .sw.on { border-color: var(--workspace-accent); box-shadow: 0 0 0 2px var(--workspace-paper) inset; }
+.document-workspace .supplied-builder-page .pb .toolbar button:focus-visible,
+.document-workspace .supplied-builder-page .pb .panel button:focus-visible { outline-color: var(--workspace-accent); }
+.supplied-builder-page .pb .preview { background: var(--workspace-paper); }
+.supplied-builder-page .pb .preview:has(.port) { padding: clamp(12px, 2cqw, 28px); }
+.supplied-builder-page .pb .port { width: min(100%, 1120px); margin-inline: auto; border-radius: 16px; box-shadow: 0 0 0 1px var(--workspace-line); }
 @container document-workspace (max-width: 1000px) {
   .supplied-builder-page { height: auto; min-height: calc(100dvh - 75px); }
   .supplied-builder-page .pb { flex: none; grid-template-columns: 1fr; }
@@ -48,6 +75,7 @@
   .supplied-builder-bar { display: none !important; }
   .app-shell:has(.document-workspace) .app-main { margin: 0 !important; }
   .document-workspace { padding: 0; max-width: none; container-type: normal; }
+  .supplied-builder-page .pb .preview { padding: 0; background: transparent; }
   .supplied-builder-page { display: block; height: auto; min-height: 0; background: white; }
   .supplied-builder-page .pb .stage { position: static; container-type: normal; }
 }

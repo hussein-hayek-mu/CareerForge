@@ -20,6 +20,44 @@ export async function verifySuppliedBuilderLive(context) {
       accountWrites.push(`${request.method()} ${path}`);
     }
   });
+  async function readWorkspaceChrome() {
+    return page.evaluate(() => {
+      const root = getComputedStyle(document.documentElement);
+      const swatch = document.createElement("span");
+      swatch.hidden = true;
+      document.body.append(swatch);
+      const color = token => {
+        swatch.style.color = root.getPropertyValue(token);
+        return getComputedStyle(swatch).color;
+      };
+      const palette = ["--paper", "--surface", "--raised"].map(color);
+      const accent = color("--green");
+      swatch.remove();
+      const background = selector => getComputedStyle(document.querySelector(selector)).backgroundColor;
+      return {
+        palette, accent,
+        panels: [".pb .panel", ".pb .toolbar", ".pb .hint", ".supplied-builder-bar"].map(background),
+        selectedTab: background(".pb .toolbar > .seg .on"),
+        generateButton: background(".pb .panel .btn.primary"),
+        generateImage: getComputedStyle(document.querySelector(".pb .panel .btn.primary")).backgroundImage
+      };
+    });
+  }
+  async function expectCenteredPortfolio(width) {
+    const geometry = await builder.locator(".preview").evaluate(preview => {
+      const canvas = preview.querySelector(".port").getBoundingClientRect();
+      const frame = preview.getBoundingClientRect();
+      return {
+        available: preview.clientWidth,
+        width: canvas.width,
+        center: canvas.left + canvas.width / 2,
+        frameCenter: frame.left + preview.clientLeft + preview.clientWidth / 2
+      };
+    });
+    assert.ok(Math.abs(geometry.center - geometry.frameCenter) <= 2, `Portfolio must be centered at ${width}px`);
+    assert.ok(geometry.width <= geometry.available + 1 && geometry.width <= 1121, `Portfolio must fit its frame and stay readable at ${width}px`);
+    assert.ok(geometry.width >= Math.min(640, Math.max(0, geometry.available - 48)), `Portfolio must use the available space at ${width}px`);
+  }
   async function expectUnifiedNavigation(navigation) {
     const documents = navigation.getByRole("link", { name: "CV & Portfolio", exact: true });
     await expect(documents).toHaveCount(1);
@@ -48,6 +86,12 @@ export async function verifySuppliedBuilderLive(context) {
     await expect(page.getByRole("link", { name: "Saved-profile CV", exact: true })).toHaveAttribute("href", "/cv/saved");
     await expect(page.getByRole("link", { name: "Manage publication", exact: true })).toHaveAttribute("href", "/portfolio/publication");
 
+    const initialChrome = await readWorkspaceChrome();
+    assert.ok(initialChrome.panels.every(color => initialChrome.palette.includes(color)), "Builder chrome must use the website surface colors");
+    assert.equal(initialChrome.selectedTab, initialChrome.accent, "The view selector must use the website accent");
+    assert.equal(initialChrome.generateButton, initialChrome.accent, "The Generate action must use the website accent");
+    assert.equal(initialChrome.generateImage, "none", "Preview gradients must not theme the workspace action");
+    await expectCenteredPortfolio(1440);
     await builder.getByRole("button", { name: "emerald", exact: true }).click();
     await expect(builder.getByRole("button", { name: "emerald", exact: true })).toHaveAttribute("aria-pressed", "true");
     assert.equal(await builder.evaluate(element => element.style.getPropertyValue("--a")), "#3ddc97");
@@ -55,6 +99,7 @@ export async function verifySuppliedBuilderLive(context) {
     assert.equal(await builder.evaluate(element => element.style.getPropertyValue("--a")), "#e06b50");
     await builder.getByRole("button", { name: "Switch to light mode", exact: true }).click();
     await expect(builder).toHaveAttribute("data-mode", "light");
+    assert.deepEqual(await readWorkspaceChrome(), initialChrome, "Changing the preview theme must not recolor CareerForge controls");
     await builder.getByRole("button", { name: "Switch to dark mode", exact: true }).click();
     await expect(builder).toHaveAttribute("data-mode", "dark");
 
@@ -127,7 +172,7 @@ export async function verifySuppliedBuilderLive(context) {
     await builder.getByRole("checkbox", { name: "Photo on CV", exact: true }).uncheck();
     await expect(builder.locator(".mx-photo")).toHaveCount(0);
 
-    for (const width of [320, 768, 1440]) {
+    for (const width of [320, 768, 1440, 1920]) {
       await page.setViewportSize({ width, height: 1000 });
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `CV overflow at ${width}px`);
       const menu = page.getByRole("button", { name: "Open navigation", exact: true });
@@ -142,6 +187,7 @@ export async function verifySuppliedBuilderLive(context) {
       await page.screenshot({ path: `test-results/supplied-builder-cv-${width}.png`, fullPage: true, animations: "disabled" });
       await builder.getByRole("tab", { name: "Web portfolio", exact: true }).click();
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `Portfolio overflow at ${width}px`);
+      await expectCenteredPortfolio(width);
       await page.screenshot({ path: `test-results/supplied-builder-portfolio-${width}.png`, fullPage: true, animations: "disabled" });
       await builder.getByRole("tab", { name: "CV", exact: true }).click();
     }
@@ -190,7 +236,7 @@ export async function verifySuppliedBuilderLive(context) {
     await page.reload();
     await expect(builder.locator(".hero h2")).toHaveText("Sara Khoury");
     assert.deepEqual(errors, []);
-    console.log("PASS: unified CV & Portfolio navigation/aliases; supplied education/language/contact/photo editing, visible skill insertion, styles, print CTA/PDF, source isolation, 320/768/1440 reflow and demo generation");
+    console.log("PASS: unified CV & Portfolio navigation/aliases; supplied education/language/contact/photo editing, visible skill insertion, styles, print CTA/PDF, source isolation, 320/768/1440/1920 centered preview, website-colored chrome and demo generation");
   } catch (error) {
     console.error("Supplied builder verification:", error.message);
     await page.screenshot({ path: "test-results/supplied-builder-failure.png", fullPage: true }).catch(() => {});
