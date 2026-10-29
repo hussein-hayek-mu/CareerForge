@@ -127,6 +127,24 @@ remains partial. This is a local increment, with no deployment or database chang
 
 ## Status ledger
 
+Error review and fixes delivered — 29 October. The fresh console log showed a
+browser-added body attribute, cz-shortcut-listen, causing a hydration diagnostic.
+The attribute is absent from application code and server HTML. Tolerance now
+covers only the html/body document wrappers. Regression tests reproduced the
+body warning before the fix, confirmed both wrapper cases are quiet afterward,
+and proved application-component mismatches still report a diagnostic and the
+login form remains interactive. The child-fixture diagnostic in test logs is
+intentional. No global console filtering or client-only rendering was added.
+
+The review also reproduced section headings landing behind the sticky portfolio
+navigation. Anchor offsets now reserve space for both navigation bars; real
+Skills-link clicks confirm unobscured headings at 320 and 1440px. All 81 tests,
+lint, types, production build, six desktop/mobile production smoke cases and the
+focused authenticated builder regression passed. Collapse, preserved edits,
+shared scrolling, document controls, 320/768/1440/1920 reflow and PDF still passed.
+Temporary test identities were removed. The supplied JSX remains unchanged.
+AI writing remains an explicitly labeled demo; no provider was connected.
+
 Notes collapse and shared scrolling delivered — 29 October. The document
 workspace has a keyboard-accessible Hide notes / Show notes control. Collapsing
 keeps notes and document edits mounted, removes hidden fields from focus, and

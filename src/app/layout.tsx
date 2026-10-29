@@ -17,9 +17,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    // Extensions can add root attributes before hydration; keep body/app checks active.
+    // Extensions can add document-wrapper attributes; app descendants keep hydration checks.
     <html lang="en" suppressHydrationWarning>
-      <body>{children}</body>
+      <body suppressHydrationWarning>{children}</body>
     </html>
   );
 }

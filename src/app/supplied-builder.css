@@ -27,7 +27,8 @@
 /* The document scrolls as one page; the controls and preview have no nested scrollers. */
 .document-workspace .supplied-builder-page .pb .toolbar { position: static; }
 .supplied-builder-page .pb .pnav { top: calc(var(--workspace-header-height) + 12px); }
-.supplied-builder-page .pb [data-sec] { scroll-margin-top: calc(var(--workspace-header-height) + 20px); }
+/* Leave room for the application header, sticky section menu and a reading gap. */
+.supplied-builder-page .pb [data-sec] { scroll-margin-top: calc(var(--workspace-header-height) + 80px); }
 /* Workspace controls follow CareerForge; document colors belong to the preview. */
 .document-workspace .supplied-builder-page .pb .panel,
 .document-workspace .supplied-builder-page .pb .toolbar,

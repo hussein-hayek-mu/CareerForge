@@ -87,6 +87,26 @@ export async function verifySuppliedBuilderLive(context) {
     }
     await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
   }
+  async function expectSectionAnchorClearance(width) {
+    await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
+    const skills = builder.locator('[data-sec="skills"]');
+    const navigation = builder.getByRole("navigation", { name: "Sections", exact: true });
+    const skillsLink = navigation.getByRole("button", { name: "Skills", exact: true });
+    await skillsLink.scrollIntoViewIfNeeded();
+    const before = await page.evaluate(() => scrollY);
+    await skillsLink.click();
+    await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(before + 100);
+    // Wait for the real smooth-scroll target, not an intermediate animation frame.
+    await expect.poll(() => skills.evaluate(element => Math.abs(
+      element.getBoundingClientRect().top - parseFloat(getComputedStyle(element).scrollMarginTop)
+    ))).toBeLessThan(3);
+    const heading = await skills.getByRole("heading", { name: "What I work with", exact: true }).boundingBox();
+    const sectionNavigation = await navigation.boundingBox();
+    const applicationHeader = await page.locator(".app-topbar").boundingBox();
+    assert.ok(heading.y >= sectionNavigation.y + sectionNavigation.height + 8, `Section heading must clear the sticky portfolio navigation at ${width}px`);
+    assert.ok(heading.y >= applicationHeader.y + applicationHeader.height + 8, `Section heading must clear the application header at ${width}px`);
+    await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
+  }
   async function expectUnifiedNavigation(navigation) {
     const documents = navigation.getByRole("link", { name: "CV & Portfolio", exact: true });
     await expect(documents).toHaveCount(1);
@@ -260,6 +280,7 @@ export async function verifySuppliedBuilderLive(context) {
       await builder.getByRole("tab", { name: "Web portfolio", exact: true }).click();
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `Portfolio overflow at ${width}px`);
       await expectCenteredPortfolio(width);
+      if (width === 320 || width === 1440) await expectSectionAnchorClearance(width);
       await page.screenshot({ path: `test-results/supplied-builder-portfolio-${width}.png`, fullPage: true, animations: "disabled" });
       await builder.getByRole("tab", { name: "CV", exact: true }).click();
     }
@@ -308,7 +329,7 @@ export async function verifySuppliedBuilderLive(context) {
     await page.reload();
     await expect(builder.locator(".hero h2")).toHaveText("Sara Khoury");
     assert.deepEqual(errors, []);
-    console.log("PASS: unified CV & Portfolio navigation/aliases; supplied education/language/contact/photo editing, visible skill insertion, styles, print CTA/PDF, source isolation, 320/768/1440/1920 centered preview, collapsible preserved notes, shared page scroll, website-colored chrome and demo generation");
+    console.log("PASS: unified CV & Portfolio navigation/aliases; supplied education/language/contact/photo editing, visible skill insertion, styles, print CTA/PDF, source isolation, 320/768/1440/1920 centered preview, collapsible preserved notes, shared page scroll, unobscured section links, website-colored chrome and demo generation");
   } catch (error) {
     console.error("Supplied builder verification:", error.message);
     await page.screenshot({ path: "test-results/supplied-builder-failure.png", fullPage: true }).catch(() => {});
