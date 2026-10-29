@@ -94,7 +94,7 @@ export async function verifyCVLive(context) {
     await page.goto("/cv/saved");
     await expect(page.locator(".cv-skills li")).toHaveCount(1);
     await expect(page.locator(".cv-skills li")).toHaveText("React");
-    await expect(page.getByRole("navigation", { name: "Main navigation" }).getByRole("link", { name: "My CV", exact: true })).toHaveAttribute("aria-current", "page");
+    await expect(page.getByRole("navigation", { name: "Main navigation" }).getByRole("link", { name: "CV & Portfolio", exact: true })).toHaveAttribute("aria-current", "page");
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
     await expect(page.getByRole("button", { name: "Print / save as PDF" })).toBeEnabled();
     for (const width of [320, 1440]) {

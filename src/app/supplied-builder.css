@@ -1,15 +1,53 @@
-/* Integration shell only. PortfolioBuilder.jsx is copied byte-for-byte. */
-.supplied-builder-page { background: #0c0e17; min-height: 100dvh; }
-.supplied-builder-bar { min-height: 52px; padding: 8px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px 24px; flex-wrap: wrap; background: #121522; color: #b8c0d5; font-size: 12px; line-height: 1.6; border-bottom: 1px solid #ffffff20; }
+/* Integration styles only; the supplied PortfolioBuilder.jsx stays unchanged. */
+.document-workspace { padding: 0; max-width: none; container-type: inline-size; container-name: document-workspace; }
+.supplied-builder-page { display: flex; flex-direction: column; height: calc(100dvh - 75px); min-height: 0; background: #0c0e17; }
+.supplied-builder-bar { flex: none; min-height: 52px; padding: 8px 20px; display: flex; align-items: center; justify-content: space-between; gap: 8px 24px; flex-wrap: wrap; background: #121522; color: #b8c0d5; font-size: 12px; line-height: 1.6; border-bottom: 1px solid #ffffff20; }
 .supplied-builder-bar a { display: inline-flex; align-items: center; min-height: 36px; color: #d7dcff; text-decoration: underline; text-underline-offset: 3px; }
 .supplied-builder-bar nav { display: flex; flex-wrap: wrap; gap: 18px; }
 .supplied-builder-bar p { margin: 0; }
-.supplied-builder-page .pb { height: calc(100dvh - 53px); }
+.supplied-builder-page .pb { flex: 1; min-height: 0; height: auto; }
+.supplied-builder-page .pb .stage { container-type: inline-size; container-name: builder-stage; }
 .supplied-builder-page .pb .panel { border: 0; border-right: 1px solid var(--line); border-radius: 0; margin: 0; box-shadow: none; }
-.supplied-builder-page .pb .avatar { height: auto; display: block; border: 0; color: inherit; font: inherit; }
-@media (max-width: 860px) {
-  .supplied-builder-page .pb { height: auto; min-height: 100dvh; }
-  .supplied-builder-page .pb .panel { border: 0; }
-  .supplied-builder-page .pb .dl { flex-wrap: wrap; max-width: 100%; }
+.supplied-builder-page .pb .avatar { height: auto; display: block; width: clamp(140px, 24cqw, 260px); border: 0; color: inherit; font: inherit; }
+.supplied-builder-page .pb .port { padding-inline: clamp(20px, 5cqw, 72px); }
+.supplied-builder-page .pb .hero { gap: clamp(24px, 5cqw, 56px); }
+.supplied-builder-page .pb .hero h2 { font-size: clamp(46px, 11cqw, 112px); overflow-wrap: anywhere; }
+.supplied-builder-page .pb .ed { overflow-wrap: anywhere; }
+.supplied-builder-page .pb .grid { grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); }
+.supplied-builder-page .pb .dl { flex-wrap: wrap; max-width: 100%; }
+/* The supplied observer misses newly added skill nodes; keep their text visible. */
+.supplied-builder-page .pb .chips .chip.rv:not(.in) { opacity: 1; }
+@container document-workspace (max-width: 1000px) {
+  .supplied-builder-page { height: auto; min-height: calc(100dvh - 75px); }
+  .supplied-builder-page .pb { flex: none; grid-template-columns: 1fr; }
+  .supplied-builder-page .pb .panel { border: 0; overflow: visible; }
+  .supplied-builder-page .pb .stage, .supplied-builder-page .pb .preview { overflow: visible; }
+  .supplied-builder-page .pb .toolbar { position: sticky; top: 75px; }
+  .supplied-builder-page .pb .status { position: fixed; }
 }
-@media print { .supplied-builder-bar { display: none !important; } .supplied-builder-page { background: white; } }
+@container builder-stage (max-width: 650px) {
+  .supplied-builder-page .pb .hero { grid-template-columns: 1fr; }
+  .supplied-builder-page .pb .avatar { order: -1; width: 150px; }
+  .supplied-builder-page .pb .cv.modern { grid-template-columns: 1fr; grid-template-areas: "side" "main"; min-height: 0; }
+  .supplied-builder-page .pb .cv-main { padding: 32px 24px; }
+}
+@media screen and (max-width: 760px) {
+  .supplied-builder-page .pb .toolbar { top: 66px; }
+}
+.supplied-builder-page .pb .edu:focus-within .ed-x { opacity: 1; }
+@media (hover: none) {
+  .supplied-builder-page .pb .sk-x { width: 24px; min-height: 24px; opacity: 1; margin-left: 6px; }
+  .supplied-builder-page .pb .edu { padding-right: 28px; }
+  .supplied-builder-page .pb .ed-x { right: 0; width: 24px; height: 24px; opacity: 1; }
+}
+@media print {
+  .app-shell:has(.document-workspace) .app-sidebar,
+  .app-shell:has(.document-workspace) .app-topbar,
+  .app-shell:has(.document-workspace) .navigation-drawer,
+  .app-shell:has(.document-workspace) .skip-link,
+  .supplied-builder-bar { display: none !important; }
+  .app-shell:has(.document-workspace) .app-main { margin: 0 !important; }
+  .document-workspace { padding: 0; max-width: none; container-type: normal; }
+  .supplied-builder-page { display: block; height: auto; min-height: 0; background: white; }
+  .supplied-builder-page .pb .stage { position: static; container-type: normal; }
+}

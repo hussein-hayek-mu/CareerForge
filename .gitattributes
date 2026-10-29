@@ -1,2 +1,2 @@
 # Preserve the owner's supplied component bytes across Windows checkouts.
-src/components/PortfolioBuilder.jsx -text
+src/components/PortfolioBuilder.jsx -text whitespace=cr-at-eol,-blank-at-eof,-blank-at-eol

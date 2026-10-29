@@ -14,9 +14,9 @@ export const features: readonly Feature[] = [
   { id: "academic-planner", label: "Academic planner", href: "/academic-planner", icon: "courses", group: "Learning", module: "M3", status: "Planned", description: "Connect your courses and degree progress to your career target." },
   { id: "learning-roadmap", label: "Learning roadmap", href: "/learning-roadmap", icon: "roadmap", group: "Learning", module: "M5 pilot", status: "Pilot", description: "Choose a fictional role for concrete gap-based exercises and roadmap.sh links. Saved schedules and progress remain planned." },
   { id: "projects", label: "Project ideas", href: "/projects", icon: "projects", group: "Learning", module: "M5", status: "Planned", description: "Build projects that demonstrate the skills your target career needs." },
-  { id: "cv", label: "My CV", href: "/cv", icon: "cv", group: "Documents", module: "M6", status: "Available", description: "Edit a sample in the CV and portfolio builder, or open your saved-profile CV. AI generation and saved builder drafts are not connected." },
+  { id: "documents", label: "CV & Portfolio", href: "/documents", icon: "cv", group: "Documents", module: "M6", status: "Pilot", description: "Create an editable CV and portfolio with shared details, styles and PDF output. AI writing and saved builder drafts are not connected." },
   { id: "cv-analysis", label: "CV analysis", href: "/cv-analysis", icon: "analysis", group: "Documents", module: "M6", status: "Planned", description: "Understand how your CV meets a specific job's requirements." },
-  { id: "portfolio", label: "My portfolio", href: "/portfolio", icon: "portfolio", group: "Documents", module: "M6 pilot", status: "Pilot", description: "Try the sample portfolio builder. Manage publication separately to review, publish or revoke a saved-profile snapshot." },
+
   { id: "jobs", label: "Find opportunities", href: "/jobs", icon: "jobs", group: "Applications", module: "M4", status: "Available", description: "Browse fictional roles with transparent skill matching. Live job search is not connected." },
   { id: "applications", label: "Applications", href: "/applications", icon: "applications", group: "Applications", module: "M7", status: "Available", description: "Save roles and update application statuses manually in your private tracker." },
   { id: "application-agent", label: "Application agent", href: "/application-agent", icon: "agent", group: "Applications", module: "M7", status: "Planned", description: "Prepare grounded applications, review the contents and approve supported submissions." },
@@ -42,5 +42,5 @@ export function getPlannedFeature(id: string): PlannedFeature {
   return feature;
 }
 export function isPrivateFeaturePath(path: string): boolean {
-  return path === "/features" || path.startsWith("/cv/") || path.startsWith("/portfolio/") || features.some(feature => feature.href === path);
+  return path === "/features" || path === "/cv" || path === "/portfolio" || path.startsWith("/cv/") || path.startsWith("/portfolio/") || features.some(feature => feature.href === path);
 }

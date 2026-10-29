@@ -127,6 +127,34 @@ remains partial. This is a local increment, with no deployment or database chang
 
 ## Status ledger
 
+M6 unified builder integration delivered — 29 October. The owner supplied an
+updated component and requested one CV & Portfolio navigation entry inside the
+project. `/documents` is the canonical AppShell destination; `/cv` and `/portfolio`
+redirect there. Saved-profile CV and publication remain contextual tools at
+`/cv/saved` and `/portfolio/publication`, selected under the merged entry. The
+latest pasted JSX is preserved unchanged, including its own tabs and added
+education/language/contact controls. Local editing and demo generation remain
+separate from assessed account facts and reviewed publication. The apparent
+missing workspace was a project move to `C:/Users/user/Desktop/CareerForge/CareerForge`;
+the complete source and Git history were found there. Contract:
+[DOCUMENT_BUILDER_DESIGN.md](DOCUMENT_BUILDER_DESIGN.md).
+Verification: the supplied JSX hash matches the pasted source exactly. All 81
+unit/render tests, lint, TypeScript and production build passed. Focused and full
+development temporary-account suites passed unified desktop/mobile navigation,
+aliases, nested-tool active state, education/language/contact/photo editing,
+new-skill visibility, themes, original print CTA, one-page PDF and 320/768/1440
+reflow. The complete suite also passed saved CV, timed assessments, reviewed
+publication/privacy/conflict/revocation, learning, profile, tracker, password and
+two-user isolation checks. Accounts were deleted and test publications revoked.
+Desktop/mobile screenshots and the one-page PDF were reviewed. Scoped integration
+CSS handles shell space, photo frame, narrow cards, toolbar wrapping and print
+layout without changing the supplied file. All six desktop/mobile production
+smoke cases passed, including guest protection for the canonical and legacy
+routes. Initial discovery skipped cloud-placeholder test files left by the move;
+making existing test files fully local without content changes restored all six
+cases.
+No real AI, builder-draft persistence, new claim verification or deployment.
+
 Root hydration compatibility fix — 29 October. The owner's console reported a
 changing browser-side `data-mbtss-nonce` on `<html>`. The attribute is absent
 from server HTML and application code. A document-start browser fixture reproduced

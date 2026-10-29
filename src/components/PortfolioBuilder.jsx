@@ -22,6 +22,7 @@ const ICONS = {
   camera: <><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" /><circle cx="12" cy="13" r="3" /></>,
   sun: <><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M2 12h2M20 12h2m-15.07-7.07 1.41 1.41m9.32 9.32 1.41 1.41m0-12.14-1.41 1.41m-9.32 9.32-1.41 1.41" /></>,
   moon: <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />,
+  arrow: <path d="m18 15-6-6-6 6" />,
 };
 const Icon = ({ n, s = 18 }) => (
   <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{ICONS[n]}</svg>
@@ -37,11 +38,14 @@ const lum = (hex) => { const m = /^#?(..)(..)(..)$/.exec(hex); if (!m) return 0;
 const STEPS = ["Reading your notes…", "Structuring your experience…", "Polishing the wording…"];
 const SAMPLE = `i'm sara khoury, frontend dev. worked at google for 2 yrs doing frontend, made dashboards faster. before that 1 yr intern at a startup in beirut, react stuff. know react, next, typescript, css, figma. built a weather app and an ecommerce site for my uncle.`;
 
+// Example contact details so every icon is visible out of the box. Replace with your own.
+const DEMO_CONTACT = { email: "sara.khoury@email.com", phone: "+1 555 010 0123", linkedin: "linkedin.com/in/sara-khoury", github: "github.com/sarakhoury", website: "sarakhoury.dev", location: "Open to remote" };
+
 /* Offline fallback so the UI works with no API key */
 function mockStructure(text) {
   const name = (text.match(/(?:i'?m|my name is)\s+([a-z ]+?)[,.]/i)?.[1] || "Your Name").replace(/\b\w/g, (c) => c.toUpperCase());
   return {
-    name, role: "Front-End Developer", email: "", phone: "", linkedin: "", github: "", website: "", location: "Open to remote",
+    name, role: "Front-End Developer", email: "", phone: "", linkedin: "", github: "", website: "", location: "Open to remote", education: [], languages: [],
     summary: "Front-end engineer who ships fast, accessible interfaces at scale. Two years at Google turning slow dashboards into tools people enjoy using.",
     experience: [
       { company: "Google", title: "Front-End Engineer", period: "2 years", bullets: ["Rebuilt data dashboards to load faster and read more clearly.", "Worked with design and product to ship accessible, polished interfaces."] },
@@ -76,7 +80,7 @@ function Ed({ v, p, as: T = "span", multi, ph = "Add text", cls = "" }) {
 
 export default function PortfolioBuilder() {
   const [input, setInput] = useState(SAMPLE);
-  const [data, setData] = useState(() => mockStructure(SAMPLE));
+  const [data, setData] = useState(() => ({ ...mockStructure(SAMPLE), ...DEMO_CONTACT }));
   const [view, setView] = useState("portfolio");
   const [theme, setTheme] = useState("indigo");
   const [custom, setCustom] = useState(null);
@@ -103,13 +107,15 @@ export default function PortfolioBuilder() {
   const lists = {
     addSkill: () => setData((d) => ({ ...d, skills: [...d.skills, "New skill"] })),
     removeSkill: (i) => setData((d) => ({ ...d, skills: d.skills.filter((_, j) => j !== i) })),
+    add: (key, item) => setData((d) => ({ ...d, [key]: [...(d[key] || []), item] })),
+    remove: (key, i) => setData((d) => ({ ...d, [key]: d[key].filter((_, j) => j !== i) })),
   };
 
   async function generate() {
     setBusy(true); setNote("");
     try {
       const { data, demo } = await structureWithAI(input);
-      setData(data);
+      setData((prev) => ({ ...data, ...Object.fromEntries(["email", "phone", "linkedin", "github", "website", "location"].map((k) => [k, data[k] || prev[k] || ""])) }));
       setNote(demo ? "Demo mode: add ANTHROPIC_API_KEY to .env.local for real AI writing." : "Done. Click any text in the preview to fine-tune it.");
     } catch (e) { setNote("Couldn't generate: " + e.message); }
     finally { setBusy(false); }
@@ -180,7 +186,7 @@ export default function PortfolioBuilder() {
           <p className="hint no-print">Click any text in the preview to edit it.</p>
 
           <div className={"preview" + (busy ? " busy" : "")}>
-            {view === "portfolio" ? <Portfolio d={data} photo={photo} setPhoto={setPhoto} /> : <CV d={data} photo={cvPhoto ? photo : null} variant={cvStyle} />}
+            {view === "portfolio" ? <Portfolio d={data} photo={photo} setPhoto={setPhoto} onCV={() => { setView("cv"); setTimeout(() => window.print(), 450); }} /> : <CV d={data} photo={cvPhoto ? photo : null} variant={cvStyle} />}
           </div>
           {busy && <div className="status" role="status"><span className="spin dark" />{STEPS[step]}</div>}
         </section>
@@ -193,10 +199,29 @@ export default function PortfolioBuilder() {
 /* ---------- View A: dark glass portfolio ---------- */
 const clearFx = (el) => el && ["--rx", "--ry", "--tx", "--ty"].forEach((k) => el.style.removeProperty(k));
 const NAV = ["about", "experience", "skills", "projects", "contact"];
-function Portfolio({ d, photo, setPhoto }) {
+function Portfolio({ d, photo, setPhoto, onCV }) {
   const ref = useRef(null);
   const [active, setActive] = useState("about");
   const { addSkill, removeSkill } = useContext(ListCtx);
+
+  // Scroll progress bar + back-to-top visibility (DOM updates only, no re-renders)
+  useEffect(() => {
+    const sc = ref.current.closest(".preview");
+    let raf = 0;
+    const read = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const own = sc.scrollHeight > sc.clientHeight + 2;
+        const top = own ? sc.scrollTop : scrollY;
+        const max = own ? sc.scrollHeight - sc.clientHeight : document.documentElement.scrollHeight - innerHeight;
+        const p = max > 0 ? Math.min(top / max, 1) : 0;
+        ref.current.querySelector(".prog")?.style.setProperty("transform", `scaleX(${p})`);
+        ref.current.querySelector(".totop")?.classList.toggle("show", p > 0.08);
+      });
+    };
+    sc.addEventListener("scroll", read, { passive: true }); addEventListener("scroll", read, { passive: true });
+    return () => { cancelAnimationFrame(raf); sc.removeEventListener("scroll", read); removeEventListener("scroll", read); };
+  }, []);
 
   useEffect(() => {
     const io = new IntersectionObserver((es) => es.forEach((e) => {
@@ -248,6 +273,10 @@ function Portfolio({ d, photo, setPhoto }) {
               <a key={k} className="soc" href={linkFor(k, d[k])} target={k === "email" || k === "phone" ? undefined : "_blank"} rel="noreferrer" aria-label={label} title={label}><Icon n={ic} s={20} /></a>
             ))}
           </div>
+          <div className="cta">
+            <button className="btn primary" onClick={() => go("contact")}>Get in touch</button>
+            <button className="btn" onClick={onCV}>Download CV</button>
+          </div>
         </div>
         <Avatar photo={photo} setPhoto={setPhoto} name={d.name} />
       </header>
@@ -266,6 +295,20 @@ function Portfolio({ d, photo, setPhoto }) {
           ))}
         </ol>
       </section>
+
+      {d.education?.length > 0 && (
+        <section data-sec="education">
+          <h3>Education</h3>
+          <div className="grid">
+            {d.education.map((e, i) => (
+              <article key={i} className="glass card fx rv" style={{ "--i": i }}>
+                <h4><Ed v={e.degree} p={["education", i, "degree"]} ph="Degree" /></h4>
+                <p><Ed v={e.school} p={["education", i, "school"]} ph="School" />&nbsp;/&nbsp;<Ed v={e.period} p={["education", i, "period"]} ph="Years" /></p>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section data-sec="skills">
         <h3>What I work with</h3>
@@ -299,6 +342,10 @@ function Portfolio({ d, photo, setPhoto }) {
         </div>
         {d.email && <a className="btn primary" href={`mailto:${d.email}`}>Email me</a>}
       </footer>
+      <p className="copy">© {new Date().getFullYear()} {d.name}</p>
+      <div className="totop-wrap">
+        <button className="totop glass" aria-label="Back to top" onClick={() => go("about")}><Icon n="arrow" s={18} /></button>
+      </div>
     </div>
   );
 }
@@ -308,52 +355,72 @@ function Bg() {
   const cv = useRef(null);
   useEffect(() => {
     const c = cv.current, ctx = c.getContext("2d");
-    const port = c.closest(".port"), scroller = c.closest(".preview");
+    const port = c.closest(".port"), sc = c.closest(".preview");
     const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-    let w = 0, h = 0, pts = [], raf, mx = -999, my = -999, col = "#8b8fff", tick = 0;
+    let w = 0, h = 0, pts = [], rip = [], star = null, raf = 0, t = 0, next = 240;
+    let tx = -999, ty = -999, mx = -999, my = -999, sy = 0, c1 = "#8b8fff", c2 = "#d08bff";
     const size = () => {
       const dpr = Math.min(devicePixelRatio || 1, 2);
-      w = port.clientWidth; h = Math.min(scroller?.clientHeight || innerHeight, innerHeight);
+      w = port.clientWidth; h = Math.min(sc?.clientHeight || innerHeight, innerHeight);
       c.width = w * dpr; c.height = h * dpr; c.style.width = w + "px"; c.style.height = h + "px";
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      const n = Math.min(90, Math.floor((w * h) / 15000));
-      pts = Array.from({ length: n }, () => ({ x: Math.random() * w, y: Math.random() * h, vx: (Math.random() - 0.5) * 0.35, vy: (Math.random() - 0.5) * 0.35, r: Math.random() * 1.4 + 0.6 }));
+      // z = depth: far dots are small, dim and slow; near dots are larger and brighter
+      pts = Array.from({ length: Math.min(110, Math.floor((w * h) / 14000)) }, () => {
+        const z = 0.25 + Math.random() * 0.75;
+        return { x: Math.random() * w, y: Math.random() * h, z, r: 0.5 + z * 1.7, vx: (Math.random() - 0.5) * 0.3 * z, vy: (Math.random() - 0.5) * 0.3 * z, ph: Math.random() * 6.28, px: 0, py: 0 };
+      });
     };
-    const move = (e) => { const r = c.getBoundingClientRect(); mx = e.clientX - r.left; my = e.clientY - r.top; };
-    const away = () => { mx = my = -999; };
-    const line = (x1, y1, x2, y2, a) => { ctx.globalAlpha = a; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); };
+    const rel = (e) => { const r = c.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+    const move = (e) => { [tx, ty] = rel(e); if (mx < -900) { mx = tx; my = ty; } };
+    const away = () => { tx = ty = -999; };
+    const down = (e) => { const [x, y] = rel(e); if (y >= 0 && y <= h && rip.length < 4) rip.push({ x, y, r: 0 }); };
     const draw = () => {
-      if (tick++ % 40 === 0) col = getComputedStyle(c).getPropertyValue("--at").trim() || col;
+      t++;
+      if (t % 45 === 1) { const cs = getComputedStyle(c); c1 = cs.getPropertyValue("--at").trim() || c1; c2 = cs.getPropertyValue("--b").trim() || c2; }
+      const own = sc && sc.scrollHeight > sc.clientHeight + 2;
+      sy += ((own ? sc.scrollTop : scrollY) - sy) * 0.08; // eased scroll drives parallax
+      if (tx < -900) mx = my = -999; else { mx += (tx - mx) * 0.14; my += (ty - my) * 0.14; }
       ctx.clearRect(0, 0, w, h);
-      ctx.fillStyle = ctx.strokeStyle = col; ctx.lineWidth = 1;
       for (const p of pts) {
-        if (!reduce) {
-          p.x += p.vx; p.y += p.vy;
-          if (p.x < 0 || p.x > w) p.vx *= -1;
-          if (p.y < 0 || p.y > h) p.vy *= -1;
-          const dx = p.x - mx, dy = p.y - my, d = Math.hypot(dx, dy);
-          if (d > 0 && d < 110) { const f = ((110 - d) / 110) * 1.6; p.x += (dx / d) * f; p.y += (dy / d) * f; }
-        }
-        ctx.globalAlpha = 0.8; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.283); ctx.fill();
+        if (!reduce) { p.x += p.vx; p.y = (p.y + p.vy + h) % h; if (p.x < 0 || p.x > w) p.vx *= -1; }
+        p.px = p.x; p.py = (((p.y - sy * p.z * 0.35) % h) + h) % h;
+        const dx = p.px - mx, dy = p.py - my, d = Math.hypot(dx, dy);
+        if (!reduce && d > 0 && d < 120) { const f = ((120 - d) / 120) * 2 * p.z; p.x += (dx / d) * f; p.y += (dy / d) * f; }
       }
-      for (let i = 0; i < pts.length; i++) {
-        const a = pts[i];
-        for (let j = i + 1; j < pts.length; j++) {
-          const b = pts[j], d = Math.hypot(a.x - b.x, a.y - b.y);
-          if (d < 130) line(a.x, a.y, b.x, b.y, (1 - d / 130) * 0.32);
+      ctx.fillStyle = ctx.strokeStyle = c1; ctx.lineWidth = 1;
+      for (const p of pts) {
+        ctx.globalAlpha = (0.3 + 0.6 * p.z) * (0.75 + 0.25 * Math.sin(t * 0.03 + p.ph)); // twinkle
+        ctx.beginPath(); ctx.arc(p.px, p.py, p.r, 0, 6.283); ctx.fill();
+      }
+      const near = pts.filter((p) => p.z > 0.55); // only the front layer is linked, so the web stays calm
+      for (let i = 0; i < near.length; i++) {
+        const a = near[i];
+        for (let j = i + 1; j < near.length; j++) {
+          const b = near[j], d = Math.hypot(a.px - b.px, a.py - b.py);
+          if (d < 120) { ctx.globalAlpha = (1 - d / 120) * 0.22; ctx.beginPath(); ctx.moveTo(a.px, a.py); ctx.lineTo(b.px, b.py); ctx.stroke(); }
         }
-        const dm = Math.hypot(a.x - mx, a.y - my);
-        if (dm < 170) line(a.x, a.y, mx, my, (1 - dm / 170) * 0.6);
+        const dm = Math.hypot(a.px - mx, a.py - my);
+        if (dm < 170) { ctx.strokeStyle = c2; ctx.globalAlpha = (1 - dm / 170) * 0.7; ctx.beginPath(); ctx.moveTo(a.px, a.py); ctx.lineTo(mx, my); ctx.stroke(); ctx.strokeStyle = c1; }
+      }
+      rip = rip.filter((q) => q.r < 180);
+      for (const q of rip) { q.r += 4; ctx.strokeStyle = c2; ctx.globalAlpha = (1 - q.r / 180) * 0.5; ctx.beginPath(); ctx.arc(q.x, q.y, q.r, 0, 6.283); ctx.stroke(); }
+      if (!reduce && !star && --next <= 0) { star = { x: Math.random() * w * 0.7, y: Math.random() * h * 0.35, l: 1 }; next = 360 + Math.random() * 360; }
+      if (star) {
+        ctx.strokeStyle = c2;
+        for (let k = 0; k < 9; k++) { ctx.globalAlpha = star.l * (1 - k / 9) * 0.8; ctx.lineWidth = 1.6 * (1 - k / 12); ctx.beginPath(); ctx.moveTo(star.x - 11 * k, star.y - 5 * k); ctx.lineTo(star.x - 11 * (k + 1), star.y - 5 * (k + 1)); ctx.stroke(); }
+        star.x += 11; star.y += 5; star.l -= 0.012; ctx.lineWidth = 1;
+        if (star.l <= 0 || star.x > w + 100) star = null;
       }
       if (!reduce) raf = requestAnimationFrame(draw);
     };
     size(); draw();
     const ro = new ResizeObserver(() => { size(); if (reduce) draw(); }); ro.observe(port);
-    addEventListener("pointermove", move); document.addEventListener("pointerleave", away);
-    return () => { cancelAnimationFrame(raf); ro.disconnect(); removeEventListener("pointermove", move); document.removeEventListener("pointerleave", away); };
+    addEventListener("pointermove", move); addEventListener("pointerdown", down); document.addEventListener("pointerleave", away);
+    return () => { cancelAnimationFrame(raf); ro.disconnect(); removeEventListener("pointermove", move); removeEventListener("pointerdown", down); document.removeEventListener("pointerleave", away); };
   }, []);
   return (
     <div className="bg" aria-hidden="true">
+      <div className="prog" />
       <div className="aurora"><i /><i /><i /></div>
       <canvas ref={cv} />
     </div>
@@ -385,7 +452,7 @@ function Avatar({ photo, setPhoto, name }) {
 
 /* ---------- View B: ATS-friendly CV (single column, semantic, no icons or tables) ---------- */
 function CV({ d, photo, variant }) {
-  const { addSkill } = useContext(ListCtx);
+  const { addSkill, add } = useContext(ListCtx);
   if (variant === "modern") return <CVModern d={d} photo={photo} />;
   return (
     <div className="cv-wrap">
@@ -394,8 +461,8 @@ function CV({ d, photo, variant }) {
         <Ed as="h1" v={d.name} p={["name"]} />
         <p className="cv-role"><Ed v={d.role} p={["role"]} /></p>
         <p className="contact-line">
-          {FIELDS.filter(([k]) => d[k]).map(([k], i) => (
-            <span key={k}>{i > 0 && <span className="sep"> | </span>}<Ed v={d[k]} p={[k]} /></span>
+          {FIELDS.filter(([k]) => d[k]).map(([k, ic], i) => (
+            <span key={k} className="cl">{i > 0 && <span className="sep"> | </span>}<Icon n={ic} s={13} /><Ed v={d[k]} p={[k]} /></span>
           ))}
         </p>
         <h2>Summary</h2>
@@ -407,6 +474,8 @@ function CV({ d, photo, variant }) {
             <ul>{x.bullets.map((b, j) => <li key={j}><Ed multi v={b} p={["experience", i, "bullets", j]} /></li>)}</ul>
           </div>
         ))}
+        {d.education?.length > 0 && <><h2>Education</h2>{d.education.map((e, i) => <p key={i} className="cv-row"><span><strong><Ed v={e.degree} p={["education", i, "degree"]} ph="Degree" /></strong>, <Ed v={e.school} p={["education", i, "school"]} ph="School" /></span><Ed v={e.period} p={["education", i, "period"]} ph="Years" /></p>)}</>}
+        <button className="sk-add ats no-print" onClick={() => add("education", { school: "School", degree: "Degree", period: "Years" })}>+ Add education</button>
         <h2>Skills</h2>
         <p>
           {d.skills.map((s, i) => ({ s, i })).filter((x) => x.s).map(({ s, i }, n, arr) => (
@@ -414,6 +483,8 @@ function CV({ d, photo, variant }) {
           ))}
           <button className="sk-add ats no-print" onClick={addSkill}>+ Add</button>
         </p>
+        {d.languages?.length > 0 && <><h2>Languages</h2><p>{d.languages.map((s, i) => <span key={i}><Ed v={s} p={["languages", i]} />{i < d.languages.length - 1 ? ", " : ""}</span>)}</p></>}
+        <button className="sk-add ats no-print" onClick={() => add("languages", "Language")}>+ Add language</button>
         <h2>Projects</h2>
         {d.projects.map((p, i) => <p key={i}><strong><Ed v={p.name} p={["projects", i, "name"]} />.</strong> <Ed multi v={p.description} p={["projects", i, "description"]} /></p>)}
       </article>
@@ -421,26 +492,64 @@ function CV({ d, photo, variant }) {
   );
 }
 
-function Skill({ s, i }) {
-  const { removeSkill } = useContext(ListCtx);
+function Edu({ e, i }) {
+  const { remove } = useContext(ListCtx);
+  return (
+    <div className="edu">
+      <p className="cv-row"><strong><Ed v={e.school} p={["education", i, "school"]} ph="School" /></strong><span className="per"><Ed v={e.period} p={["education", i, "period"]} ph="Years" /></span></p>
+      <p className="edu-d"><Ed v={e.degree} p={["education", i, "degree"]} ph="Degree" /></p>
+      <button className="ed-x no-print" onClick={() => remove("education", i)} aria-label="Remove education">×</button>
+    </div>
+  );
+}
+
+function Skill({ s, i, k = "skills" }) {
+  const { remove } = useContext(ListCtx);
   return (
     <span className="mx-skill">
-      <Ed v={s} p={["skills", i]} ph="Skill" />
-      <button className="sk-x no-print" onClick={() => removeSkill(i)} aria-label={`Remove ${s}`}>×</button>
+      <Ed v={s} p={[k, i]} ph="Skill" />
+      <button className="sk-x no-print" onClick={() => remove(k, i)} aria-label={`Remove ${s}`}>×</button>
     </span>
   );
 }
 
 /* Modern CV: sidebar + timeline. Reading order: main content first, sidebar placed on the left by CSS. */
 function CVModern({ d, photo }) {
+  const [open, setOpen] = useState(null);
+  const cur = FIELDS.find(([k]) => k === open);
   const { addSkill } = useContext(ListCtx);
-  const filled = FIELDS.filter(([k]) => d[k]);
+  const { add } = useContext(ListCtx);
   return (
     <div className="cv-wrap">
       <article className="cv modern">
         <div className="cv-main">
           <Ed as="h1" v={d.name} p={["name"]} />
           <p className="cv-role"><Ed v={d.role} p={["role"]} /></p>
+          <div className="cbar no-print">
+            <div className="cicons" role="tablist" aria-label="Contact details">
+              {FIELDS.map(([k, ic, label]) => (
+                <button key={k} role="tab" aria-selected={open === k} title={label} aria-label={label}
+                  className={"cib" + (open === k ? " on" : "") + (d[k] ? "" : " empty")} onClick={() => setOpen(open === k ? null : k)}>
+                  <Icon n={ic} s={17} />
+                </button>
+              ))}
+            </div>
+            <div className="cdetail" key={open || "none"} aria-live="polite">
+              {cur ? (
+                <>
+                  <span className="cd-l">{cur[2]}</span>
+                  <Ed v={d[cur[0]]} p={[cur[0]]} ph={cur[3]} />
+                  {linkFor(cur[0], d[cur[0]]) && <a className="cd-go" href={linkFor(cur[0], d[cur[0]])} target={cur[0] === "email" || cur[0] === "phone" ? undefined : "_blank"} rel="noreferrer">Open</a>}
+                </>
+              ) : <span className="cd-hint">Tap an icon to see contact details</span>}
+            </div>
+          </div>
+          {/* Print version: every filled detail is visible on paper */}
+          <ul className="cprint">
+            {FIELDS.filter(([k]) => d[k]).map(([k, ic]) => (
+              <li key={k}><Icon n={ic} s={13} />{linkFor(k, d[k]) ? <a href={linkFor(k, d[k])}>{d[k]}</a> : d[k]}</li>
+            ))}
+          </ul>
           <h2>Profile</h2>
           <Ed as="p" multi v={d.summary} p={["summary"]} />
           <h2>Experience</h2>
@@ -455,18 +564,22 @@ function CVModern({ d, photo }) {
           </div>
           <h2>Projects</h2>
           {d.projects.map((p, i) => <p key={i}><strong><Ed v={p.name} p={["projects", i, "name"]} /></strong> <Ed multi v={p.description} p={["projects", i, "description"]} /></p>)}
+          {d.education?.length > 0 && <h2>Education</h2>}
+          {d.education?.map((e, i) => <Edu key={i} e={e} i={i} />)}
+          <button className="sk-add ats no-print" onClick={() => add("education", { school: "School", degree: "Degree", period: "Years" })}>+ Add education</button>
         </div>
         <aside className="cv-side">
           {photo && <img className="mx-photo" src={photo} alt="" />}
-          <h3>Contact</h3>
-          <ul className="mx-contact">
-            {filled.map(([k, ic]) => <li key={k}><Icon n={ic} s={15} /><Ed v={d[k]} p={[k]} /></li>)}
-          </ul>
-          {!filled.length && <p className="mx-empty no-print">Add contact details in the web portfolio view.</p>}
+          
           <h3>Skills</h3>
           <div className="mx-skills">
             {d.skills.map((s, i) => <Skill key={i} s={s} i={i} />)}
             <button className="sk-add no-print" onClick={addSkill}>+ Add skill</button>
+          </div>
+          <h3 className={d.languages?.length ? "" : "no-print"}>Languages</h3>
+          <div className="mx-skills">
+            {(d.languages || []).map((s, i) => <Skill key={i} s={s} i={i} k="languages" />)}
+            <button className="sk-add no-print" onClick={() => add("languages", "Language")}>+ Add language</button>
           </div>
         </aside>
       </article>
@@ -717,8 +830,11 @@ const CSS = `
 .pb .aurora i:nth-child(2){right:-20%;top:10%;background:radial-gradient(circle,color-mix(in srgb,var(--b) 32%,transparent),transparent 65%);animation-duration:28s;animation-delay:-8s}
 .pb .aurora i:nth-child(3){left:20%;bottom:-40%;opacity:.35;animation-duration:34s;animation-delay:-15s}
 .pb[data-mode="light"] .aurora i{opacity:.26}
+.pb .aurora::before{content:"";position:absolute;left:-20%;top:-40%;width:140%;height:180%;background:conic-gradient(from 0deg at 65% 35%,transparent 0 55%,color-mix(in srgb,var(--a) 14%,transparent) 70%,transparent 85%);animation:sweep 50s linear infinite}
+.pb .aurora::after{content:"";position:absolute;inset:0;opacity:.07;mix-blend-mode:overlay;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+@keyframes sweep{to{transform:rotate(360deg)}}
 @keyframes drift{to{transform:translate(12vmax,8vmax) scale(1.25) rotate(40deg)}}
-@media (prefers-reduced-motion:reduce){.pb .aurora i{animation:none!important}}
+@media (prefers-reduced-motion:reduce){.pb .aurora i,.pb .aurora::before{animation:none!important}}
 
 /* Modern CV */
 .pb .cv.modern{display:grid;grid-template-columns:250px 1fr;grid-template-areas:"side main";min-height:1123px;padding:0;font-size:13.5px;overflow:hidden}
@@ -729,13 +845,14 @@ const CSS = `
 .pb .cv.modern h2{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:700;margin:26px 0 12px;padding:0;border:0;color:#14151c}
 .pb .cv.modern h2::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--a)}
 .pb .cv.modern h2::after{content:"";flex:1;height:1px;background:#e3e5ee}
-.pb .mx-tl{border-left:2px solid #e3e5ee;padding-left:18px}
-.pb .mx-job{position:relative;margin:0 0 16px}
-.pb .mx-job::before{content:"";position:absolute;left:-26px;top:5px;width:10px;height:10px;border-radius:50%;background:#fff;border:2px solid var(--a);transition:background .25s,transform .25s}
-.pb .mx-job:hover::before{background:var(--a);transform:scale(1.25)}
+.pb .mx-job{position:relative;margin:0 0 14px;padding:0 0 14px;border-bottom:1px solid #eceef5}
+.pb .mx-job:last-child{border-bottom:0;margin-bottom:0;padding-bottom:0}
+.pb .mx-job ul{list-style:none;margin:6px 0 0;padding:0}
+.pb .mx-job li{position:relative;margin:0 0 4px;padding-left:16px}
+.pb .mx-job li::before{content:"";position:absolute;left:0;top:.7em;width:7px;height:2px;border-radius:2px;background:var(--a)}
 .pb .mx-job strong{font-size:14.5px;transition:color .25s}
 .pb .mx-job:hover strong{color:color-mix(in srgb,var(--a) 62%,#000)}
-.pb .per{color:#6b6f82;font-size:12px;white-space:nowrap}
+.pb .per{align-self:flex-start;padding:2px 10px;border-radius:999px;font-size:11.5px;font-weight:600;white-space:nowrap;background:color-mix(in srgb,var(--a) 13%,#fff);color:color-mix(in srgb,var(--a) 58%,#1a1a2a)}
 .pb .mx-co{margin:0 0 4px;font-weight:600;font-size:13px;color:color-mix(in srgb,var(--a) 60%,#111)}
 .pb .cv-side{grid-area:side;position:relative;overflow:hidden;padding:46px 26px;color:#e9ebf7;background:color-mix(in srgb,var(--a) 14%,#0f1226)}
 .pb .cv-side::before{content:"";position:absolute;width:280px;height:280px;border-radius:50%;left:-120px;top:-120px;background:radial-gradient(circle,color-mix(in srgb,var(--a) 45%,transparent),transparent 70%)}
@@ -762,7 +879,58 @@ const CSS = `
 .pb .sk-add.ats{padding:0 8px;margin-left:8px;border-radius:6px;border:1px solid #d5d8e3;color:#6b6f82;font-size:12px}
 .pb .sk-add.ats:hover{background:#f1f2f7;color:#14151c}
 .pb .chip.sk-add{border:1px dashed color-mix(in srgb,var(--a) 50%,transparent);background:transparent;color:var(--mute);padding:8px 18px;font-size:14px;font-weight:500}
+/* CV contact bar: horizontal icons, details on click */
+.pb .cv.modern .cv-role{margin:8px 0 16px}
+.pb .cbar{margin:0 0 4px}
+.pb .cicons{display:flex;flex-wrap:wrap;gap:8px}
+.pb .cib{width:38px;height:38px;display:grid;place-items:center;border-radius:12px;border:1px solid #e3e5ee;background:#fff;color:#4b4f63;cursor:pointer;transition:transform .2s,background .25s,color .25s,border-color .25s,box-shadow .25s}
+.pb .cib:hover{transform:translateY(-2px);border-color:var(--a);color:color-mix(in srgb,var(--a) 62%,#000)}
+.pb .cib.on{background:linear-gradient(135deg,var(--a),var(--b));border-color:transparent;color:var(--on);box-shadow:0 8px 18px -8px var(--a)}
+.pb .cib.empty:not(.on){border-style:dashed;color:#9aa0b5}
+.pb .cib:focus-visible{outline:2px solid var(--a);outline-offset:2px}
+.pb .cdetail{display:flex;align-items:center;gap:10px;min-height:36px;margin-top:10px;padding:6px 12px;border-radius:10px;background:#f4f5fa;font-size:13px;animation:rvIn .3s ease backwards}
+.pb .cd-l{font-weight:700;color:color-mix(in srgb,var(--a) 62%,#111)}
+.pb .cd-hint{color:#7a7f94;font-size:12.5px}
+.pb .cd-go{margin-left:auto;font-size:12px;font-weight:600;text-decoration:none;color:color-mix(in srgb,var(--a) 62%,#111)}
+.pb .cd-go:hover{text-decoration:underline}
+.pb .cprint{display:none}
 @media print{
+  .pb .cprint{display:flex;flex-wrap:wrap;gap:4px 16px;margin:0 0 4px;padding:0;list-style:none;font-size:12px;color:#3b3e4d}
+  .pb .cprint li{display:inline-flex;align-items:center;gap:6px}
+  .pb .cprint a{color:inherit;text-decoration:none}
+  .pb .cprint svg{color:color-mix(in srgb,var(--a) 62%,#111)}
+}
+
+/* Portfolio UX: progress, entrance, CTAs, back-to-top */
+.pb .prog{position:absolute;left:0;top:0;width:100%;height:3px;transform:scaleX(0);transform-origin:0 50%;background:linear-gradient(90deg,var(--a),var(--b));transition:transform .1s linear}
+.pb .hero-txt>*{animation:rvIn .8s cubic-bezier(.2,.7,.2,1) backwards}
+.pb .hero-txt>:nth-child(2){animation-delay:.08s}.pb .hero-txt>:nth-child(3){animation-delay:.16s}
+.pb .hero-txt>:nth-child(4){animation-delay:.24s}.pb .hero-txt>:nth-child(5){animation-delay:.32s}
+.pb .avatar{animation:rvIn .9s cubic-bezier(.2,.7,.2,1) .2s backwards}
+.pb .socials{margin-bottom:28px}
+.pb .cta{display:flex;flex-wrap:wrap;gap:12px}
+.pb .cta .btn{width:auto;padding:13px 26px}
+.pb .card p{margin:0;color:var(--mute)}
+.pb .copy{margin:56px 0 0;text-align:center;font-size:13px;color:var(--mute)}
+.pb .totop-wrap{position:sticky;bottom:0;height:0;z-index:6}
+.pb .totop{position:absolute;right:0;bottom:24px;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:var(--ink);cursor:pointer;opacity:0;transform:translateY(10px);pointer-events:none;transition:opacity .3s,transform .3s,background .3s,color .3s}
+.pb .totop.show{opacity:1;transform:none;pointer-events:auto}
+.pb .totop:hover{background:var(--a);color:var(--on);border-color:transparent}
+
+/* CV extras: contact icons, education */
+.pb .mx-contact li{align-items:center}
+.pb .mx-contact li.empty{opacity:.5}
+.pb .mx-ico{display:grid;place-items:center;flex:none;width:28px;height:28px;border-radius:8px;color:color-mix(in srgb,var(--a) 55%,#fff);background:#ffffff12;transition:background .25s,color .25s}
+.pb .mx-ico svg{margin:0;color:inherit}
+.pb .mx-contact li:hover .mx-ico{background:var(--a);color:var(--on)}
+.pb .edu{position:relative;margin:0 0 10px}
+.pb .edu-d{margin:0;color:#4b4f63}
+.pb .ed-x{position:absolute;right:-22px;top:0;width:18px;height:18px;border:0;border-radius:50%;background:#eceef5;color:#555;cursor:pointer;opacity:0;line-height:1;transition:opacity .2s}
+.pb .edu:hover .ed-x{opacity:1}
+.pb .contact-line .cl{display:inline-flex;align-items:center;gap:5px}
+.pb .contact-line .cl svg{color:#777;flex:none}
+@media print{
+  .pb .mx-contact li:has(.ed:empty){display:none}
   .pb .mx-skill:has(.ed:empty){display:none}
   .pb .cv.ats{padding:14mm 16mm}
   .pb .cv.modern{min-height:297mm}

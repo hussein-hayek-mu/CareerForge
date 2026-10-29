@@ -96,11 +96,11 @@ try {
       await verifyPortfolioLive(a.context);
     }
     if (portfolioOnly || builderOnly) {
-      stage = "supplied CV and portfolio builder";
+      stage = "integrated CV & Portfolio builder";
       await verifySuppliedBuilderLive(a.context);
     }
     assert.deepEqual(errors, []);
-    console.log(builderOnly ? "PASS: focused supplied-builder browser checks" : portfolioOnly ? "PASS: focused development assessment/CV/portfolio browser checks" : "PASS: focused development assessment/CV browser checks");
+    console.log(builderOnly ? "PASS: focused unified CV & Portfolio browser checks" : portfolioOnly ? "PASS: focused development assessment/CV/portfolio browser checks" : "PASS: focused development assessment/CV browser checks");
   } else {
   stage = "maximum-length private profile layouts";
   await verifyProfileLayout(a.context);
@@ -108,7 +108,7 @@ try {
   await verifyCVLive(a.context);
   stage = "portfolio drafts and selected-field publication";
   await verifyPortfolioLive(a.context);
-  stage = "supplied CV and portfolio builder";
+  stage = "integrated CV & Portfolio builder";
   await verifySuppliedBuilderLive(a.context);
   stage = "gap-based learning exercises and resource links";
   await verifyLearningLive(a.context);

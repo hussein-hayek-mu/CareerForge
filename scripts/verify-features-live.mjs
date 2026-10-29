@@ -24,7 +24,7 @@ export async function verifyFeaturesLive(context) {
     }
     await page.goto("/application-agent");
     await page.getByRole("button", { name: "Collapse sidebar", exact: true }).click();
-    await expect(nav.getByRole("link", { name: "My CV", exact: true })).toHaveAccessibleName("My CV");
+    await expect(nav.getByRole("link", { name: "CV & Portfolio", exact: true })).toHaveAccessibleName("CV & Portfolio");
     await page.reload();
     await expect(page.getByRole("button", { name: "Expand sidebar", exact: true })).toBeVisible();
     await page.getByRole("button", { name: "Expand sidebar", exact: true }).click();

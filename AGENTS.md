@@ -27,12 +27,13 @@ scope and preserve unrelated changes. User instructions take precedence.
 
 ## Product quality standards
 
-Owner UI/access contract (23 October): guests see the public homepage and auth/
-recovery entry only; feature pages require server-verified authentication. My CV
-has its own sidebar entry. Only selected skills with a current supported passing
-check enter CV skills. React/SQL basics checks are limited assessment evidence,
-not proof of mastery. The owner's newer design request gives each report feature
-a dedicated destination. Unbuilt modules may appear as explicitly Planned or
+Owner UI/access contract: guests see the public homepage and auth/recovery entry
+only; feature pages require server-verified authentication. The 29 October owner
+update combines CV and portfolio creation under one CV & Portfolio entry at
+`/documents`; saved-profile CV and publication tools remain contextual. Only
+selected skills with a current supported passing check enter saved-profile CV
+skills. React/SQL basics checks are limited assessment evidence, not proof of
+mastery. Other report features retain their own destinations. Unbuilt modules may appear as explicitly Planned or
 Stretch scope pages; never imply those pages implement the underlying feature.
 
 Apply the owner's senior engineering/product instructions and

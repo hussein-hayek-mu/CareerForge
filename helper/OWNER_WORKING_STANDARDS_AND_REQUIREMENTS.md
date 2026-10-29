@@ -185,3 +185,19 @@ they are not checked applicant facts or authorization to change private account
 records, publish content or call a paid AI service. Preserve access to the existing
 saved-profile CV and reviewed publication tools separately. Implementation and
 verification status belongs in `../docs/IMPLEMENTATION_ROADMAP.md`.
+
+## Unified CV and portfolio workspace — owner update, 29 October 2026
+
+The owner supplied `PortfolioBuilder (1).jsx` and pasted the updated component,
+then requested: "i want it to be a part of my project meaning i want 1 tab that
+represents cv and portfolio clicking it opens the code i provided and so the
+user can create his cv and portfolio".
+
+Use one CV & Portfolio navigation entry inside the existing CareerForge shell.
+Preserve the updated supplied component and its own Web portfolio/CV controls.
+The previous separate top-level My CV/My portfolio entries are superseded.
+Retain existing saved-profile and publication tools as contextual destinations;
+sample edits must remain distinguishable from stored assessed facts and explicit
+publication. This request does not independently authorize a paid AI provider or
+claim that the component's local state is persisted. Track implementation and
+verification in the current roadmap.

@@ -1,5 +1,10 @@
 # CareerForge feature and page map
 
+29 October navigation update: CV and portfolio creation share one **CV & Portfolio**
+entry at `/documents` inside the existing workspace. Legacy `/cv` and `/portfolio`
+links redirect there. The saved-profile CV and reviewed publication tools remain
+contextual destinations. This supersedes earlier separate-entry wording below.
+
 28 October owner update: see
 [standing standards and product contracts](../helper/OWNER_WORKING_STANDARDS_AND_REQUIREMENTS.md)
 and roadmap R1–R4. Portfolio and Skill checks own evidence-aware presentation
@@ -21,8 +26,8 @@ The attached product design brief informs layout, hierarchy, spacing and states;
 its generic logos, metrics, testimonials and trial claims are not product facts.
 
 - M1–M7 and the Admin Dashboard are required by the report. M8/M9 are stretch.
-- M5 has separate learning and project destinations. M6 has separate CV,
-  analysis and portfolio destinations. M7 separates preparation, tracking and
+- M5 has separate learning and project destinations. M6 now combines CV and portfolio
+  creation while retaining separate CV analysis. M7 separates preparation, tracking and
   outcome insights. Buttons and internal pipeline services belong within those
   pages rather than multiplying top-level navigation entries.
 - CV tailoring, cover letters, field mapping, eligibility, exclusions, limits,
@@ -57,9 +62,9 @@ read the same registry. Shared UI is not duplicated between modules.
 | Find opportunities | `/jobs` | M4 / FR-4.1–4.5 | Fictional jobs and simple skill matching work; active/expiry rules, richer scoring, persisted reasoning and dataset demand remain. |
 | Learning roadmap | `/learning-roadmap` | M5 / FR-5.1–5.2 pilot | Saved-profile gaps produce concrete exercises and roadmap.sh links. Persisted plans, completion and adaptive monthly ordering remain. See [learning pilot](LEARNING_ROADMAP.md). |
 | Project ideas | `/projects` | M5 / FR-5.3 | Planned: multi-gap project recommendations with rationale; personal project editing belongs in Profile. |
-| My CV | `/cv` | M6 / FR-6.6 baseline slice | Saved-profile preview and browser PDF work; baseline/tailored version storage and exact application version retrieval remain. |
+| CV & Portfolio | `/documents` (legacy `/cv`, `/portfolio` redirect) | M6 / FR-6.4–6.6 UI integration | Updated supplied builder inside AppShell with its own CV/portfolio tabs, local editing and browser PDF. Starts with fictional sample content; AI and draft persistence are not connected. Saved-profile CV remains at `/cv/saved`. |
 | CV analysis | `/cv-analysis` | M6 / FR-6.1–6.3 | Planned: private PDF/DOCX storage/parsing, deterministic job comparison, section feedback. |
-| My portfolio | `/portfolio`, shared `/p/[slug]` | M6 / FR-6.4–6.5 pilot | Two templates, private saved choices, source-grounded preview, explicit selected-field publication and revocation. Experience/certification/contact records and full M6 CV analysis/versioning remain. See [portfolio contract](PORTFOLIO.md). |
+| Publication tools (contextual) | `/portfolio/publication`, shared `/p/[slug]` | M6 / FR-6.4–6.5 pilot | Source-grounded preview, private choices, explicit selected-field publication and revocation remain separate from local builder edits. Included under the unified CV & Portfolio navigation entry. See [portfolio contract](PORTFOLIO.md). |
 | Application agent | `/application-agent` | M7 / FR-7.1–7.5, 7.9–7.10, 7.12–7.14 | Planned: policy/grounding gates, materials, form mapping, approval, idempotent permitted submission and Mock ATS. |
 | Applications | `/applications` | M7 / FR-7.6–7.7 | Private manual tracker works; exact document/channel references, full status event history and integrations remain. |
 | Application insights | `/application-insights` | M7 / FR-7.8, 7.11 | Planned: factual outcome rates, timestamps, explanations and recommendation feedback. |

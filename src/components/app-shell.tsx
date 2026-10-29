@@ -40,8 +40,8 @@ export function AppIcon({ name }: { name: IconName }) {
   return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={paths[name]} /></svg>;
 }
 
-export function AppShell({ children, pageTitle, displayName = "Your workspace", applicationCount = 0, privateAccount = false, accountActions }: {
-  children: ReactNode; pageTitle: string; displayName?: string; applicationCount?: number; privateAccount?: boolean; accountActions?: ReactNode;
+export function AppShell({ children, pageTitle, displayName = "Your workspace", applicationCount = 0, privateAccount = false, accountActions, contentClassName = "" }: {
+  children: ReactNode; pageTitle: string; displayName?: string; applicationCount?: number; privateAccount?: boolean; accountActions?: ReactNode; contentClassName?: string;
 }) {
   const pathname = usePathname();
   const storedPreference = useSyncExternalStore(subscribe, snapshot, () => false);
@@ -54,7 +54,7 @@ export function AppShell({ children, pageTitle, displayName = "Your workspace", 
     try { localStorage.setItem(preferenceKey, String(!collapsed)); setTemporaryPreference(null); window.dispatchEvent(new Event("careerforge-sidebar")); } catch { setTemporaryPreference(!collapsed); }
   }
   const navigationItems = features.map(item => item.id === "profile" && !privateAccount ? { ...item, href: "/profile" } : item);
-  const isActive = (href: string) => pathname === href || ((href === "/cv" || href === "/portfolio") && pathname.startsWith(href + "/"));
+  const isActive = (href: string) => pathname === href || (href === "/documents" && (pathname.startsWith("/cv/") || pathname.startsWith("/portfolio/")));
   function navigation(mobile = false) {
     return <>
       <div className="app-sidebar-brand"><Link href="/" className="brand" aria-label="CareerForge home" onClick={() => drawer.current?.close()}><BrandMark /><span className="app-brand-name">CareerForge<span>.</span></span></Link>{mobile ? <button className="shell-icon-button" aria-label="Close navigation" onClick={() => drawer.current?.close()}><AppIcon name="close" /></button> : <button className="shell-icon-button collapse-button" aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"} aria-expanded={!collapsed} aria-controls="desktop-navigation" title={collapsed ? "Expand sidebar" : "Collapse sidebar"} onClick={toggleSidebar}><AppIcon name="panel" /></button>}</div>
@@ -73,6 +73,6 @@ export function AppShell({ children, pageTitle, displayName = "Your workspace", 
     <dialog className="navigation-drawer" ref={drawer} aria-label="Navigation" onClose={() => menuButton.current?.focus()} onClick={event => {
       if (event.target === event.currentTarget) { const bounds = event.currentTarget.getBoundingClientRect(); if (event.clientX > bounds.right || event.clientY > bounds.bottom) drawer.current?.close(); }
     }}>{navigation(true)}</dialog>
-    <div className="app-main"><header className="app-topbar"><button ref={menuButton} className="shell-icon-button mobile-menu-button" aria-label="Open navigation" aria-haspopup="dialog" onClick={() => { drawer.current?.showModal(); drawer.current?.querySelector<HTMLButtonElement>("button")?.focus(); }}><AppIcon name="menu" /></button><div className="app-breadcrumb"><span>CareerForge</span><span aria-hidden="true">/</span><strong>{pageTitle}</strong></div><div className="app-topbar-actions"><span className={`workspace-mode ${privateAccount ? "private-mode" : ""}`}><span />{privateAccount ? "Private account" : "Demo workspace"}</span>{accountActions ?? <Link className="shell-account-link" href="/account" aria-label="Open my account"><AppIcon name="account" /><span>My account</span></Link>}</div></header><main id="main-content" tabIndex={-1} className="app-content">{children}</main></div>
+    <div className="app-main"><header className="app-topbar"><button ref={menuButton} className="shell-icon-button mobile-menu-button" aria-label="Open navigation" aria-haspopup="dialog" onClick={() => { drawer.current?.showModal(); drawer.current?.querySelector<HTMLButtonElement>("button")?.focus(); }}><AppIcon name="menu" /></button><div className="app-breadcrumb"><span>CareerForge</span><span aria-hidden="true">/</span><strong>{pageTitle}</strong></div><div className="app-topbar-actions"><span className={`workspace-mode ${privateAccount ? "private-mode" : ""}`}><span />{privateAccount ? "Private account" : "Demo workspace"}</span>{accountActions ?? <Link className="shell-account-link" href="/account" aria-label="Open my account"><AppIcon name="account" /><span>My account</span></Link>}</div></header><main id="main-content" tabIndex={-1} className={`app-content ${contentClassName}`}>{children}</main></div>
   </div>;
 }

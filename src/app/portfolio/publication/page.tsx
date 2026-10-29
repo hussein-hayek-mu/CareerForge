@@ -19,5 +19,5 @@ export default async function Page() {
   }
   if (!access) redirect("/login");
   if (!data) throw new Error("Portfolio unavailable");
-  return <AppShell pageTitle="My portfolio" privateAccount displayName={data.source.name}><Link className="text-button" href="/portfolio">Open CV &amp; portfolio builder</Link><PortfolioEditor initial={data} /></AppShell>;
+  return <AppShell pageTitle="My portfolio" privateAccount displayName={data.source.name}><Link className="text-button" href="/documents">Open CV &amp; portfolio builder</Link><PortfolioEditor initial={data} /></AppShell>;
 }
