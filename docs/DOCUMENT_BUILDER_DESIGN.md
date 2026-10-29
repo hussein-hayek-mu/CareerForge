@@ -58,6 +58,12 @@ provider, validated grounded output and source facts instead of fictional fallba
 
 ## Integration and acceptance
 
+Hide notes / Show notes collapses the input column without unmounting the
+builder or losing edits. Its button exposes the expanded state and supports
+keyboard activation. The builder uses a shared document scroll, with section
+anchors offset below the workspace header and no nested panel/preview scrollers.
+
+
 The surrounding notes, toolbar, hints and draft notice use CareerForge's own
 palette. Preview theme choices affect the document only. The portfolio canvas
 is fluid and centered, with symmetric gutters and a 1120px maximum width.

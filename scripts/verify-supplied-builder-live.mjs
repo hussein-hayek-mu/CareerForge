@@ -58,6 +58,35 @@ export async function verifySuppliedBuilderLive(context) {
     assert.ok(geometry.width <= geometry.available + 1 && geometry.width <= 1121, `Portfolio must fit its frame and stay readable at ${width}px`);
     assert.ok(geometry.width >= Math.min(640, Math.max(0, geometry.available - 48)), `Portfolio must use the available space at ${width}px`);
   }
+  async function expectSharedPageScroll() {
+    const scrollRegions = await builder.locator(".preview, .panel").evaluateAll(elements => elements.map(element => ({
+      name: element.className,
+      overflow: getComputedStyle(element).overflowY,
+      scrollTop: element.scrollTop
+    })));
+    for (const region of scrollRegions) {
+      assert.ok(["visible", "clip"].includes(region.overflow), `The ${region.name} region must use page scrolling`);
+      assert.equal(region.scrollTop, 0);
+    }
+    assert.equal(await page.evaluate(() => document.documentElement.scrollHeight > innerHeight + 300), true);
+    for (const target of [builder.locator(".panel h1"), builder.locator(".hero h2")]) {
+      await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
+      await target.scrollIntoViewIfNeeded();
+      const bounds = await target.boundingBox();
+      await page.mouse.move(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
+      const before = await page.evaluate(() => scrollY);
+      await page.mouse.wheel(0, 450);
+      await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(before + 100);
+      assert.equal(await builder.locator(".preview").evaluate(element => element.scrollTop), 0);
+      assert.equal(await builder.locator(".panel").evaluate(element => element.scrollTop), 0);
+      const header = await page.locator(".app-topbar").boundingBox();
+      const toolbar = await builder.locator(".toolbar").boundingBox();
+      if (toolbar.y + toolbar.height > header.y && toolbar.y < 1000) {
+        assert.ok(toolbar.y >= header.y + header.height - 1, "The builder toolbar must stay below the application header");
+      }
+    }
+    await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
+  }
   async function expectUnifiedNavigation(navigation) {
     const documents = navigation.getByRole("link", { name: "CV & Portfolio", exact: true });
     await expect(documents).toHaveCount(1);
@@ -92,6 +121,37 @@ export async function verifySuppliedBuilderLive(context) {
     assert.equal(initialChrome.generateButton, initialChrome.accent, "The Generate action must use the website accent");
     assert.equal(initialChrome.generateImage, "none", "Preview gradients must not theme the workspace action");
     await expectCenteredPortfolio(1440);
+    const notes = builder.getByLabel("Your notes", { exact: true });
+    const originalNotes = await notes.inputValue();
+    const draftNotes = "These draft notes must survive hiding and reopening the notes panel.";
+    await notes.fill(draftNotes);
+    await builder.locator(".hero h2").fill("Collapse State Person");
+    const expandedStage = await builder.locator(".stage").boundingBox();
+    const hideNotes = page.getByRole("button", { name: "Hide notes", exact: true });
+    await expect(hideNotes).toHaveAttribute("aria-expanded", "true");
+    await hideNotes.click();
+    const showNotes = page.getByRole("button", { name: "Show notes", exact: true });
+    await expect(showNotes).toHaveAttribute("aria-expanded", "false");
+    await expect(builder.locator(".panel")).not.toBeVisible();
+    await expect(notes).not.toBeVisible();
+    assert.equal(await notes.evaluate(element => { element.focus(); return document.activeElement === element; }), false, "Hidden notes must not receive keyboard focus");
+    const collapsedStage = await builder.locator(".stage").boundingBox();
+    assert.ok(collapsedStage.width > expandedStage.width + 200, "Collapsing notes must give their space to the preview");
+    await expectCenteredPortfolio(1440);
+    await page.screenshot({ path: "test-results/supplied-builder-collapsed-1440.png", fullPage: true, animations: "disabled" });
+    await showNotes.press("Enter");
+    await expect(hideNotes).toHaveAttribute("aria-expanded", "true");
+    await expect(notes).toHaveValue(draftNotes);
+    await expect(builder.locator(".hero h2")).toHaveText("Collapse State Person");
+    await hideNotes.press("Space");
+    await expect(showNotes).toHaveAttribute("aria-expanded", "false");
+    await showNotes.press("Space");
+    await expect(notes).toHaveValue(draftNotes);
+    await notes.fill(originalNotes);
+    await builder.locator(".hero h2").fill("Sara Khoury");
+    await hideNotes.focus();
+    await expectSharedPageScroll();
+
     await builder.getByRole("button", { name: "emerald", exact: true }).click();
     await expect(builder.getByRole("button", { name: "emerald", exact: true })).toHaveAttribute("aria-pressed", "true");
     assert.equal(await builder.evaluate(element => element.style.getPropertyValue("--a")), "#3ddc97");
@@ -175,6 +235,18 @@ export async function verifySuppliedBuilderLive(context) {
     for (const width of [320, 768, 1440, 1920]) {
       await page.setViewportSize({ width, height: 1000 });
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `CV overflow at ${width}px`);
+      if (width === 320) {
+        const hideNotes = page.getByRole("button", { name: "Hide notes", exact: true });
+        await hideNotes.click();
+        const showNotes = page.getByRole("button", { name: "Show notes", exact: true });
+        await expect(showNotes).toHaveAttribute("aria-expanded", "false");
+        await expect(builder.locator(".panel")).not.toBeVisible();
+        await expect(builder.locator(".cv h1")).toHaveText("Local Draft Person");
+        assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, "Collapsed notes must fit a narrow screen");
+        await page.screenshot({ path: "test-results/supplied-builder-collapsed-320.png", fullPage: true, animations: "disabled" });
+        await showNotes.press("Enter");
+        await expect(builder.getByLabel("Your notes", { exact: true })).toHaveValue(originalNotes);
+      }
       const menu = page.getByRole("button", { name: "Open navigation", exact: true });
       if (await menu.isVisible()) {
         await menu.click();
@@ -236,7 +308,7 @@ export async function verifySuppliedBuilderLive(context) {
     await page.reload();
     await expect(builder.locator(".hero h2")).toHaveText("Sara Khoury");
     assert.deepEqual(errors, []);
-    console.log("PASS: unified CV & Portfolio navigation/aliases; supplied education/language/contact/photo editing, visible skill insertion, styles, print CTA/PDF, source isolation, 320/768/1440/1920 centered preview, website-colored chrome and demo generation");
+    console.log("PASS: unified CV & Portfolio navigation/aliases; supplied education/language/contact/photo editing, visible skill insertion, styles, print CTA/PDF, source isolation, 320/768/1440/1920 centered preview, collapsible preserved notes, shared page scroll, website-colored chrome and demo generation");
   } catch (error) {
     console.error("Supplied builder verification:", error.message);
     await page.screenshot({ path: "test-results/supplied-builder-failure.png", fullPage: true }).catch(() => {});

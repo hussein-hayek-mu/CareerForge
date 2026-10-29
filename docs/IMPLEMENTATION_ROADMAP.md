@@ -127,6 +127,17 @@ remains partial. This is a local increment, with no deployment or database chang
 
 ## Status ledger
 
+Notes collapse and shared scrolling delivered — 29 October. The document
+workspace has a keyboard-accessible Hide notes / Show notes control. Collapsing
+keeps notes and document edits mounted, removes hidden fields from focus, and
+gives the centered preview the available width. Notes, controls and preview now
+use the document's shared page scroll; nested panel/preview scrolling is removed.
+Section navigation and anchors respect the application header. Focused browser
+checks passed real wheel scrolling over both columns, disclosure with mouse and
+keyboard, preserved drafts, 320/768/1440/1920 layouts, existing editing and PDF.
+Lint and production build passed; collapsed desktop/mobile screenshots were
+reviewed. Temporary accounts were removed. Supplied JSX remains unchanged.
+
 Builder theme and preview refinement delivered — 29 October. The notes panel,
 toolbar, editing hint and draft notice now use CareerForge's shared palette;
 workspace buttons remain chartreuse when document colors or light/dark mode change.
