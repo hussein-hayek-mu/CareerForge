@@ -1,0 +1,2 @@
+# Preserve the owner's supplied component bytes across Windows checkouts.
+src/components/PortfolioBuilder.jsx -text

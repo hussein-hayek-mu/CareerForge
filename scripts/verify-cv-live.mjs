@@ -8,7 +8,7 @@ export async function verifyCVLive(context) {
   const { profile } = await response.json();
   const page = await context.newPage();
   try {
-    const navigation = await page.goto("/cv");
+    const navigation = await page.goto("/cv/saved");
     assert.ok(navigation.headers()["cache-control"].includes("no-store"));
     await expect(page.getByRole("article", { name: "CV preview" }).getByRole("heading", { level: 2 })).toHaveText(profile.name);
     await expect(page.locator(".cv-skills li")).toHaveCount(0);
@@ -91,7 +91,7 @@ export async function verifyCVLive(context) {
     await page.getByRole("button", { name: "End attempt", exact: true }).click();
     await expect(card.getByRole("button", { name: "Retake check", exact: true })).toBeVisible();
     await page.unroute("**/api/v1/skill-checks/sessions");
-    await page.goto("/cv");
+    await page.goto("/cv/saved");
     await expect(page.locator(".cv-skills li")).toHaveCount(1);
     await expect(page.locator(".cv-skills li")).toHaveText("React");
     await expect(page.getByRole("navigation", { name: "Main navigation" }).getByRole("link", { name: "My CV", exact: true })).toHaveAttribute("aria-current", "page");

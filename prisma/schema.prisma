@@ -13,6 +13,8 @@ model Portfolio {
   userId            String @unique @map("user_id") @db.Uuid
   slug              String @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   template          String @default("studio")
+  palette           String @default("chartreuse")
+  colorMode         String @default("dark") @map("color_mode")
   sections          String[] @default(["about", "project", "skills"])
   revision          String @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   isPublic          Boolean @default(false) @map("is_public")

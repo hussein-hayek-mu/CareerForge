@@ -4,6 +4,7 @@ import { verifyCVLive } from "./verify-cv-live.mjs";
 import { verifyFeaturesLive } from "./verify-features-live.mjs";
 import { verifyLearningLive } from "./verify-learning-live.mjs";
 import { verifyPortfolioLive } from "./verify-portfolio-live.mjs";
+import { verifySuppliedBuilderLive } from "./verify-supplied-builder-live.mjs";
 import { verifyProfileLayout } from "./verify-profile-layout.mjs";
 import { randomUUID } from "node:crypto";
 import { mkdir } from "node:fs/promises";
@@ -15,6 +16,7 @@ nextEnv.loadEnvConfig(process.cwd());
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000";
 const assessmentOnly = process.argv.includes("--assessment-only");
 const portfolioOnly = process.argv.includes("--portfolio-only");
+const builderOnly = process.argv.includes("--builder-only");
 const users = [randomUUID(), randomUUID()].map(id => ({ id, email: `${id}@careerforge.invalid`, password: `Test-${randomUUID()}!` }));
 const db = new Client({ connectionString: process.env.DATABASE_URL, connectionTimeoutMillis: 15000, statement_timeout: 15000 });
 let browser;
@@ -84,15 +86,21 @@ try {
   await expect(a.page.getByLabel("Your skills", { exact: true })).toHaveValue("React, SQL");
   const aProfile = await (await a.context.request.get("/api/v1/profile")).json();
   assert.equal(aProfile.profile.name, "Live Test Owner A");
-  if (assessmentOnly || portfolioOnly) {
-    stage = "focused timed-assessment and CV verification";
-    await verifyCVLive(a.context);
+  if (assessmentOnly || portfolioOnly || builderOnly) {
+    if (!builderOnly) {
+      stage = "focused timed-assessment and CV verification";
+      await verifyCVLive(a.context);
+    }
     if (portfolioOnly) {
       stage = "focused portfolio browser verification";
       await verifyPortfolioLive(a.context);
     }
+    if (portfolioOnly || builderOnly) {
+      stage = "supplied CV and portfolio builder";
+      await verifySuppliedBuilderLive(a.context);
+    }
     assert.deepEqual(errors, []);
-    console.log(portfolioOnly ? "PASS: focused development assessment/CV/portfolio browser checks" : "PASS: focused development assessment/CV browser checks");
+    console.log(builderOnly ? "PASS: focused supplied-builder browser checks" : portfolioOnly ? "PASS: focused development assessment/CV/portfolio browser checks" : "PASS: focused development assessment/CV browser checks");
   } else {
   stage = "maximum-length private profile layouts";
   await verifyProfileLayout(a.context);
@@ -100,6 +108,8 @@ try {
   await verifyCVLive(a.context);
   stage = "portfolio drafts and selected-field publication";
   await verifyPortfolioLive(a.context);
+  stage = "supplied CV and portfolio builder";
+  await verifySuppliedBuilderLive(a.context);
   stage = "gap-based learning exercises and resource links";
   await verifyLearningLive(a.context);
   stage = "feature directory and dedicated module navigation";

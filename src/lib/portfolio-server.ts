@@ -15,8 +15,9 @@ export async function authorizePortfolio(): Promise<PortfolioAccess | null> {
     if (error) throw new Error("Portfolio operation unavailable");
     return data as unknown;
   }
-  return { userId: user.id, read: () => rpc("get_portfolio"), write: input => rpc("put_portfolio", {
+  return { userId: user.id, read: () => rpc("get_portfolio"), write: input => rpc("put_portfolio_design", {
     p_action: input.action, p_revision: input.revision, p_template: input.template,
-    p_sections: input.sections, p_source_token: input.sourceToken
+    p_sections: input.sections, p_source_token: input.sourceToken,
+    p_palette: input.appearance?.palette ?? null, p_color_mode: input.appearance?.mode ?? null
   }) };
 }

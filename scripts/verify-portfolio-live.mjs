@@ -11,7 +11,7 @@ export async function verifyPortfolioLive(context) {
   const fixture = { ...original, bio: "Portfolio introduction from source.", education: "Private education detail", project: "Portfolio project from source.", location: "Private location detail" };
   try {
     assert.equal((await context.request.put("/api/v1/profile", { data: fixture })).status(), 200);
-    const response = await page.goto("/portfolio");
+    const response = await page.goto("/portfolio/publication");
     assert.equal(response.status(), 200);
     assert.ok(response.headers()["cache-control"].includes("no-store"));
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);

@@ -129,7 +129,7 @@ export function SkillChecks({ banks, selected, results, initialSession = null }:
   }
 
   return <div className="account-content">
-    <div className="page-heading"><div><p className="eyebrow">EVIDENCE BEFORE CLAIMS</p><h1>Put your skills to work.</h1><p>Pass a basics check before a selected skill can appear on your CV.</p></div><Link className="button" href="/cv">View my CV</Link></div>
+    <div className="page-heading"><div><p className="eyebrow">EVIDENCE BEFORE CLAIMS</p><h1>Put your skills to work.</h1><p>Pass a basics check before a selected skill can appear on your CV.</p></div><Link className="button" href="/cv/saved">View my CV</Link></div>
     <p className="muted-note">These five-question React/SQL checks assess limited fundamentals, not identity, professional proficiency or mastery. Pass mark: 4/5. Other skills remain self-reported and excluded from your CV until supported checks exist.</p>
     {message && <p className="notice" role="status">{message}</p>}
     {error && <p className="form-error" role="alert">{error}</p>}

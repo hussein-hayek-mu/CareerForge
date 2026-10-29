@@ -1,0 +1,15 @@
+/* Integration shell only. PortfolioBuilder.jsx is copied byte-for-byte. */
+.supplied-builder-page { background: #0c0e17; min-height: 100dvh; }
+.supplied-builder-bar { min-height: 52px; padding: 8px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px 24px; flex-wrap: wrap; background: #121522; color: #b8c0d5; font-size: 12px; line-height: 1.6; border-bottom: 1px solid #ffffff20; }
+.supplied-builder-bar a { display: inline-flex; align-items: center; min-height: 36px; color: #d7dcff; text-decoration: underline; text-underline-offset: 3px; }
+.supplied-builder-bar nav { display: flex; flex-wrap: wrap; gap: 18px; }
+.supplied-builder-bar p { margin: 0; }
+.supplied-builder-page .pb { height: calc(100dvh - 53px); }
+.supplied-builder-page .pb .panel { border: 0; border-right: 1px solid var(--line); border-radius: 0; margin: 0; box-shadow: none; }
+.supplied-builder-page .pb .avatar { height: auto; display: block; border: 0; color: inherit; font: inherit; }
+@media (max-width: 860px) {
+  .supplied-builder-page .pb { height: auto; min-height: 100dvh; }
+  .supplied-builder-page .pb .panel { border: 0; }
+  .supplied-builder-page .pb .dl { flex-wrap: wrap; max-width: 100%; }
+}
+@media print { .supplied-builder-bar { display: none !important; } .supplied-builder-page { background: white; } }

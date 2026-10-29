@@ -1,6 +1,6 @@
 # CareerForge implementation roadmap
 
-Updated: 28 October 2026. Initial audited baseline: `6d63b9e`; subsequent
+Updated: 29 October 2026. Initial audited baseline: `6d63b9e`; subsequent
 verified increments are recorded below.
 
 ## Purpose and authority
@@ -126,6 +126,32 @@ authenticated browser and assistive-technology verification remain open. P3.1
 remains partial. This is a local increment, with no deployment or database change.
 
 ## Status ledger
+
+M6 supplied-component replacement delivered — 29 October. The owner explicitly
+requires the exact supplied `PortfolioBuilder.jsx`, superseding the earlier visual
+adaptation. Both `/cv` and `/portfolio` now mount the unchanged component and use
+its own Web portfolio/CV tabs. A surrounding bar labels its fictional sample and
+tab-local edits; real AI generation is not connected. Account-backed tools remain
+at `/cv/saved` and `/portfolio/publication`; public snapshots and evidence rules
+remain separate from sample edits. The already-applied additive development
+appearance migration is retained without implying prototype persistence.
+Contract: [DOCUMENT_BUILDER_DESIGN.md](DOCUMENT_BUILDER_DESIGN.md).
+Verification: source SHA-256 matches the original supplied file; all 81 unit/render
+tests, full lint, TypeScript and production build passed. Focused development
+checks passed the original editing/tab/style/accent/mode/photo controls, real
+501 demo fallback, account-source isolation, 320/1440 reflow and PDF output.
+Saved-profile CV, timed assessments and portfolio consent/publication/privacy,
+conflict/recovery and revocation regressions passed. Screenshot review exposed
+global avatar styles flattening the photo frame; scoped integration resets and
+a 4:5 frame regression check passed. Mobile toolbar overflow was fixed outside
+the unchanged source. Temporary test users were removed and test publications
+revoked. The earlier appearance migration trial/applied-development checks passed;
+the additive migration, Prisma and API compatibility are retained together.
+All six desktop/mobile production smoke cases passed, including the new private
+subroutes. Two initial development guest smoke cases hit navigation/time limits;
+the production suite passed without those development compilation delays.
+No real AI, builder-draft persistence, new applicant verification,
+production migration or deployment is claimed.
 
 M6/R1 portfolio slice delivered — 28 October. Re-read the actual report's
 FR-6.4/6.5, UC-5, Portfolio data model/API and M6 acceptance. Added profile-derived
