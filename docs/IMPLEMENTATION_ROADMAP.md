@@ -127,6 +127,19 @@ remains partial. This is a local increment, with no deployment or database chang
 
 ## Status ledger
 
+Root hydration compatibility fix — 29 October. The owner's console reported a
+changing browser-side `data-mbtss-nonce` on `<html>`. The attribute is absent
+from server HTML and application code. A document-start browser fixture reproduced
+the same warning before the fix. Root-only hydration tolerance accepts external
+attributes without changing the injected value or suppressing body/app diagnostics.
+The supplied portfolio component remains unchanged. The post-fix browser
+regression passed: the injected root nonce remains without a hydration warning,
+the login form hydrates/submits to a local mock, and an injected body attribute
+still produces its expected diagnostic. Run `npm run test:hydration` with the
+development server running; the body warning is an intentional negative control.
+Full lint, targeted final-file lint, TypeScript and production build passed.
+No Auth/database calls, dependencies, schema changes or deployment were needed.
+
 M6 supplied-component replacement delivered — 29 October. The owner explicitly
 requires the exact supplied `PortfolioBuilder.jsx`, superseding the earlier visual
 adaptation. Both `/cv` and `/portfolio` now mount the unchanged component and use
