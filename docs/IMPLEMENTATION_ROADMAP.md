@@ -8,9 +8,10 @@ the existing profile-history source with nine API/schema tests, bringing the
 local suite to 97 passing tests; Prisma generation, lint, TypeScript/build and
 the 34 offline browser cases pass. Pending history SQL and RLS/constraints passed
 a fully rolled-back development transaction. No migration was permanently applied.
-Node 22 is pinned and preview branches now trigger CI after publication.
-Hosting/database account connections and explicit GitHub-destination approval
-are still required; automatic approval review blocked the push. Details:
+Node 22 is pinned and preview branches trigger CI. The owner then explicitly
+approved the repository/source/history upload; release commit `55a9be2` was pushed
+to the preview branch and its remote ref was verified. Hosting/database account
+connections are still required; hosted CI results are not yet verified. Details:
 [PREVIEW_RELEASE_2026_10_30.md](PREVIEW_RELEASE_2026_10_30.md). No deployment yet.
 
 ## Local error fixes — 30 October 2026

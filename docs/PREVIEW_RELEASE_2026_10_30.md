@@ -8,6 +8,10 @@ settings are preserved. No deployment has occurred.
 
 - Commit `e335f16` contains the supplied experience, public navbar/dashboard
   correction, performance fixes and the expanded offline test setup.
+- Release commit `55a9be2` includes the remaining validated source and deployment
+  preparation. It was pushed to the preview branch on the approved GitHub remote;
+  a separate remote-ref read confirmed that exact commit. Hosted CI is not yet
+  verified.
 - The release snapshot includes the existing education/work-history source and
   migration, with validated API handlers and database constraints, so it retains
   the locally integrated profile/CV work.
@@ -47,13 +51,14 @@ Git remote: `git@github.com:hussein-hayek-mu/CareerForge.git`.
 GitHub SSH authentication succeeds as `izodox`; this does not establish ownership
 or permission to publish into the configured remote's account.
 
-Automatic approval review rejected the push to
+Automatic approval review initially rejected the push to
 `https://github.com/hussein-hayek-mu/CareerForge` because the exact destination and
-source/history upload were not explicitly approved. No push was retried and no
-source was uploaded. The owner must confirm that repository and the preview-branch
-payload before a push. A limited local check found no configured database/secret
-values in the candidate source files or unpublished patch history; this is not a
-universal credential scan or a substitute for destination approval.
+source/history upload were not explicitly approved. The owner then answered
+"yes i approve" to that specific repository and preview-branch payload. The push
+succeeded after that approval, and the remote commit was independently verified.
+A limited local check found no configured database/secret values in the candidate
+source files or unpublished patch history; this is not a universal credential
+scan. Private environment files and unrelated IDE settings were excluded.
 
 ## Remaining hosted work
 
