@@ -118,7 +118,7 @@ try {
   await a.page.screenshot({ path: "test-results/account-desktop.png", fullPage: true, animations: "disabled" });
 
   stage = "saved profile drives workspace and matching";
-  await a.page.goto("/");
+  await a.page.goto("/dashboard");
   await expect(a.page.locator(".demo-info")).toContainText("saved account profile");
   await expect(a.page.locator(".app-sidebar-account").first()).toContainText("Live Test Owner A");
   await expect(a.page.locator(".film-summary")).toContainText("2 self-reported skills");
@@ -152,7 +152,7 @@ try {
   await b.page.screenshot({ path: "test-results/account-mobile.png", fullPage: true, animations: "disabled" });
 
   stage = "second account workspace isolation";
-  await b.page.goto("/");
+  await b.page.goto("/dashboard");
   await expect(b.page.locator(".film-summary")).toContainText("0 self-reported skills");
   await b.page.goto("/applications");
   await expect(b.page.locator(".tracker-row")).toHaveCount(0);

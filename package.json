@@ -10,7 +10,7 @@
     "typecheck": "next typegen && tsc --noEmit",
     "test:e2e": "playwright test",
     "test:hydration": "node scripts/verify-root-hydration.mjs",
-    "test": "tsx --test src/app/api/v1/health/route.test.ts src/lib/supabase/middleware.test.ts src/lib/demo-workspace.test.ts src/lib/account/handlers.test.ts src/lib/tracker/handlers.test.ts src/lib/account/recovery.test.ts src/lib/account/request-body.test.ts scripts/deployment-config.test.mjs src/components/profile-cv.test.tsx src/lib/skill-checks.test.ts src/lib/skill-check-handlers.test.ts src/lib/learning-roadmap.test.ts src/components/learning-roadmap.test.tsx src/lib/portfolio.test.ts src/lib/portfolio-handlers.test.ts src/components/portfolio-preview.test.tsx src/lib/portfolio-public-guard.test.ts src/lib/document-demo-handlers.test.ts",
+    "test": "node scripts/test-unit.mjs",
     "db:migrate": "node scripts/db-migrate.mjs",
     "test:rls": "node scripts/test-rls.mjs",
     "test:account:live": "node scripts/test-account-live.mjs",

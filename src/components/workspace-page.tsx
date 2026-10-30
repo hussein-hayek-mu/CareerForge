@@ -5,13 +5,11 @@ import { createClient } from "@/lib/supabase/server";
 import { profileFromRow } from "@/lib/account/schemas";
 import { CareerWorkspace } from "./career-workspace";
 import { trackerAccess } from "@/lib/tracker/server";
-import { PublicHome } from "./public-home";
 
 export async function WorkspacePage({ view }: { view: "overview" | "profile" | "jobs" | "applications" }) {
   const cookieStore = await cookies();
   // Guests need neither a database connection nor sample data in an account.
   if (!cookieStore.getAll().some(cookie => cookie.name.startsWith("sb-"))) {
-    if (view === "overview") return <PublicHome />;
     redirect("/login");
   }
   let account;
@@ -29,10 +27,9 @@ export async function WorkspacePage({ view }: { view: "overview" | "profile" | "
     account = { id: user.id, profile: profileFromRow(data), tracker: { jobs, applications } };
   } catch {
     if (anonymous) {
-      if (view === "overview") return <PublicHome />;
       redirect("/login");
     }
-    return <main className="account-content"><div className="empty-state"><h1>Your workspace is temporarily unavailable.</h1><p>We could not load your account, profile or opportunities. Please try again or sign in again.</p><Link href={view === "overview" ? "/" : `/${view}`} className="button primary">Try again</Link><Link href="/login" className="text-button">Sign in</Link></div></main>;
+    return <main className="account-content"><div className="empty-state"><h1>Your workspace is temporarily unavailable.</h1><p>We could not load your account, profile or opportunities. Please try again or sign in again.</p><Link href={view === "overview" ? "/dashboard" : `/${view}`} className="button primary">Try again</Link><Link href="/login" className="text-button">Sign in</Link></div></main>;
   }
   if (view === "profile") redirect("/account");
   return <CareerWorkspace key={`${account.id}:${view}`} view={view} account={account} />;

@@ -1,5 +1,46 @@
 # CareerForge implementation roadmap
 
+## Local error fixes — 30 October 2026
+
+Fixed valid fractional GPA submission, the history-editor focus/lint dependency,
+and ambient CSS continuing behind dialogs when canvas is unavailable. Corrected
+generated-report linting and omitted unit/browser test coverage. Full lint is
+clean; TypeScript/build, 88 local unit tests and 34 desktop/mobile browser cases
+passed. The history editor was also exercised in an isolated browser harness.
+Production preflight still needs the real HTTPS `APP_ORIGIN`; local development
+does not require it. Details and verification limits:
+[ERROR_REVIEW_2026_10_30.md](ERROR_REVIEW_2026_10_30.md). No deployment or database changes.
+
+## Navbar visibility correction — 30 October 2026
+
+The public `/` route now always renders the supplied landing page and floating
+island navbar, including when session cookies are present. The private overview
+moved to `/dashboard`; Overview links, sign-in entry, retries and live-suite
+destinations were updated. Homepage rendering no longer waits on Auth/profile
+reads. The dashboard retains server authentication, no-store and noindex.
+Production build/TypeScript, targeted lint, all 85 unit tests and all 22 selected
+desktop/mobile browser cases passed, including session-cookie navbar visibility,
+fixed position after scroll and dashboard guest denial. This is local source
+verification; no new live-account test or deployment was performed.
+
+## Supplied experience update — 30 October 2026
+
+Applied all eight supplied UI files to the existing app, including the public
+homepage, responsive navigation, shared ambient background and command palette.
+Preserved existing local work, document workspace integration and unsaved-profile
+navigation protection. Build/TypeScript, targeted lint, 84 unit tests, 16 selected
+desktop/mobile browser cases (with the corrected mobile test rerun), development
+hydration checks and isolated shell browser checks passed. Integration details,
+acceptance evidence and limitations: [SUPPLIED_EXPERIENCE_UPDATE.md](SUPPLIED_EXPERIENCE_UPDATE.md).
+Local source only; no deployment or new authenticated-backend verification.
+
+Owner follow-up: retained the supplied design against the two island-navigation
+references; matched F/ branding, reduced canvas/blur/repaint work, cached scroll
+measurements and batched pointer effects. Native dialogs now hold background
+scroll/motion and the mobile menu focuses Close. The final build/TypeScript,
+targeted lint and 20 desktop/mobile browser cases passed. Performance evidence and
+measurement limits are in the same experience-update document.
+
 Updated: 29 October 2026. Initial audited baseline: `6d63b9e`; subsequent
 verified increments are recorded below.
 

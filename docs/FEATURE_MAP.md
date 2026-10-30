@@ -54,7 +54,8 @@ read the same registry. Shared UI is not duplicated between modules.
 
 | Feature | Page | Report / scope | Current implementation and remaining work |
 | --- | --- | --- | --- |
-| Overview | `/` | Shared workspace | Saved-account summary; guests receive public homepage. |
+| Public homepage | `/` | Public experience | Supplied landing page and floating navbar for every visitor, including signed-in users. |
+| Overview | `/dashboard` | Private workspace | Saved-account summary; server-verified sign-in required. |
 | Profile | `/account` (`/profile` alias) | M1 / FR-1.1–1.9 | Private summary editing works; normalized education, work/projects, proficiency, certifications, goals and application preferences remain. |
 | Career analysis | `/career-analysis` | M2 / FR-2.1–2.4 | Planned: career taxonomy, deterministic ranking, target career, prioritized gaps, persistence and grounded explanation. |
 | Skill checks | `/skill-checks` | Owner assessment extension | React/SQL basics pilot with server-enforced timing, extended-time mode, resume and idempotent grading; practical assessment, bank governance and stronger evidence remain. Passing is not proof of mastery. |

@@ -2,77 +2,179 @@
 
 import Link from "next/link";
 import { BrandMark } from "./career-visuals";
-import { usePathname } from "next/navigation";
-import { useRef, useState, useSyncExternalStore, type ReactNode } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type FocusEvent, type PointerEvent, type ReactNode } from "react";
 import { features, featureGroups, type FeatureIcon } from "@/lib/features";
+import { AppIcon, type IconName } from "./app-icons";
+import { CommandPalette, type PaletteItem } from "./command-palette";
+
+// The icon set lives in app-icons.tsx; re-exported so existing imports from "./app-shell" keep working.
+export { AppIcon, type IconName } from "./app-icons";
 
 const preferenceKey = "careerforge-sidebar-collapsed";
+const motionKey = "careerforge-motion";
 function subscribe(callback: () => void) {
   window.addEventListener("storage", callback);
   window.addEventListener("careerforge-sidebar", callback);
   return () => { window.removeEventListener("storage", callback); window.removeEventListener("careerforge-sidebar", callback); };
 }
 function snapshot() { try { return localStorage.getItem(preferenceKey) === "true"; } catch { return false; } }
+const subscribeNever = () => () => {};
+const readMac = () => /Mac|iPhone|iPad/i.test(navigator.platform);
 
-export type IconName = FeatureIcon | "account" | "menu" | "close" | "panel" | "arrow";
-export function AppIcon({ name }: { name: IconName }) {
-  const paths: Record<IconName, string> = {
-    compass: "M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0 M16 8l-3 5-5 3 3-5z",
-    courses: "M3 5h7l2 2 2-2h7v15h-7l-2 2-2-2H3z M12 7v15",
-    roadmap: "M5 4v12a4 4 0 0 0 8 0V8a4 4 0 0 1 8 0v12 M2 4h6 M18 20h5",
-    projects: "M8 3h8l5 9-5 9H8l-5-9z M8 3l4 9 4-9 M3 12h18 M12 12v9",
-    analysis: "M5 3h10l4 4v14H5z M14 3v5h5 M8 17v-3 M12 17v-6 M16 17v-2",
-    portfolio: "M3 4h18v16H3z M3 9h18 M9 9v11 M6 6h.01 M9 6h.01",
-    agent: "M8 5h8l4 4v8l-4 4H8l-4-4V9z M12 5V2 M8 11h.01 M16 11h.01 M8 16h8",
-    outcomes: "M4 3v17h17 M8 15l4-5 4 2 5-7",
-    assistant: "M4 4h16v12H9l-5 5z M8 10h.01 M12 10h.01 M16 10h.01",
-    simulator: "M3 8l9-5 9 5-9 5z M6 10v7l6 4 6-4v-7 M21 8v8",
-    cv: "M6 3h9l4 4v14H6z M14 3v5h5 M9 12h7 M9 16h7",
-    checks: "M12 3l8 4v5c0 5-8 9-8 9s-8-4-8-9V7z M8 12l3 3 5-6",
-    overview: "M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z",
-    profile: "M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0 M4 21v-3a8 6 0 0 1 16 0v3",
-    jobs: "M3 7h18v14H3z M8 7V3h8v4 M3 12h18 M10 12v3h4v-3",
-    applications: "M6 3h15v15 M3 6h15v15H3z M7 11h7 M7 15h5",
-    account: "M12 3l8 3v6c0 5-8 9-8 9s-8-4-8-9V6z M8 12l3 3 5-6",
-    menu: "M4 6h16 M4 12h16 M4 18h16", close: "M6 6l12 12 M18 6L6 18",
-    panel: "M4 4h16v16H4z M9 4v16 M16 8l-4 4 4 4", arrow: "M5 12h14 M13 6l6 6-6 6"
-  };
-  return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={paths[name]} /></svg>;
+function isTyping(target: EventTarget | null) {
+  const el = target as HTMLElement | null;
+  return !!el && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName));
+}
+function toggleMotion() {
+  try { localStorage.setItem(motionKey, localStorage.getItem(motionKey) === "off" ? "on" : "off"); window.dispatchEvent(new Event(motionKey)); } catch { /* storage unavailable: nothing to toggle */ }
+}
+
+function NavIcon({ name }: { name: IconName }) {
+  return <span className="app-nav-icon" aria-hidden="true"><AppIcon name={name} /></span>;
+}
+
+type NavItem = { id: string; href: string; label: string; icon: FeatureIcon; group: string; status?: string };
+type Tip = { label: string; y: number };
+
+function isActivePath(pathname: string, href: string) {
+  return pathname === href
+    || (href === "/documents" && (pathname.startsWith("/cv/") || pathname.startsWith("/portfolio/")));
+}
+
+/**
+ * The sidebar contents. One instance renders in the desktop sidebar and one in the mobile drawer.
+ * A glowing indicator (.nav-lens) glides to whichever tab is current when the route changes.
+ */
+function SidebarNav({ mobile, pathname, items, privateAccount, applicationCount, displayName, initials, collapsed, onNavigate, onTip }: {
+  mobile: boolean; pathname: string; items: NavItem[]; privateAccount: boolean; applicationCount: number; displayName: string; initials: string;
+  collapsed: boolean; onNavigate: () => void; onTip?: (tip: Tip | null) => void;
+}) {
+  const nav = useRef<HTMLElement>(null);
+  const showTips = !mobile && collapsed && !!onTip;
+
+  useEffect(() => {
+    const el = nav.current;
+    if (!el) return;
+    const place = () => {
+      const node = el.querySelector<HTMLElement>(".app-nav-item.selected");
+      if (!node || node.offsetParent === null) { el.style.setProperty("--lens-o", "0"); return; }
+      el.style.setProperty("--lens-y", `${node.offsetTop}px`);
+      el.style.setProperty("--lens-h", `${node.offsetHeight}px`);
+      el.style.setProperty("--lens-o", "1");
+    };
+    place();
+    // Enable the glide only after the first placement, so the indicator doesn't fly in on page load.
+    const frame = requestAnimationFrame(() => { el.dataset.ready = "true"; });
+    const observer = new ResizeObserver(place);
+    observer.observe(el);
+    return () => { cancelAnimationFrame(frame); observer.disconnect(); };
+  }, [pathname, collapsed]);
+
+  const tipProps = (label: string) => showTips ? {
+    onPointerEnter: (event: PointerEvent<HTMLElement>) => {
+      if (event.pointerType !== "mouse") return;
+      const box = event.currentTarget.getBoundingClientRect();
+      onTip?.({ label, y: box.top + box.height / 2 });
+    },
+    onFocus: (event: FocusEvent<HTMLElement>) => {
+      if (!event.currentTarget.matches(":focus-visible")) return;
+      const box = event.currentTarget.getBoundingClientRect();
+      onTip?.({ label, y: box.top + box.height / 2 });
+    },
+    onPointerLeave: () => onTip?.(null),
+    onBlur: () => onTip?.(null)
+  } : {};
+  const nativeTitle = (text: string) => (showTips ? undefined : text);
+
+  return <>
+    <div className="app-sidebar-brand"><Link href="/" className="brand" aria-label="CareerForge home" onClick={onNavigate}><BrandMark /><span className="app-brand-name">CareerForge<span>.</span></span></Link>{mobile && <button className="shell-icon-button" aria-label="Close navigation" onClick={onNavigate}><AppIcon name="close" /></button>}</div>
+    <nav aria-label="Main navigation" id={mobile ? "mobile-navigation" : "desktop-navigation"} ref={nav}>
+      <span className="nav-lens" aria-hidden="true" />
+      <Link href="/features" aria-label="All features" title={nativeTitle("All features")} aria-current={pathname === "/features" ? "page" : undefined} className={`app-nav-item feature-directory-link ${pathname === "/features" ? "selected" : ""}`} onClick={onNavigate} {...tipProps("All features")}><NavIcon name="overview" /><span className="app-nav-label">All features</span><span className="app-nav-label feature-directory-arrow" aria-hidden="true">&#8599;</span></Link>
+      {featureGroups.map(group => <div className="app-nav-group" key={group}><p className="app-nav-heading">{group}</p>{items.filter(item => item.group === group).map(item => {
+        const planned = item.status === "Planned" || item.status === "Stretch";
+        return <Link key={item.href} href={item.href} prefetch={planned ? false : undefined} aria-label={item.label} aria-current={isActivePath(pathname, item.href) ? "page" : undefined} title={nativeTitle(`${item.label}${planned ? ` (${item.status?.toLowerCase()})` : ""}`)} className={`app-nav-item ${isActivePath(pathname, item.href) ? "selected" : ""}`} onClick={onNavigate} {...tipProps(`${item.label}${planned ? ` · ${item.status?.toLowerCase()}` : ""}`)}><NavIcon name={item.icon} /><span className="app-nav-label">{item.label}</span>{planned && <span className="app-nav-planned" role="img" aria-label={item.status} />}{item.href === "/applications" && applicationCount > 0 && <span className="app-nav-count">{applicationCount}</span>}</Link>;
+      })}</div>)}
+      {!privateAccount && <><p className="app-nav-heading account-group-label">ACCOUNT</p>
+      <Link href="/account" aria-label="My account" aria-current={isActivePath(pathname, "/account") ? "page" : undefined} title={nativeTitle("My account")} className={`app-nav-item ${isActivePath(pathname, "/account") ? "selected" : ""}`} onClick={onNavigate} {...tipProps("My account")}><NavIcon name="account" /><span className="app-nav-label">My account</span><span className="private-indicator" aria-hidden="true" /></Link></>}
+    </nav>
+    <Link className="app-sidebar-account" href="/account" title={nativeTitle("Open your private account")} onClick={onNavigate} {...tipProps(privateAccount ? displayName : "Your private account")}><span className="avatar">{privateAccount ? initials : "CF"}</span><span className="app-account-label"><strong>{privateAccount ? displayName : "Your private account"}</strong><small>{privateAccount ? "Signed in · Owner-only profile" : "Open your private profile"}</small></span><AppIcon name="arrow" /></Link>
+  </>;
 }
 
 export function AppShell({ children, pageTitle, displayName = "Your workspace", applicationCount = 0, privateAccount = false, accountActions, contentClassName = "" }: {
   children: ReactNode; pageTitle: string; displayName?: string; applicationCount?: number; privateAccount?: boolean; accountActions?: ReactNode; contentClassName?: string;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
   const storedPreference = useSyncExternalStore(subscribe, snapshot, () => false);
+  const mac = useSyncExternalStore(subscribeNever, readMac, () => false);
   const [temporaryPreference, setTemporaryPreference] = useState<boolean | null>(null);
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const [tip, setTip] = useState<Tip | null>(null);
   const collapsed = temporaryPreference ?? storedPreference;
   const drawer = useRef<HTMLDialogElement>(null);
   const menuButton = useRef<HTMLButtonElement>(null);
+  const sidebar = useRef<HTMLElement>(null);
   const initials = displayName.split(" ").filter(Boolean).map(word => word[0]).slice(0, 2).join("") || "CF";
-  function toggleSidebar() {
+  const toggleSidebar = useCallback(() => {
+    setTip(null);
     try { localStorage.setItem(preferenceKey, String(!collapsed)); setTemporaryPreference(null); window.dispatchEvent(new Event("careerforge-sidebar")); } catch { setTemporaryPreference(!collapsed); }
+  }, [collapsed]);
+
+  // Keyboard: "[" collapses or expands the sidebar; Ctrl/Cmd+K (or "/") opens the command palette.
+  useEffect(() => {
+    function onKey(event: KeyboardEvent) {
+      if (event.defaultPrevented) return;
+      if ((event.metaKey || event.ctrlKey) && !event.altKey && event.key.toLowerCase() === "k") { event.preventDefault(); setPaletteOpen(open => !open); return; }
+      if (event.metaKey || event.ctrlKey || event.altKey || event.repeat || isTyping(event.target)) return;
+      if (event.key === "[") toggleSidebar();
+      else if (event.key === "/") { event.preventDefault(); setPaletteOpen(true); }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [toggleSidebar]);
+
+  const navigationItems: NavItem[] = features.map(item => item.id === "profile" && !privateAccount ? { ...item, href: "/profile" } : item);
+  const handleLabel = collapsed ? "Expand sidebar" : "Collapse sidebar";
+  const closeDrawer = () => drawer.current?.close();
+
+  const paletteItems: PaletteItem[] = [
+    { id: "page-features", label: "All features", group: "Workspace", icon: "overview", href: "/features", keywords: "directory everything index", current: pathname === "/features" },
+    ...navigationItems.map(item => {
+      const planned = item.status === "Planned" || item.status === "Stretch";
+      return { id: `page-${item.id}`, label: item.label, group: item.group, icon: item.icon, href: item.href, keywords: `${item.id} ${item.href.replace("/", "")}`, badge: planned ? item.status : undefined, current: isActivePath(pathname, item.href) };
+    }),
+    ...(privateAccount ? [] : [{ id: "page-account", label: "My account", group: "Account", icon: "account" as IconName, href: "/account", keywords: "private profile settings", current: isActivePath(pathname, "/account") }]),
+    { id: "act-sidebar", label: handleLabel, group: "Actions", icon: "panel", shortcut: "[", keywords: "navigation menu toggle collapse expand" },
+    { id: "act-motion", label: "Pause or resume background motion", group: "Actions", icon: "spark", keywords: "animation background reduce calm" }
+  ];
+  function pick(item: PaletteItem) {
+    setPaletteOpen(false);
+    if (item.href) router.push(item.href);
+    else if (item.id === "act-sidebar") toggleSidebar();
+    else if (item.id === "act-motion") toggleMotion();
   }
-  const navigationItems = features.map(item => item.id === "profile" && !privateAccount ? { ...item, href: "/profile" } : item);
-  const isActive = (href: string) => pathname === href || (href === "/documents" && (pathname.startsWith("/cv/") || pathname.startsWith("/portfolio/")));
-  function navigation(mobile = false) {
-    return <>
-      <div className="app-sidebar-brand"><Link href="/" className="brand" aria-label="CareerForge home" onClick={() => drawer.current?.close()}><BrandMark /><span className="app-brand-name">CareerForge<span>.</span></span></Link>{mobile ? <button className="shell-icon-button" aria-label="Close navigation" onClick={() => drawer.current?.close()}><AppIcon name="close" /></button> : <button className="shell-icon-button collapse-button" aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"} aria-expanded={!collapsed} aria-controls="desktop-navigation" title={collapsed ? "Expand sidebar" : "Collapse sidebar"} onClick={toggleSidebar}><AppIcon name="panel" /></button>}</div>
-      <nav aria-label="Main navigation" id={mobile ? "mobile-navigation" : "desktop-navigation"}>
-        <Link href="/features" aria-label="All features" title="All features" aria-current={pathname === "/features" ? "page" : undefined} className={`app-nav-item feature-directory-link ${pathname === "/features" ? "selected" : ""}`} onClick={() => drawer.current?.close()}><AppIcon name="overview" /><span className="app-nav-label">All features</span><span className="app-nav-label feature-directory-arrow" aria-hidden="true">&#8599;</span></Link>
-        {featureGroups.map(group => <div className="app-nav-group" key={group}><p className="app-nav-heading">{group}</p>{navigationItems.filter(item => item.group === group).map(item => <Link key={item.href} href={item.href} prefetch={item.status === "Planned" || item.status === "Stretch" ? false : undefined} aria-label={item.label} aria-current={isActive(item.href) ? "page" : undefined} title={`${item.label}${item.status === "Planned" || item.status === "Stretch" ? ` (${item.status.toLowerCase()})` : ""}`} className={`app-nav-item ${isActive(item.href) ? "selected" : ""}`} onClick={() => drawer.current?.close()}><AppIcon name={item.icon} /><span className="app-nav-label">{item.label}</span>{(item.status === "Planned" || item.status === "Stretch") && <span className="app-nav-planned" role="img" aria-label={item.status} />}{item.href === "/applications" && applicationCount > 0 && <span className="app-nav-count">{applicationCount}</span>}</Link>)}</div>)}
-        {!privateAccount && <><p className="app-nav-heading account-group-label">ACCOUNT</p>
-        <Link href="/account" aria-label="My account" aria-current={pathname === "/account" ? "page" : undefined} title="My account" className={`app-nav-item ${pathname === "/account" ? "selected" : ""}`} onClick={() => drawer.current?.close()}><AppIcon name="account" /><span className="app-nav-label">My account</span><span className="private-indicator" aria-hidden="true" /></Link></>}
-      </nav>
-      <Link className="app-sidebar-account" href="/account" title="Open your private account" onClick={() => drawer.current?.close()}><span className="avatar">{privateAccount ? initials : "CF"}</span><span className="app-account-label"><strong>{privateAccount ? displayName : "Your private account"}</strong><small>{privateAccount ? "Signed in · Owner-only profile" : "Open your private profile"}</small></span><AppIcon name="arrow" /></Link>
-    </>;
-  }
+
   return <div className={`app-shell ${collapsed ? "sidebar-collapsed" : ""}`}>
     <a className="skip-link" href="#main-content">Skip to content</a>
-    <aside className="app-sidebar" aria-label="Workspace sidebar">{navigation()}</aside>
+    <button type="button" className="sidebar-handle" aria-label={handleLabel} aria-expanded={!collapsed} aria-controls="desktop-navigation" aria-keyshortcuts="[" data-tip={`${handleLabel} · press [`} onClick={toggleSidebar}><AppIcon name="chevron" /></button>
+    <div className="sidebar-rail" aria-hidden="true" onClick={toggleSidebar} />
+    <aside
+      className="app-sidebar" aria-label="Workspace sidebar" ref={sidebar}
+      onPointerMove={event => {
+        if (event.pointerType === "touch") return;
+        const box = event.currentTarget.getBoundingClientRect();
+        event.currentTarget.style.setProperty("--sx", `${event.clientX - box.left}px`);
+        event.currentTarget.style.setProperty("--sy", `${event.clientY - box.top}px`);
+      }}
+    ><span className="sidebar-glow" aria-hidden="true" /><SidebarNav mobile={false} pathname={pathname} items={navigationItems} privateAccount={privateAccount} applicationCount={applicationCount} displayName={displayName} initials={initials} collapsed={collapsed} onNavigate={closeDrawer} onTip={setTip} /></aside>
+    {collapsed && tip && <div className="nav-tip" role="presentation" style={{ top: tip.y }}>{tip.label}</div>}
     <dialog className="navigation-drawer" ref={drawer} aria-label="Navigation" onClose={() => menuButton.current?.focus()} onClick={event => {
       if (event.target === event.currentTarget) { const bounds = event.currentTarget.getBoundingClientRect(); if (event.clientX > bounds.right || event.clientY > bounds.bottom) drawer.current?.close(); }
-    }}>{navigation(true)}</dialog>
-    <div className="app-main"><header className="app-topbar"><button ref={menuButton} className="shell-icon-button mobile-menu-button" aria-label="Open navigation" aria-haspopup="dialog" onClick={() => { drawer.current?.showModal(); drawer.current?.querySelector<HTMLButtonElement>("button")?.focus(); }}><AppIcon name="menu" /></button><div className="app-breadcrumb"><span>CareerForge</span><span aria-hidden="true">/</span><strong>{pageTitle}</strong></div><div className="app-topbar-actions"><span className={`workspace-mode ${privateAccount ? "private-mode" : ""}`}><span />{privateAccount ? "Private account" : "Demo workspace"}</span>{accountActions ?? <Link className="shell-account-link" href="/account" aria-label="Open my account"><AppIcon name="account" /><span>My account</span></Link>}</div></header><main id="main-content" tabIndex={-1} className={`app-content ${contentClassName}`}>{children}</main></div>
+    }}><SidebarNav mobile pathname={pathname} items={navigationItems} privateAccount={privateAccount} applicationCount={applicationCount} displayName={displayName} initials={initials} collapsed={false} onNavigate={closeDrawer} /></dialog>
+    <div className="app-main"><header className="app-topbar"><button ref={menuButton} className="shell-icon-button mobile-menu-button" aria-label="Open navigation" aria-haspopup="dialog" onClick={() => { drawer.current?.showModal(); drawer.current?.querySelector<HTMLButtonElement>("button")?.focus(); }}><AppIcon name="menu" /></button><div className="app-breadcrumb"><span>CareerForge</span><span aria-hidden="true">/</span><strong>{pageTitle}</strong></div><div className="app-topbar-actions"><button type="button" className="cmdk-trigger" aria-haspopup="dialog" aria-keyshortcuts="Control+K Meta+K" aria-label="Search pages and actions" onClick={() => setPaletteOpen(true)}><AppIcon name="search" /><span className="cmdk-trigger-text">Search or jump to…</span><kbd>{mac ? "⌘" : "Ctrl"} K</kbd></button><span className={`workspace-mode ${privateAccount ? "private-mode" : ""}`}><span />{privateAccount ? "Private account" : "Demo workspace"}</span>{accountActions ?? <Link className="shell-account-link" href="/account" aria-label="Open my account"><AppIcon name="account" /><span>My account</span></Link>}</div></header><main id="main-content" tabIndex={-1} className={`app-content ${contentClassName}`}>{children}</main></div>
+    <CommandPalette open={paletteOpen} items={paletteItems} onClose={() => setPaletteOpen(false)} onPick={pick} />
   </div>;
 }

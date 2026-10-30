@@ -5,9 +5,13 @@ import base from "./playwright.config";
 // developer server. Keep live-account suites outside this configuration.
 export default defineConfig({
   ...base,
-  testMatch: ["workspace.spec.ts", "navigation.spec.ts", "not-found.spec.ts"],
+  testMatch: [
+    "workspace.spec.ts", "navigation.spec.ts", "not-found.spec.ts", "ambient-background.spec.ts",
+    "accessibility.spec.ts", "auth.spec.ts", "recovery.spec.ts", "contrast.spec.ts"
+  ],
   forbidOnly: true,
   retries: 0,
+  metadata: { offlineProduction: true },
   reporter: [["list"], ["html", { open: "never" }]],
   use: { ...base.use, baseURL: "http://127.0.0.1:3200", reducedMotion: "reduce" },
   webServer: {
@@ -18,6 +22,7 @@ export default defineConfig({
     env: {
       NEXT_PUBLIC_SUPABASE_URL: "",
       NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "",
+      APP_ORIGIN: "",
       NEXT_TELEMETRY_DISABLED: "1"
     }
   }
