@@ -1,5 +1,18 @@
 # CareerForge implementation roadmap
 
+## Preview release preparation — 30 October 2026
+
+Owner authorized deployment preparation. Created `preview/careerforge-20261030`
+and committed the verified experience as `e335f16`; main is preserved. Prepared
+the existing profile-history source with nine API/schema tests, bringing the
+local suite to 97 passing tests; Prisma generation, lint, TypeScript/build and
+the 34 offline browser cases pass. Pending history SQL and RLS/constraints passed
+a fully rolled-back development transaction. No migration was permanently applied.
+Node 22 is pinned and preview branches now trigger CI after publication.
+Hosting/database account connections and explicit GitHub-destination approval
+are still required; automatic approval review blocked the push. Details:
+[PREVIEW_RELEASE_2026_10_30.md](PREVIEW_RELEASE_2026_10_30.md). No deployment yet.
+
 ## Local error fixes — 30 October 2026
 
 Fixed valid fractional GPA submission, the history-editor focus/lint dependency,
@@ -167,6 +180,18 @@ authenticated browser and assistive-technology verification remain open. P3.1
 remains partial. This is a local increment, with no deployment or database change.
 
 ## Status ledger
+
+M1 education and experience foundation in progress — 29 October. Reviewed the
+actual report FR-1.3/1.5, section 9.1 models, section 9.4 ownership and section 13
+API contracts. Add private structured history under My profile, owner-scoped
+education/experience APIs, revision-safe edits and retry-safe creates. The
+saved-profile CV consumes these records with self-reported labels, explicit date
+and GPA semantics, and unchanged assessment eligibility. Existing summaries and
+the supplied builder remain separate; public snapshots are not expanded.
+Contract: [PROFILE_HISTORY.md](PROFILE_HISTORY.md). This is partial M1 progress,
+not complete onboarding, independent verification or full M6.
+Verification pending; record migration, ownership, API/UI, CV/PDF and build
+evidence before committing the coherent milestone.
 
 Error review and fixes delivered — 29 October. The fresh console log showed a
 browser-added body attribute, cz-shortcut-listen, causing a hydration diagnostic.

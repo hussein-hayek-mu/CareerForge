@@ -39,6 +39,7 @@ type Tip = { label: string; y: number };
 
 function isActivePath(pathname: string, href: string) {
   return pathname === href
+    || (href === "/account" && pathname.startsWith("/account/"))
     || (href === "/documents" && (pathname.startsWith("/cv/") || pathname.startsWith("/portfolio/")));
 }
 

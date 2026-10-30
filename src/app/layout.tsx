@@ -3,6 +3,7 @@ import "./globals.css";
 import "./visual-system.css";
 import "./feature-system.css";
 import "./supplied-builder.css";
+import "./profile-history.css";
 import "./experience.css";
 import { AmbientBackground } from "@/components/ambient-background";
 

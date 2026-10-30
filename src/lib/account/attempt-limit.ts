@@ -21,7 +21,7 @@ export function createAttemptLimit(maxKeys = 5000) {
 
 const authAttempts = createAttemptLimit();
 const writeAttempts = createAttemptLimit();
-export function privateWriteLimit(scope: "profile" | "tracker" | "portfolio", userId: string) {
+export function privateWriteLimit(scope: "profile" | "tracker" | "portfolio" | "history", userId: string) {
   return writeAttempts(scope, userId, scope === "tracker" ? 60 : 30, 60000);
 }
 export function credentialLimit(kind: "login" | "register", email: string) {

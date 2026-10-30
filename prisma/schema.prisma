@@ -108,3 +108,40 @@ model SavedJob {
   @@index([jobId], map: "saved_jobs_job_id_idx")
   @@map("saved_jobs")
 }
+
+model EducationRecord {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId String @map("user_id") @db.Uuid
+  requestId String @map("request_id") @db.Uuid
+  institution String
+  degree String
+  gpa Float?
+  gpaScale Float? @map("gpa_scale")
+  startDate DateTime? @map("start_date") @db.Date
+  endDate DateTime? @map("end_date") @db.Date
+  isCurrent Boolean @default(false) @map("is_current")
+  revision String @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  createdAt DateTime @default(dbgenerated("clock_timestamp()")) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @default(dbgenerated("clock_timestamp()")) @map("updated_at") @db.Timestamptz(6)
+  creationPayload Json @default("{}") @map("creation_payload")
+  @@unique([userId, requestId], map: "education_records_user_id_request_id_key")
+  @@map("education_records")
+}
+
+model ExperienceRecord {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId String @map("user_id") @db.Uuid
+  requestId String @map("request_id") @db.Uuid
+  company String
+  role String
+  description String @default("")
+  startDate DateTime? @map("start_date") @db.Date
+  endDate DateTime? @map("end_date") @db.Date
+  isCurrent Boolean @default(false) @map("is_current")
+  revision String @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  createdAt DateTime @default(dbgenerated("clock_timestamp()")) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @default(dbgenerated("clock_timestamp()")) @map("updated_at") @db.Timestamptz(6)
+  creationPayload Json @default("{}") @map("creation_payload")
+  @@unique([userId, requestId], map: "experience_records_user_id_request_id_key")
+  @@map("experience_records")
+}

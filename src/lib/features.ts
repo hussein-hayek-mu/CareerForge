@@ -8,7 +8,7 @@ export type Feature = {
 export const featureGroups = ["Workspace", "Career", "Learning", "Documents", "Applications", "Explore"] as const;
 export const features: readonly Feature[] = [
   { id: "overview", label: "Overview", href: "/dashboard", icon: "overview", group: "Workspace", module: "Workspace", status: "Available", description: "Your saved profile, skill matches and tracked roles in one place." },
-  { id: "profile", label: "My profile", href: "/account", icon: "profile", group: "Workspace", module: "M1", status: "Available", description: "Edit your private profile summary and self-reported skills. Detailed history and preferences remain planned." },
+  { id: "profile", label: "My profile", href: "/account", icon: "profile", group: "Workspace", module: "M1", status: "Available", description: "Edit your private profile, self-reported skills, education and work history. Projects, certifications and preferences remain planned." },
   { id: "career-analysis", label: "Career analysis", href: "/career-analysis", icon: "compass", group: "Career", module: "M2", status: "Planned", description: "Find a career direction and understand the skills to build next." },
   { id: "skill-checks", label: "Skill checks", href: "/skill-checks", icon: "checks", group: "Career", module: "Assessment pilot", status: "Pilot", description: "React and SQL fundamentals checks. Only selected skills with a current passing check enter your CV." },
   { id: "academic-planner", label: "Academic planner", href: "/academic-planner", icon: "courses", group: "Learning", module: "M3", status: "Planned", description: "Connect your courses and degree progress to your career target." },
@@ -42,5 +42,5 @@ export function getPlannedFeature(id: string): PlannedFeature {
   return feature;
 }
 export function isPrivateFeaturePath(path: string): boolean {
-  return path === "/features" || path === "/cv" || path === "/portfolio" || path.startsWith("/cv/") || path.startsWith("/portfolio/") || features.some(feature => feature.href === path);
+  return path === "/features" || path.startsWith("/account/") || path === "/cv" || path === "/portfolio" || path.startsWith("/cv/") || path.startsWith("/portfolio/") || features.some(feature => feature.href === path);
 }
