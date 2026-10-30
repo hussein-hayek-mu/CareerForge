@@ -10,8 +10,7 @@ settings are preserved. No deployment has occurred.
   correction, performance fixes and the expanded offline test setup.
 - Release commit `55a9be2` includes the remaining validated source and deployment
   preparation. It was pushed to the preview branch on the approved GitHub remote;
-  a separate remote-ref read confirmed that exact commit. Hosted CI is not yet
-  verified.
+  a separate remote-ref read confirmed that exact commit.
 - The release snapshot includes the existing education/work-history source and
   migration, with validated API handlers and database constraints, so it retains
   the locally integrated profile/CV work.
@@ -21,6 +20,12 @@ settings are preserved. No deployment has occurred.
 - CI now runs for `preview/**` branches as well as `main` and pull requests.
 - Prisma generation, full lint, TypeScript/build and all 97 unit tests passed.
   The existing 34-case desktop/mobile offline browser suite also passed.
+- GitHub CI on `55a9be2` and documentation-only `3a9df45` passed dependency
+  installation, Prisma generation, lint, type checking, unit tests, production
+  build and Chromium installation. The browser smoke step failed. Public check
+  metadata exposed no failing assertion, and detailed logs require sign-in.
+  Playwright's GitHub reporter is now enabled to publish individual failures in
+  check annotations on the next run. Remote browser success is still required.
 
 ## Database check
 

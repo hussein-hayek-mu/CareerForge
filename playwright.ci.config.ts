@@ -12,7 +12,8 @@ export default defineConfig({
   forbidOnly: true,
   retries: 0,
   metadata: { offlineProduction: true },
-  reporter: [["list"], ["html", { open: "never" }]],
+  // Expose individual failures in GitHub check annotations as well as private logs.
+  reporter: [["list"], ["github"], ["html", { open: "never" }]],
   use: { ...base.use, baseURL: "http://127.0.0.1:3200", reducedMotion: "reduce" },
   webServer: {
     command: "npm run start -- --hostname 127.0.0.1 --port 3200",
