@@ -10,7 +10,8 @@ integration until deploying the reviewed commit is authorized.
 Use the existing repository root, Next.js preset, Node 22 and npm lockfile.
 `vercel.json` selects `npm run build:deploy`: redacted configuration checks,
 Prisma generation, then Next production build. Ordinary `npm run build` remains
-available for the intentionally offline CI suite. No build runs migrations.
+available for local builds. `npm run build:offline` explicitly blanks Auth/origin
+configuration before compilation for the offline CI fixture. No build runs migrations.
 
 Set each environment explicitly in Vercel:
 
@@ -74,5 +75,7 @@ with authorization. Record the incident and exact recovered commit before retryi
 
 Local development remains `npm.cmd run dev` at localhost:3000. To test a configured
 production build locally use an appropriate HTTPS environment matching APP_ORIGIN;
-the offline suite instead uses `npm.cmd run test:e2e:ci` after an unconfigured
-build. Never set production secrets just to satisfy a local smoke test.
+the offline suite instead uses `npm.cmd run build:offline` followed by
+`npm.cmd run test:e2e:ci`. Runtime overrides alone cannot remove public variables
+compiled from a developer's `.env`. Never set production secrets just to satisfy
+a local smoke test.

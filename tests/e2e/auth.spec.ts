@@ -1,9 +1,17 @@
 import { expect, test } from "@playwright/test";
 
-test("private account redirects anonymous visitors and sign-in errors remain usable", async ({ page, request }) => {
+test("private account redirects anonymous visitors and sign-in errors remain usable", async ({ page, request }, testInfo) => {
   await page.goto("/account");
   await expect(page).toHaveURL(/\/login$/);
-  expect((await request.get("/api/v1/profile")).status()).toBe(401);
+  const offlineProduction = testInfo.config.metadata.offlineProduction === true;
+  const profileResponse = await request.get("/api/v1/profile");
+  // The offline build intentionally has no Auth provider. Configured anonymous
+  // requests return 401; unavailable Auth must remain a sanitized service error.
+  expect(profileResponse.status()).toBe(offlineProduction ? 503 : 401);
+  const profileBody = await profileResponse.json();
+  expect(profileBody.error.code).toBe(offlineProduction ? "PROFILE_UNAVAILABLE" : "UNAUTHORIZED");
+  expect(profileBody.profile).toBeUndefined();
+  expect(profileResponse.headers()["cache-control"].split(",").map(value => value.trim())).toContain("no-store");
   await page.route("**/api/v1/auth/login", route => route.fulfill({ status: 401, contentType: "application/json", body: JSON.stringify({ error: { message: "Check your email and password." } }) }));
   await page.getByLabel("Email address").fill("test@careerforge.invalid");
   await page.getByLabel("Password", { exact: true }).fill("not-a-real-password");

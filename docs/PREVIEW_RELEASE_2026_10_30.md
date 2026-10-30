@@ -24,8 +24,17 @@ settings are preserved. No deployment has occurred.
   installation, Prisma generation, lint, type checking, unit tests, production
   build and Chromium installation. The browser smoke step failed. Public check
   metadata exposed no failing assertion, and detailed logs require sign-in.
-  Playwright's GitHub reporter is now enabled to publish individual failures in
-  check annotations on the next run. Remote browser success is still required.
+  Playwright's GitHub reporter then exposed the two failing assertions: anonymous
+  profile requests expected 401 but received 503 without a configured Auth provider;
+  the other 32 cases passed. Local `.env` public values had been frozen into the
+  earlier local build, masking the clean-CI difference.
+- `npm run build:offline` now explicitly blanks public Auth/origin configuration
+  before compilation, and CI uses the same command. The offline test checks the
+  intended `503 / PROFILE_UNAVAILABLE` response, no private profile and no-store;
+  configured anonymous denial remains covered separately. Product authorization
+  was not changed. Explicit offline build/TypeScript, targeted lint and all 34
+  desktop/mobile browser cases passed locally. Verify the actual GitHub run after
+  publishing this correction before deployment.
 
 ## Database check
 

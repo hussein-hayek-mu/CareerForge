@@ -11,10 +11,15 @@ a fully rolled-back development transaction. No migration was permanently applie
 Node 22 is pinned and preview branches trigger CI. The owner then explicitly
 approved the repository/source/history upload; release commit `55a9be2` was pushed
 to the preview branch and its remote ref was verified. Hosting/database account
-connections are still required. GitHub CI passed install, generation, lint,
-type checking, unit tests and build; its browser smoke step failed. Enabled
-individual Playwright check annotations to diagnose that remote-only failure
-without relying on sign-in-gated logs. Details:
+connections are still required. Initial GitHub CI passed install, generation,
+lint, type checking, unit tests and build; 32 browser cases passed and two exposed
+a fixture mismatch. Public variables from a local `.env` had been compiled into
+the local build. Added `build:offline` to blank them before compilation; the
+unconfigured Auth test now checks its exact sanitized 503 response, private-data
+absence and no-store policy. Product authorization is unchanged. Explicit offline
+build/TypeScript, targeted lint and all 34 browser cases passed locally; CI reruns
+when this correction is published. Playwright also now reports individual failures
+in GitHub check annotations. Details:
 [PREVIEW_RELEASE_2026_10_30.md](PREVIEW_RELEASE_2026_10_30.md). No deployment yet.
 
 ## Local error fixes — 30 October 2026
