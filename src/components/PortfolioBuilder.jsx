@@ -90,7 +90,7 @@ export default function PortfolioBuilder() {
   const [mode, setMode] = useState("dark");
   const [photo, setPhoto] = useState(null);
   const [cvPhoto, setCvPhoto] = useState(true);
-  const [cvStyle, setCvStyle] = useState("modern");
+  const [cvStyle, setCvStyle] = useState("bullet");
 
   useEffect(() => {
     if (!busy) return;
@@ -174,12 +174,13 @@ export default function PortfolioBuilder() {
             {view === "cv" && (
               <div className="dl">
                 <div className="seg" role="tablist" aria-label="CV style">
+                  <button role="tab" aria-selected={cvStyle === "bullet"} className={cvStyle === "bullet" ? "on" : ""} onClick={() => setCvStyle("bullet")}>Professional bullet</button>
                   <button role="tab" aria-selected={cvStyle === "modern"} className={cvStyle === "modern" ? "on" : ""} onClick={() => setCvStyle("modern")}>Modern</button>
                   <button role="tab" aria-selected={cvStyle === "ats"} className={cvStyle === "ats" ? "on" : ""} onClick={() => setCvStyle("ats")}>ATS-safe</button>
                 </div>
                 {cvStyle === "modern" && <label className="chk"><input type="checkbox" checked={cvPhoto} disabled={!photo} onChange={(e) => setCvPhoto(e.target.checked)} /> Photo on CV</label>}
                 <button className="btn sm" onClick={() => window.print()}>Download PDF</button>
-                <small>Prints on A4 with no margins. Use ATS-safe for online application forms.</small>
+                <small>{cvStyle === "bullet" ? "Based on your Word template. Single column, no photo. Save as PDF in the print dialog." : "Save as PDF in the print dialog. Single-column styles suit online application forms."}</small>
               </div>
             )}
           </div>
@@ -453,6 +454,7 @@ function Avatar({ photo, setPhoto, name }) {
 /* ---------- View B: ATS-friendly CV (single column, semantic, no icons or tables) ---------- */
 function CV({ d, photo, variant }) {
   const { addSkill, add } = useContext(ListCtx);
+  if (variant === "bullet") return <CVBullet d={d} />;
   if (variant === "modern") return <CVModern d={d} photo={photo} />;
   return (
     <div className="cv-wrap">
@@ -490,6 +492,69 @@ function CV({ d, photo, variant }) {
       </article>
     </div>
   );
+}
+
+/* Owner's 2025 bullet template: centered headings, education first, plain text. */
+function CVBullet({ d }) {
+  const [showControls, setShowControls] = useState(true);
+  const { add, remove, addSkill } = useContext(ListCtx);
+  const set = useContext(EditCtx);
+  const education = d.education || [];
+  const experience = d.experience || [];
+  const activities = d.activities || [];
+  const projects = d.projects || [];
+  return <div className="cv-wrap">
+    <button className="btn sm no-print bullet-preview-toggle" aria-pressed={!showControls} onClick={() => setShowControls(show => !show)}>{showControls ? "Preview layout" : "Show editing controls"}</button>
+    <article className="cv bullet" data-editing={showControls} aria-label="Professional bullet CV">
+      <header className="bullet-header">
+        <Ed as="h1" v={d.name} p={["name"]} ph="Your name" />
+        <p className="bullet-contact">{["location", "email", "phone", "linkedin", "github", "website"].map(k => <span key={k} className={!d[k] ? "no-print" : ""}><Ed v={d[k]} p={[k]} ph={FIELDS.find(([key]) => key === k)[3]} /></span>)}</p>
+      </header>
+      <section className={!education.length ? "no-print" : ""}>
+        <h2>Education</h2>
+        {education.map((e, i) => <div className="bullet-entry" key={i}>
+          <p className="bullet-row"><strong><Ed v={e.school} p={["education", i, "school"]} ph="Institution" /></strong><Ed v={e.location} p={["education", i, "location"]} ph="City, Country" /></p>
+          <p className="bullet-row"><Ed v={e.degree} p={["education", i, "degree"]} ph="Degree and concentration" /><Ed v={e.period} p={["education", i, "period"]} ph="Graduation date" /></p>
+          <p className={!e.details ? "no-print" : ""}><Ed multi v={e.details} p={["education", i, "details"]} ph="Optional: GPA, honors, thesis or relevant coursework" /></p>
+          <button className="bullet-control no-print" onClick={() => remove("education", i)} aria-label={`Remove education ${i + 1}`}>Remove education</button>
+        </div>)}
+        <button className="bullet-control no-print" onClick={() => add("education", { school: "", degree: "", period: "", location: "", details: "" })}>+ Add education</button>
+      </section>
+      <BulletExperience title="Experience" listKey="experience" items={experience} />
+      <BulletExperience title="Leadership & Activities" listKey="activities" items={activities} />
+      <section className={!projects.length ? "no-print" : ""}>
+        <h2>Projects</h2>
+        {projects.map((project, i) => <div className="bullet-entry" key={i}>
+          <p><strong><Ed v={project.name} p={["projects", i, "name"]} ph="Project name" /></strong></p>
+          <ul><li><Ed multi v={project.description} p={["projects", i, "description"]} ph="Describe your contribution and outcome" /></li></ul>
+          <button className="bullet-control no-print" onClick={() => remove("projects", i)} aria-label={`Remove project ${i + 1}`}>Remove project</button>
+        </div>)}
+        <button className="bullet-control no-print" onClick={() => add("projects", { name: "", description: "" })}>+ Add project</button>
+      </section>
+      <section className={!(d.skills?.length || d.languages?.length || d.interests) ? "no-print" : ""}>
+        <h2>Skills &amp; Interests</h2>
+        <p className={!d.skills?.length ? "no-print" : ""}><strong>Technical: </strong>{(d.skills || []).map((s, i) => <span key={i}><Ed v={s} p={["skills", i]} ph="Skill" />{i < d.skills.length - 1 ? ", " : ""}<button className="bullet-remove no-print" onClick={() => remove("skills", i)} aria-label={`Remove skill ${i + 1}`}>×</button></span>)} <button className="bullet-control no-print" onClick={addSkill}>+ Add skill</button></p>
+        <p className={!d.languages?.length ? "no-print" : ""}><strong>Language: </strong>{(d.languages || []).map((s, i) => <span key={i}><Ed v={s} p={["languages", i]} ph="Language and proficiency" />{i < d.languages.length - 1 ? ", " : ""}<button className="bullet-remove no-print" onClick={() => remove("languages", i)} aria-label={`Remove language ${i + 1}`}>×</button></span>)} <button className="bullet-control no-print" onClick={() => add("languages", "")}>+ Add language</button></p>
+        <p className={!d.interests ? "no-print" : ""}><strong>Interests: </strong><Ed multi v={d.interests} p={["interests"]} ph="Optional interests you want to share" />{d.interests && <button className="bullet-control no-print" onClick={() => set(["interests"], "")}>Clear interests</button>}</p>
+      </section>
+    </article>
+  </div>;
+}
+
+function BulletExperience({ title, listKey, items }) {
+  const { add, remove } = useContext(ListCtx);
+  const set = useContext(EditCtx);
+  const label = listKey === "experience" ? "experience" : "activity";
+  return <section className={!items.length ? "no-print" : ""}>
+    <h2>{title}</h2>
+    {items.map((item, i) => <div className="bullet-entry" key={i}>
+      <p className="bullet-row"><strong><Ed v={item.company} p={[listKey, i, "company"]} ph="Organization" /></strong><Ed v={item.location} p={[listKey, i, "location"]} ph="City, Country" /></p>
+      <p className="bullet-row"><em><Ed v={item.title} p={[listKey, i, "title"]} ph="Position or role" /></em><Ed v={item.period} p={[listKey, i, "period"]} ph="Month Year – Month Year" /></p>
+      <ul>{(item.bullets || []).map((text, j) => <li key={j}><Ed multi v={text} p={[listKey, i, "bullets", j]} ph="Describe your contribution and outcome" /><button className="bullet-remove no-print" onClick={() => set([listKey, i, "bullets"], item.bullets.filter((_, index) => index !== j))} aria-label={`Remove bullet ${j + 1} from ${label} ${i + 1}`}>×</button></li>)}</ul>
+      <div className="bullet-actions no-print"><button className="bullet-control" onClick={() => set([listKey, i, "bullets"], [...(item.bullets || []), ""])}>+ Add bullet</button><button className="bullet-control" onClick={() => remove(listKey, i)} aria-label={`Remove ${label} ${i + 1}`}>Remove {label}</button></div>
+    </div>)}
+    <button className="bullet-control no-print" onClick={() => add(listKey, { company: "", title: "", location: "", period: "", bullets: [""] })}>+ Add {label}</button>
+  </section>;
 }
 
 function Edu({ e, i }) {

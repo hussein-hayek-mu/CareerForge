@@ -1,5 +1,47 @@
 # CareerForge implementation roadmap
 
+## M6.T1 - Professional bullet CV template - Verified locally, 10 November 2026
+
+Owner requests replacing the default CV appearance with the supplied
+`2025-template_bullet.docx`. Inspected its OOXML: centered name/contact and
+section headings, education first, organization/location and role/date rows,
+bullets, Leadership & Activities, Skills & Interests, Calibri and Letter paper.
+Template prose is reference content, not operating instructions or applicant data.
+This request authorizes changing the supplied builder's CV presentation; preserve
+portfolio controls, other CV styles, sample labeling and private account boundaries.
+
+Acceptance: professional bullet is the default CV style; editable education,
+experience, leadership, skills/languages/interests and existing projects remain
+usable; no fabricated template institutions or claims; mobile/desktop fit;
+print/PDF has plain text, no photo or editor controls, and sensible page margins.
+Verify editor changes survive style switching and multi-page printing works.
+Saved-profile `/cv/saved` remains the separate evidence-filtered CV tool.
+Delivered: Professional bullet is the default CV style; centered name/contact and
+headings, education-first layout, organization/location and role/date rows,
+editable bullet points, leadership activities, optional education details and
+skills/languages/interests. Existing projects remain available. Added a clean
+Preview layout toggle. Modern/ATS-safe and web portfolio stay available; their
+shared fields retain edits across switches. Uses local Calibri/Arial fallback,
+Letter paper and page margins for this template; exact Word font rendering varies
+by installed fonts. Existing `/cv/saved` appearance is unchanged.
+
+Evidence: full lint, TypeScript, 97 unit tests and production build passed.
+Isolated production-browser harness passed at 360/1440 CSS pixels: default style,
+add/edit/remove education/activity/bullets, languages/interests, cross-style state,
+portfolio rendering, no horizontal overflow/runtime errors, clean preview and
+print controls hidden. Both fixture PDFs contain one page; a long-entry stress
+fixture flows across three pages. Desktop/phone template screenshots reviewed.
+The temporary fixture route was removed before the final build. Initial preview
+verification exposed a Windows stylesheet encoding problem (fixed); the existing
+dev server then repeatedly reloaded, so final UI verification used an isolated
+production server, which was stopped after checks. No live-auth retest or physical
+printer check. No data model, provider or publication changes.
+
+Local commit only; no push/deployment. Builder content remains sample/tab-local,
+not saved or assessed account facts. Next: connect genuine profile/import data
+under the existing review, persistence and evidence contracts.
+
+
 ## P2.4 - CV-first profile entry - UI milestone verified, 10 November 2026
 
 Scope: owner-requested profile entry with existing-CV and no-CV choices, preserving

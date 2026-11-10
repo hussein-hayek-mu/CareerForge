@@ -1,4 +1,4 @@
-/* Integration styles only; the supplied PortfolioBuilder.jsx stays unchanged. */
+/* Builder integration and the owner-requested professional bullet CV template. */
 .document-workspace { padding: 0; max-width: none; container-type: inline-size; container-name: document-workspace; --workspace-header-height: 75px; }
 .supplied-builder-page { display: flex; flex-direction: column; height: auto; min-height: calc(100dvh - var(--workspace-header-height)); background: var(--paper); --workspace-paper: var(--paper); --workspace-surface: var(--surface); --workspace-raised: var(--raised); --workspace-ink: var(--ink); --workspace-muted: var(--muted); --workspace-line: var(--line); --workspace-accent: var(--green); --workspace-accent-ink: var(--accent-ink); }
 .supplied-builder-bar { flex: none; min-height: 52px; padding: 8px 20px; display: flex; align-items: center; justify-content: space-between; gap: 8px 24px; flex-wrap: wrap; background: var(--workspace-paper); color: var(--workspace-muted); font-size: 12px; line-height: 1.6; border-bottom: 1px solid var(--workspace-line); }
@@ -90,4 +90,42 @@
   .supplied-builder-page .pb .preview { padding: 0; background: transparent; }
   .supplied-builder-page { display: block; height: auto; min-height: 0; background: white; }
   .supplied-builder-page .pb .stage { position: static; container-type: normal; }
+}
+
+/* Professional bullet CV, adapted from the owner's 2025 Word template. */
+.pb .bullet-preview-toggle { display: block; margin: 0 auto 16px; }.pb .cv.bullet[data-editing="false"] .no-print, .pb .cv.bullet[data-editing="false"] .ed:empty { display: none; }.pb .cv.bullet { max-width: 816px; min-height: 1056px; padding: 48px 40px; font: 11pt/1.25 Calibri, Arial, sans-serif; color: #111; border-radius: 0; overflow-wrap: anywhere; }
+.pb .cv.bullet .bullet-header { text-align: center; margin-bottom: 20px; }
+.pb .cv.bullet h1 { font: 700 18pt/1.2 Calibri, Arial, sans-serif; letter-spacing: 0; margin: 0 0 10px; }
+.pb .cv.bullet .bullet-contact { display: flex; flex-wrap: wrap; justify-content: center; gap: 3px 0; font-size: 10pt; }
+.pb .cv.bullet .bullet-contact > span + span::before { content: " · "; white-space: pre; }
+.pb .cv.bullet h2 { padding: 0; border: 0; text-align: center; font: 700 11pt/1.25 Calibri, Arial, sans-serif; margin: 18px 0 9px; letter-spacing: 0; color: #111; break-after: avoid; }
+.pb .cv.bullet p { margin: 0 0 3px; }
+.pb .cv.bullet .bullet-entry { margin-bottom: 12px; }
+.pb .cv.bullet .bullet-row { display: flex; justify-content: space-between; align-items: baseline; gap: 4px 20px; }
+.pb .cv.bullet .bullet-row > :first-child { min-width: 0; }
+.pb .cv.bullet .bullet-row > :last-child { text-align: right; flex-shrink: 0; max-width: 50%; }
+.pb .cv.bullet ul { list-style: disc outside; margin: 4px 0 4px; padding-left: 22px; }
+.pb .cv.bullet li { margin: 0 0 3px; padding-left: 3px; }
+.pb .cv.bullet .ed { border-radius: 2px; }
+.pb .cv.bullet .ed:hover, .pb .cv.bullet .ed:focus { background: #edf1f6; color: #111; }
+.pb .cv.bullet .ed:empty::before { color: #626262; }
+.pb .cv.bullet .bullet-control, .pb .cv.bullet .bullet-remove { background: #f1f3f5; border: 1px solid #c3c8cf; border-radius: 4px; color: #344256; padding: 5px 8px; min-height: 32px; font: 12px/1.4 Arial, sans-serif; margin: 3px 4px 3px 0; }
+.pb .cv.bullet .bullet-remove { min-width: 32px; margin-left: 5px; }
+.pb .cv.bullet .bullet-control:hover, .pb .cv.bullet .bullet-remove:hover { background: #e1e7ed; }
+.pb .cv.bullet .bullet-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+@media screen and (max-width: 700px) {
+  .pb .cv.bullet { min-height: 0; padding: 28px 20px; font-size: 12px; }
+  .pb .cv.bullet h1 { font-size: 20px; }
+  .pb .cv.bullet .bullet-contact { font-size: 11px; }
+  .pb .cv.bullet h2 { font-size: 13px; }
+  .pb .cv.bullet .bullet-row { flex-wrap: wrap; gap: 2px 12px; }
+  .pb .cv.bullet .bullet-row > :last-child { max-width: 100%; text-align: left; }
+  .pb .cv.bullet .bullet-control, .pb .cv.bullet .bullet-remove { min-height: 44px; }
+}
+@page professional-bullet { size: letter; margin: .5in .42in; }
+@media print {
+  .pb .cv.bullet { page: professional-bullet; position: static; width: auto; max-width: none; min-height: 0; margin: 0; padding: 0; box-shadow: none; font-size: 11pt; }
+  .pb .cv.bullet .bullet-entry { break-inside: avoid; }
+  .pb .cv.bullet .bullet-control, .pb .cv.bullet .bullet-remove { display: none !important; }
+  .pb .cv.bullet .ed { background: transparent; outline: 0; }
 }
