@@ -5,6 +5,7 @@ import "./feature-system.css";
 import "./supplied-builder.css";
 import "./profile-history.css";
 import "./experience.css";
+import "./profile-start.css";
 import { AmbientBackground } from "@/components/ambient-background";
 
 const title = "CareerForge — Build your next chapter";

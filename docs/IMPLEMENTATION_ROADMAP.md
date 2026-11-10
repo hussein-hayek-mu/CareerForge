@@ -1,5 +1,32 @@
 # CareerForge implementation roadmap
 
+## P2.4 - CV-first profile entry - UI milestone verified, 10 November 2026
+
+Scope: owner-requested profile entry with existing-CV and no-CV choices, preserving
+manual profile editing and the supplied `/documents` builder. Implemented a local
+PDF/DOCX picker with 5 MB limit, replacement/removal, clear privacy/status copy,
+a manual-entry link and Create CV navigation. AI and private storage are not
+connected: the picker does not upload, read, persist or extract any document.
+Builder edits remain tab-local and do not populate the saved profile.
+
+Acceptance verified: both choices precede profile details; unsupported, empty and
+oversized files show errors; selection/replacement/removal never sends an upload
+or changes profile fields; Create CV targets `/documents` and respects unsaved-edit
+protection; failed manual saves retain edits and successful mocked saves update
+the profile. Isolated browser harness passed at 360 and 1440 CSS pixels with no
+horizontal overflow or runtime errors; phone screenshot reviewed. Temporary fixture
+route was removed before build. Live authenticated persistence was not retested.
+
+Evidence: full lint, TypeScript, all 97 existing unit tests, production build and
+`git diff --check` passed. Unit tests initially failed inside the restricted Windows
+sandbox (`uv_os_get_passwd` ENOMEM); the approved unrestricted rerun passed. The
+browser harness initially needed its alert selector scoped to exclude Next's route
+announcer, then passed both widths. Local source only; no push or deployment.
+
+Remaining: secure private server upload/storage, document parsing and server-only
+AI integration with review-before-save are future work. This milestone completes
+the entry UX, not CV import. No provider calls or database changes.
+
 ## Preview release preparation — 30 October 2026
 
 Owner authorized deployment preparation. Created `preview/careerforge-20261030`
