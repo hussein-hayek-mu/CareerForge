@@ -1,5 +1,35 @@
 import { expect, test } from "@playwright/test";
 
+test("account-mode navigation animates continuously and honors reduced motion", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await page.goto("/login");
+  const navigation = page.getByRole("navigation", { name: "Account access" });
+  const indicator = navigation.locator(".auth-mode-indicator");
+  await indicator.evaluate(node => {
+    node.setAttribute("data-continuity", "preserved");
+    node.addEventListener("transitionrun", () => node.setAttribute("data-animated", "yes"));
+  });
+  await navigation.getByRole("link", { name: "Create account", exact: true }).click();
+  await expect(page).toHaveURL(/\/register$/);
+  await expect(page.getByLabel("Confirm password", { exact: true })).toBeVisible();
+  await expect(indicator).toHaveAttribute("data-continuity", "preserved");
+  await expect(indicator).toHaveAttribute("data-animated", "yes");
+  await expect.poll(() => indicator.evaluate(node => node.getAnimations().length)).toBe(0);
+  await indicator.evaluate(node => node.removeAttribute("data-animated"));
+  await navigation.getByRole("link", { name: "Sign in", exact: true }).click();
+  await expect(page).toHaveURL(/\/login$/);
+  await expect(indicator).toHaveAttribute("data-animated", "yes");
+  await expect(indicator).toHaveAttribute("data-continuity", "preserved");
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await navigation.getByRole("link", { name: "Create account", exact: true }).click();
+  await expect(page).toHaveURL(/\/register$/);
+  expect(await indicator.evaluate(node => getComputedStyle(node).transitionDuration)).toBe("0s");
+  expect(await page.locator(".auth-form-content").evaluate(node => getComputedStyle(node).animationName)).toBe("none");
+  await page.goBack();
+  await expect(page).toHaveURL(/\/login$/);
+  await expect(navigation.getByRole("link", { name: "Sign in", exact: true })).toHaveAttribute("aria-current", "page");
+});
+
 test("private account redirects anonymous visitors and sign-in errors remain usable", async ({ page, request }, testInfo) => {
   await page.goto("/account");
   await expect(page).toHaveURL(/\/login$/);

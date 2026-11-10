@@ -1,5 +1,35 @@
 # CareerForge implementation roadmap
 
+## AUTH.UX2 - Smooth account-mode transitions - Verified locally, 11 November 2026
+
+Owner requests animation between Sign in and Create account. Root cause: the
+whole auth shell and mode switch remount on each route, so a CSS color change
+cannot slide continuously. Share their shell in an `(auth)` route-group layout,
+retain route URLs and keyed independent form state, animate a persistent selected
+indicator and incoming form content, and honor prefers-reduced-motion. Keep mode
+links as native links and preserve modifier-click, browser history and form reset.
+Acceptance: indicator animates both ways without shell remount; form entrance is
+subtle; reduced motion disables animations; routes/titles/confirmation/recovery
+and failure paths still work; desktop/mobile fit.
+
+Delivered: shared AuthFrame/layout keeps the shell and selected indicator mounted;
+300ms transform slides the green indicator both ways, 260ms fade/6px entrance
+animates incoming form/story content. Mode links retain scroll position and native
+link/history behavior. URLs and provider behavior are unchanged; forms still reset
+on route changes. Reduced motion uses static selected backgrounds without entrance
+or indicator animation; no new dependencies or animation timers.
+
+Evidence: full lint, TypeScript, 97 unit tests, offline production build and
+`git diff --check` passed. All 18 selected desktop/mobile browser checks passed:
+actual transition events in both directions with indicator DOM continuity,
+reduced-motion behavior, browser Back/current state, register/login errors and
+confirmation, recovery, keyboard/reflow and sampled contrast. Initial run had two
+contrast-sampler failures because it reads ancestor backgrounds rather than the
+moving sibling indicator. Reduced-motion mode now uses a static link background;
+the full rerun passed. No live emails/provider-account tests, physical-device or
+cross-browser animation audit. Local commit only; not pushed/deployed.
+
+
 ## AUTH.UX1 - Distinct sign-up and login - Verified locally, 11 November 2026
 
 The existing routes use distinct APIs but shared nearly identical presentation.
