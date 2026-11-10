@@ -1,5 +1,37 @@
 # CareerForge implementation roadmap
 
+## AUTH.UX1 - Distinct sign-up and login - Verified locally, 11 November 2026
+
+The existing routes use distinct APIs but shared nearly identical presentation.
+Scope: explicit purpose-specific headings and story copy, visible account-access
+switch, registration-only password confirmation and email-confirmation guidance,
+login-only recovery links, distinct metadata and fresh form state on route changes.
+Preserve provider/server authorization and enumeration-safe confirmation wording.
+Acceptance: registration validates matching passwords before calling only register;
+login calls only login; mode switches clear passwords/errors/confirmation state;
+errors retain inputs, pending blocks duplicate edits/submissions; confirmation and
+recovery stay usable; desktop/phone layouts and existing private-route gates pass.
+Delivered: separate Sign in/Create your account headings, purpose-specific story
+copy, a 44px account-access navigation switch with current-page semantics, route
+titles, registration-only confirm-password field and confirmation guidance,
+login recovery links and keyed form mounts. Mismatched passwords focus the
+confirmation field and never reach the register API. Pending requests disable
+credentials; failed requests retain edits. Server/API behavior is unchanged.
+
+Evidence: full lint, TypeScript, all 97 unit tests, offline production build and
+`git diff --check` passed. All 16 selected offline desktop/mobile browser cases
+passed (auth, recovery, keyboard/reflow and sampled contrast). Auth cases cover
+register payload excluding confirmation, mismatch denial, confirmation state,
+failed-register input retention, separate login errors, fresh fields/errors after
+mode switches and anonymous private-route denial. Reflow checks include 320,
+360 and 640 CSS pixels. No live email, provider/account creation or actual inbox
+verification was run. No auth-provider/database changes. Local commit only;
+not pushed or deployed. Windows runner cleanup stalled after all cases passed;
+terminated only its isolated test-server PID, then the runner exited 0 with
+`16 passed`. Existing development server and browser were preserved. Existing
+release email-delivery gates remain open.
+
+
 ## M6.T1 - Professional bullet CV template - Verified locally, 10 November 2026
 
 Owner requests replacing the default CV appearance with the supplied
