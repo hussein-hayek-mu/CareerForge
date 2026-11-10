@@ -7,6 +7,56 @@ datasource db {
   provider = "postgresql"
 }
 
+// Owner/public access and source-grounded writes are enforced by SQL/RPCs.
+model Portfolio {
+  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId            String @unique @map("user_id") @db.Uuid
+  slug              String @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  template          String @default("studio")
+  palette           String @default("chartreuse")
+  colorMode         String @default("dark") @map("color_mode")
+  sections          String[] @default(["about", "project", "skills"])
+  revision          String @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  isPublic          Boolean @default(false) @map("is_public")
+  publishedSnapshot Json? @map("published_snapshot")
+  publishedAt       DateTime? @map("published_at") @db.Timestamptz(6)
+  updatedAt         DateTime @default(dbgenerated("clock_timestamp()")) @map("updated_at") @db.Timestamptz(6)
+  @@map("portfolios")
+}
+
+// Server-graded checks: client writes denied; grading RPC and ownership FK in SQL.
+model SkillCheckAttempt {
+  id      String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId  String @map("user_id") @db.Uuid
+  skill   String
+  version Int
+  score   Int
+  passed  Boolean
+  takenAt DateTime @default(now()) @map("taken_at") @db.Timestamptz(6)
+  session SkillCheckSession?
+  @@index([userId, takenAt(sort: Desc)], map: "skill_check_owner_time_idx")
+  @@map("skill_check_attempts")
+}
+
+// Session writes, timing constraints, owner RLS and the one-active-owner partial
+// unique index are enforced by the reviewed SQL migration/RPCs.
+model SkillCheckSession {
+  id          String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId      String @map("user_id") @db.Uuid
+  skill       String
+  version     Int
+  timingMode  String @map("timing_mode")
+  startedAt   DateTime @map("started_at") @db.Timestamptz(6)
+  deadlineAt  DateTime @map("deadline_at") @db.Timestamptz(6)
+  state       String @default("active")
+  resultId    String? @unique @map("result_id") @db.Uuid
+  result      SkillCheckAttempt? @relation(fields: [resultId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  finishedAt  DateTime? @map("finished_at") @db.Timestamptz(6)
+
+  @@index([userId, startedAt(sort: Desc)], map: "skill_check_session_owner_time_idx")
+  @@map("skill_check_sessions")
+}
+
 // Supabase-managed auth tables are intentionally not represented here.
 // The auth.users FK, trigger, RLS and grants live in supabase/migrations.
 model Profile {
@@ -57,4 +107,41 @@ model SavedJob {
   @@id([userId, jobId])
   @@index([jobId], map: "saved_jobs_job_id_idx")
   @@map("saved_jobs")
+}
+
+model EducationRecord {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId String @map("user_id") @db.Uuid
+  requestId String @map("request_id") @db.Uuid
+  institution String
+  degree String
+  gpa Float?
+  gpaScale Float? @map("gpa_scale")
+  startDate DateTime? @map("start_date") @db.Date
+  endDate DateTime? @map("end_date") @db.Date
+  isCurrent Boolean @default(false) @map("is_current")
+  revision String @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  createdAt DateTime @default(dbgenerated("clock_timestamp()")) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @default(dbgenerated("clock_timestamp()")) @map("updated_at") @db.Timestamptz(6)
+  creationPayload Json @default("{}") @map("creation_payload")
+  @@unique([userId, requestId], map: "education_records_user_id_request_id_key")
+  @@map("education_records")
+}
+
+model ExperienceRecord {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId String @map("user_id") @db.Uuid
+  requestId String @map("request_id") @db.Uuid
+  company String
+  role String
+  description String @default("")
+  startDate DateTime? @map("start_date") @db.Date
+  endDate DateTime? @map("end_date") @db.Date
+  isCurrent Boolean @default(false) @map("is_current")
+  revision String @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  createdAt DateTime @default(dbgenerated("clock_timestamp()")) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @default(dbgenerated("clock_timestamp()")) @map("updated_at") @db.Timestamptz(6)
+  creationPayload Json @default("{}") @map("creation_payload")
+  @@unique([userId, requestId], map: "experience_records_user_id_request_id_key")
+  @@map("experience_records")
 }

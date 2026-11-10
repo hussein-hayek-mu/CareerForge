@@ -2,8 +2,10 @@
 
 P4.2 adds `npm run test:e2e:ci` using `playwright.ci.config.ts`. It selects the
 existing workspace, navigation and missing-page tests, for six desktop/mobile
-cases. They cover guest profile edits/reload, matching/filtering, role details,
-save/status/remove/reload, responsive navigation/focus and missing-page recovery.
+cases. Following the owner's homepage-only guest requirement, they now cover
+public navigation, responsive entry, direct private-route denial despite stored
+demo data, sign-in/registration links and missing-page recovery. Private profile,
+matching and tracker operations are covered by the authenticated live suite.
 They do not verify live accounts, email, RLS or database migrations.
 
 The configuration starts a production server at `127.0.0.1:3200`, refuses to
@@ -43,13 +45,18 @@ The first GitHub run for `e9594b9` passed install/generation/lint/types/unit/bui
 but failed the two navigation cases: the truly unconfigured build correctly
 displayed `/account` unavailable rather than redirecting to login. The earlier
 local build contained configured public values and did not reproduce that state.
-The offline config now explicitly identifies this scenario; navigation asserts
-the unavailable heading and follows its sign-in link. Configured-suite behavior
-still requires a direct anonymous login redirect. Verify with a freshly built
+The subsequent fix explicitly asserted that offline state and its sign-in link.
+The owner's later homepage-only guest requirement supersedes that contract:
+cookie-free account navigation now redirects directly to sign-in even offline.
+The old offlineAuth metadata flag is removed. Verify with a freshly built
 unconfigured production app, not only child-server environment overrides.
 
 Correction verification: rebuilt with both public Supabase variables explicitly
 empty in the build process; all six desktop/mobile smoke cases then passed.
 Lint, TypeScript and production build also passed. No app behavior was changed
 or assertion removed: the offline account state and sign-in recovery are now
-tested explicitly. Remote CI must still pass the corrected commit.
+tested explicitly. GitHub run
+[39800105467](https://github.com/hussein-hayek-mu/CareerForge/actions/runs/39800105467)
+completed successfully for exact pushed commit
+`2fabbd52b0dcfc359779fa6adffe383a3d463d39`. This closes the failed offline
+navigation regression and establishes a Linux CI baseline, not hosted readiness.

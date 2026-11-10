@@ -1,6 +1,69 @@
 # CareerForge implementation roadmap
 
-Updated: 22 October 2026. Initial audited baseline: `6d63b9e`; subsequent
+## Preview release preparation — 30 October 2026
+
+Owner authorized deployment preparation. Created `preview/careerforge-20261030`
+and committed the verified experience as `e335f16`; main is preserved. Prepared
+the existing profile-history source with nine API/schema tests, bringing the
+local suite to 97 passing tests; Prisma generation, lint, TypeScript/build and
+the 34 offline browser cases pass. Pending history SQL and RLS/constraints passed
+a fully rolled-back development transaction. No migration was permanently applied.
+Node 22 is pinned and preview branches trigger CI. The owner then explicitly
+approved the repository/source/history upload; release commit `55a9be2` was pushed
+to the preview branch and its remote ref was verified. Hosting/database account
+connections are still required. Initial GitHub CI passed install, generation,
+lint, type checking, unit tests and build; 32 browser cases passed and two exposed
+a fixture mismatch. Public variables from a local `.env` had been compiled into
+the local build. Added `build:offline` to blank them before compilation; the
+unconfigured Auth test now checks its exact sanitized 503 response, private-data
+absence and no-store policy. Product authorization is unchanged. Explicit offline
+build/TypeScript, targeted lint and all 34 browser cases passed locally; CI reruns
+when this correction is published. Playwright also now reports individual failures
+in GitHub check annotations. Details:
+[PREVIEW_RELEASE_2026_10_30.md](PREVIEW_RELEASE_2026_10_30.md). No deployment yet.
+
+## Local error fixes — 30 October 2026
+
+Fixed valid fractional GPA submission, the history-editor focus/lint dependency,
+and ambient CSS continuing behind dialogs when canvas is unavailable. Corrected
+generated-report linting and omitted unit/browser test coverage. Full lint is
+clean; TypeScript/build, 88 local unit tests and 34 desktop/mobile browser cases
+passed. The history editor was also exercised in an isolated browser harness.
+Production preflight still needs the real HTTPS `APP_ORIGIN`; local development
+does not require it. Details and verification limits:
+[ERROR_REVIEW_2026_10_30.md](ERROR_REVIEW_2026_10_30.md). No deployment or database changes.
+
+## Navbar visibility correction — 30 October 2026
+
+The public `/` route now always renders the supplied landing page and floating
+island navbar, including when session cookies are present. The private overview
+moved to `/dashboard`; Overview links, sign-in entry, retries and live-suite
+destinations were updated. Homepage rendering no longer waits on Auth/profile
+reads. The dashboard retains server authentication, no-store and noindex.
+Production build/TypeScript, targeted lint, all 85 unit tests and all 22 selected
+desktop/mobile browser cases passed, including session-cookie navbar visibility,
+fixed position after scroll and dashboard guest denial. This is local source
+verification; no new live-account test or deployment was performed.
+
+## Supplied experience update — 30 October 2026
+
+Applied all eight supplied UI files to the existing app, including the public
+homepage, responsive navigation, shared ambient background and command palette.
+Preserved existing local work, document workspace integration and unsaved-profile
+navigation protection. Build/TypeScript, targeted lint, 84 unit tests, 16 selected
+desktop/mobile browser cases (with the corrected mobile test rerun), development
+hydration checks and isolated shell browser checks passed. Integration details,
+acceptance evidence and limitations: [SUPPLIED_EXPERIENCE_UPDATE.md](SUPPLIED_EXPERIENCE_UPDATE.md).
+Local source only; no deployment or new authenticated-backend verification.
+
+Owner follow-up: retained the supplied design against the two island-navigation
+references; matched F/ branding, reduced canvas/blur/repaint work, cached scroll
+measurements and batched pointer effects. Native dialogs now hold background
+scroll/motion and the mobile menu focuses Close. The final build/TypeScript,
+targeted lint and 20 desktop/mobile browser cases passed. Performance evidence and
+measurement limits are in the same experience-update document.
+
+Updated: 29 October 2026. Initial audited baseline: `6d63b9e`; subsequent
 verified increments are recorded below.
 
 ## Purpose and authority
@@ -47,6 +110,62 @@ future module; this guidance review does not establish report-wide conformance.
 
 ## Current release boundary
 
+23 October feature-organization increment: reviewed the actual report's scope,
+module requirements and acceptance criteria against existing routes. Added a
+private `/features` directory, grouped sidebar and ten dedicated Planned/Stretch
+destinations. Every student tool now has a stable navigation/page target; My CV
+remains separate. Scope and page ownership, including remaining M1–M7 requirements
+and reserved role-restricted Admin work, are mapped in [FEATURE_MAP.md](FEATURE_MAP.md).
+These destinations do not implement the future modules or change their status.
+No fabricated results, enabled upload/submission controls or new paid integrations.
+
+Verification: lint, types, 53 tests and production build passed; four desktop/mobile
+public-entry and all-feature guest-guard browser cases passed. The development
+temporary-account suite passed all ten planned destinations, active/no-store/noindex
+states, collapse persistence, mobile last-item navigation and narrow reflow, alongside
+existing profile/CV/tracker/account checks; test identities were deleted without mail.
+Directory/mobile screenshots reviewed. A wrapping mobile step-number issue found
+visually was fixed and separately checked at 320px. Full screen-reader/contrast and
+physical-device audits remain open; no deployment or latest remote CI verification.
+
+23 October owner UI correction: public visitors now have a homepage with login/
+registration entry; workspace features require authentication. My CV has a
+standalone sidebar entry. The React/SQL fundamentals-check pilot stores DB-graded
+results and permits only selected, passed current checks into CV skills. This
+supersedes the earlier public guest demo and automatic inclusion of self-reported
+CV skills. It is not proof of mastery or broad assessment completion. Details:
+[PUBLIC_ENTRY_AND_SKILL_CHECKS.md](PUBLIC_ENTRY_AND_SKILL_CHECKS.md).
+
+Verification: additive development migration and Prisma generation completed;
+53 local tests, lint, TypeScript, production build, database grading/RLS checks
+and the final temporary-account suite passed. Of 28 initial browser cases, 23
+passed and five outdated access/contrast/icon assumptions were corrected; all
+five targeted reruns passed. Homepage/CV screenshots reviewed. No emails/AI
+calls or production deployment. Broader assessment remains a pilot, not complete.
+
+Product increment delivered under the 23 October instructions: private
+saved-profile CV preview at `/cv`, with browser print/PDF output. It reuses
+owner-scoped profile reads, no-store and noindex; empty sections are omitted and
+text is escaped. This is a basic M6 slice, not uploaded-CV parsing, deterministic
+CV/job analysis, AI tailoring, normalized work history, public portfolio or
+versioned CV persistence. Unit checks verify source fidelity and safe escaping;
+live temporary-account checks verified saved data, no-store/noindex, reflow at
+320/1440 and PDF output. Anonymous browser access redirects to login. Existing
+live profile/tracker/isolation/password/logout checks passed and temp identities
+were removed; no email/LLM calls. Lint, TypeScript, 50 tests and production build
+passed. Details: [CV_PREVIEW.md](CV_PREVIEW.md).
+
+23 October execution update: follow the owner's autonomous completion instructions,
+continue coherent implementation batches without recommendation-only stops, and
+do not let hosting/credentials block independent product work. Report review
+(actual helper PDF, sections 4–8, 18–20 and relevant FR/acceptance/grounding text)
+confirms M1–M7 plus Admin as full scope; M8/M9 are stretch. The actual mobile
+stack is React Native/Expo. Earlier M1–M6/Flutter guidance was incomplete; this
+correction does not claim full report conformance or implementation. The owner
+requires specific application/content approval before submission. Near-term
+delivery remains a demonstrable web release, then richer profiles, portfolio/CV
+and analysis. The prior month/week ranges were provisional, not verified deadlines.
+
 Deliver a responsive web application for students and early-career developers:
 sign up, confirm email, sign in, edit a private profile, browse seeded fictional
 jobs, understand skill matches and gaps, save roles, and manually track progress
@@ -54,9 +173,211 @@ across devices. Deploy a demonstrable version after release checks pass.
 
 Keep AI, live job search, automatic applications, native mobile, workshops,
 and the larger academic/career modules outside this first release.
-Skills remain self-reported. Fictional jobs must stay clearly labeled.
+Profile skills remain self-reported; CV skills require the supported passing
+fundamentals checks. Fictional jobs must stay clearly labeled.
+
+### P3.1 skill-check keyboard focus — 28 October 2026
+
+Implemented a focused keyboard improvement: starting a check focuses its
+heading; cancel or successful submission restores the originating skill button.
+Initial page loads keep normal focus; failed requests retain the form/answers.
+Acceptance criteria are those three transitions without changing grading/access.
+Lint, TypeScript, all 53 existing tests and production build passed. The sandbox
+initially blocked tests with Windows `uv_os_get_passwd` ENOMEM; the authorized
+outside-sandbox rerun passed. These tests do not exercise the new focus behavior;
+authenticated browser and assistive-technology verification remain open. P3.1
+remains partial. This is a local increment, with no deployment or database change.
 
 ## Status ledger
+
+M1 education and experience foundation in progress — 29 October. Reviewed the
+actual report FR-1.3/1.5, section 9.1 models, section 9.4 ownership and section 13
+API contracts. Add private structured history under My profile, owner-scoped
+education/experience APIs, revision-safe edits and retry-safe creates. The
+saved-profile CV consumes these records with self-reported labels, explicit date
+and GPA semantics, and unchanged assessment eligibility. Existing summaries and
+the supplied builder remain separate; public snapshots are not expanded.
+Contract: [PROFILE_HISTORY.md](PROFILE_HISTORY.md). This is partial M1 progress,
+not complete onboarding, independent verification or full M6.
+Verification pending; record migration, ownership, API/UI, CV/PDF and build
+evidence before committing the coherent milestone.
+
+Error review and fixes delivered — 29 October. The fresh console log showed a
+browser-added body attribute, cz-shortcut-listen, causing a hydration diagnostic.
+The attribute is absent from application code and server HTML. Tolerance now
+covers only the html/body document wrappers. Regression tests reproduced the
+body warning before the fix, confirmed both wrapper cases are quiet afterward,
+and proved application-component mismatches still report a diagnostic and the
+login form remains interactive. The child-fixture diagnostic in test logs is
+intentional. No global console filtering or client-only rendering was added.
+
+The review also reproduced section headings landing behind the sticky portfolio
+navigation. Anchor offsets now reserve space for both navigation bars; real
+Skills-link clicks confirm unobscured headings at 320 and 1440px. All 81 tests,
+lint, types, production build, six desktop/mobile production smoke cases and the
+focused authenticated builder regression passed. Collapse, preserved edits,
+shared scrolling, document controls, 320/768/1440/1920 reflow and PDF still passed.
+Temporary test identities were removed. The supplied JSX remains unchanged.
+AI writing remains an explicitly labeled demo; no provider was connected.
+
+Notes collapse and shared scrolling delivered — 29 October. The document
+workspace has a keyboard-accessible Hide notes / Show notes control. Collapsing
+keeps notes and document edits mounted, removes hidden fields from focus, and
+gives the centered preview the available width. Notes, controls and preview now
+use the document's shared page scroll; nested panel/preview scrolling is removed.
+Section navigation and anchors respect the application header. Focused browser
+checks passed real wheel scrolling over both columns, disclosure with mouse and
+keyboard, preserved drafts, 320/768/1440/1920 layouts, existing editing and PDF.
+Lint and production build passed; collapsed desktop/mobile screenshots were
+reviewed. Temporary accounts were removed. Supplied JSX remains unchanged.
+
+Builder theme and preview refinement delivered — 29 October. The notes panel,
+toolbar, editing hint and draft notice now use CareerForge's shared palette;
+workspace buttons remain chartreuse when document colors or light/dark mode change.
+The portfolio preview has symmetric gutters and a centered, fluid 1120px maximum
+width. Document themes and CV print layout remain independent. Focused development
+browser checks passed theme isolation, centered bounds and reflow at 320/768/1440/
+1920px, existing editing/navigation, photo controls and PDF output. Lint and
+production build passed; desktop/mobile screenshots were reviewed. Temporary test
+accounts were removed. The supplied JSX remains byte-for-byte unchanged.
+
+M6 unified builder integration delivered — 29 October. The owner supplied an
+updated component and requested one CV & Portfolio navigation entry inside the
+project. `/documents` is the canonical AppShell destination; `/cv` and `/portfolio`
+redirect there. Saved-profile CV and publication remain contextual tools at
+`/cv/saved` and `/portfolio/publication`, selected under the merged entry. The
+latest pasted JSX is preserved unchanged, including its own tabs and added
+education/language/contact controls. Local editing and demo generation remain
+separate from assessed account facts and reviewed publication. The apparent
+missing workspace was a project move to `C:/Users/user/Desktop/CareerForge/CareerForge`;
+the complete source and Git history were found there. Contract:
+[DOCUMENT_BUILDER_DESIGN.md](DOCUMENT_BUILDER_DESIGN.md).
+Verification: the supplied JSX hash matches the pasted source exactly. All 81
+unit/render tests, lint, TypeScript and production build passed. Focused and full
+development temporary-account suites passed unified desktop/mobile navigation,
+aliases, nested-tool active state, education/language/contact/photo editing,
+new-skill visibility, themes, original print CTA, one-page PDF and 320/768/1440
+reflow. The complete suite also passed saved CV, timed assessments, reviewed
+publication/privacy/conflict/revocation, learning, profile, tracker, password and
+two-user isolation checks. Accounts were deleted and test publications revoked.
+Desktop/mobile screenshots and the one-page PDF were reviewed. Scoped integration
+CSS handles shell space, photo frame, narrow cards, toolbar wrapping and print
+layout without changing the supplied file. All six desktop/mobile production
+smoke cases passed, including guest protection for the canonical and legacy
+routes. Initial discovery skipped cloud-placeholder test files left by the move;
+making existing test files fully local without content changes restored all six
+cases.
+No real AI, builder-draft persistence, new claim verification or deployment.
+
+Root hydration compatibility fix — 29 October. The owner's console reported a
+changing browser-side `data-mbtss-nonce` on `<html>`. The attribute is absent
+from server HTML and application code. A document-start browser fixture reproduced
+the same warning before the fix. Root-only hydration tolerance accepts external
+attributes without changing the injected value or suppressing body/app diagnostics.
+The supplied portfolio component remains unchanged. The post-fix browser
+regression passed: the injected root nonce remains without a hydration warning,
+the login form hydrates/submits to a local mock, and an injected body attribute
+still produces its expected diagnostic. Run `npm run test:hydration` with the
+development server running; the body warning is an intentional negative control.
+Full lint, targeted final-file lint, TypeScript and production build passed.
+No Auth/database calls, dependencies, schema changes or deployment were needed.
+
+M6 supplied-component replacement delivered — 29 October. The owner explicitly
+requires the exact supplied `PortfolioBuilder.jsx`, superseding the earlier visual
+adaptation. Both `/cv` and `/portfolio` now mount the unchanged component and use
+its own Web portfolio/CV tabs. A surrounding bar labels its fictional sample and
+tab-local edits; real AI generation is not connected. Account-backed tools remain
+at `/cv/saved` and `/portfolio/publication`; public snapshots and evidence rules
+remain separate from sample edits. The already-applied additive development
+appearance migration is retained without implying prototype persistence.
+Contract: [DOCUMENT_BUILDER_DESIGN.md](DOCUMENT_BUILDER_DESIGN.md).
+Verification: source SHA-256 matches the original supplied file; all 81 unit/render
+tests, full lint, TypeScript and production build passed. Focused development
+checks passed the original editing/tab/style/accent/mode/photo controls, real
+501 demo fallback, account-source isolation, 320/1440 reflow and PDF output.
+Saved-profile CV, timed assessments and portfolio consent/publication/privacy,
+conflict/recovery and revocation regressions passed. Screenshot review exposed
+global avatar styles flattening the photo frame; scoped integration resets and
+a 4:5 frame regression check passed. Mobile toolbar overflow was fixed outside
+the unchanged source. Temporary test users were removed and test publications
+revoked. The earlier appearance migration trial/applied-development checks passed;
+the additive migration, Prisma and API compatibility are retained together.
+All six desktop/mobile production smoke cases passed, including the new private
+subroutes. Two initial development guest smoke cases hit navigation/time limits;
+the production suite passed without those development compilation delays.
+No real AI, builder-draft persistence, new applicant verification,
+production migration or deployment is claimed.
+
+M6/R1 portfolio slice delivered — 28 October. Re-read the actual report's
+FR-6.4/6.5, UC-5, Portfolio data model/API and M6 acceptance. Added profile-derived
+private previews, two templates, persisted section choices and explicitly approved
+public snapshots with revocation. Private edits do not silently modify published
+facts; source tokens and revisions reject unreviewed/stale changes. Contract and
+boundaries: [PORTFOLIO.md](PORTFOLIO.md). Experience/certification/contact records
+and CV analysis/versioning remain; no full-M6 completion claim.
+
+Verification: all 76 unit/render tests, lint, types and production build passed.
+Migration plus ownership/publication verifier passed in a rollback trial; the
+additive development migration, Prisma generation and applied-schema verifier then
+passed. Focused and full temporary-account browser suites passed, including
+templates/save/reload, consent-gated publication, selected-field privacy,
+source/revision/failure recovery, 320/768/1440 layouts, public 404 after unpublish,
+and existing timed assessment/CV/PDF/profile/learning/tracker/password/isolation
+flows. Test publications revoked and accounts deleted; transaction tests rolled
+back. Screenshots reviewed. Browser testing exposed the ignored root proxy;
+moving it beside `src/app` activates session refresh/no-store and the public 404
+guard before streaming. Initial 200-for-not-found failure is resolved. Public
+requests have bounded timeouts. All four final desktop/mobile public-entry and
+guest-guard smoke cases passed with the corrected proxy. No AI, real-person publication, production
+migration, deployment or latest remote CI verification.
+
+R1 core lifecycle delivered — 28 October: server-created timed skill-check
+sessions, stable resume/deadline, DB-enforced expiry, idempotent grading and
+10-minute standard/100-minute extended time. Legacy direct untimed grading is
+revoked; historical passes remain. Active attempts continue while browsing the
+list, with explicit end/discard behavior and recovery for uncertain submissions.
+Contract/evidence: [TIMED_SKILL_CHECKS.md](TIMED_SKILL_CHECKS.md).
+All 67 tests, lint, types, production build, migration trial, applied development
+DB policy/grading verifier and Prisma generation passed. Full development live
+regressions passed; focused timer/list/extended-time UI fixture also passed.
+Temporary accounts deleted; transaction tests rolled back. Initial stale dev
+module export was isolated and resolved by restart; no diagnostics remain.
+No production migration, AI, email, deployment or remote CI. R1 remains partial
+for stronger evidence/practical assessments and degree/language validation.
+The prior learning/assessment-hardening milestone is local commit `947b1b5`.
+
+28 October implementation batch: delivered P3.1/R1 assessment lifecycle
+hardening and an R3 learning pilot. Starting/cancelling/completing checks preserves
+keyboard context; answered drafts ask before discard/navigation and remain on
+failure. Saved grading is schema-validated before success. Uncertain request
+outcomes offer recorded-result verification rather than claiming no write occurred.
+Transport/provider auth outages now return 503 instead of invalid-password 401.
+
+Learning roadmap now uses authenticated saved-profile/catalog gaps for original
+exercises, review criteria and verified roadmap.sh links. Targets are explicit
+and preserved in the URL; role details link directly to their plan. Empty, covered,
+missing-skill, unavailable and invalid-target states are explicit. The registry
+marks M5 as Pilot; nine planned/stretch destinations remain. Details and remaining
+boundaries: [LEARNING_ROADMAP.md](LEARNING_ROADMAP.md) and
+[assessment lifecycle](PUBLIC_ENTRY_AND_SKILL_CHECKS.md).
+
+Verification: 61 unit/render tests, lint, TypeScript and production build passed.
+Four desktop/mobile public-entry and guest-guard cases passed. Authenticated
+development checks passed new assessment failure/focus/draft cases, exact learning
+gaps and links, URL reload/invalid targets, no-store/noindex, 320/768/1440 reflow,
+planned navigation, and existing profile/CV/PDF/tracker/password/isolation flows.
+Desktop/320px learning screenshots reviewed. The final role-link integration
+and the entire final authenticated suite passed; temporary identities were deleted.
+The final review also covered prototype-like unknown skill names with regression
+checks; all 61 tests passed.
+
+Initial live login failed when the sandboxed server could not reach Auth; the
+network-enabled server passed. One public mobile run was interrupted by that
+restart; all four passed on rerun. The new error assertion initially also matched
+Next's route announcer; scoped assertions passed. Temporary identities were removed
+after each completed run. No AI, schema change, live vacancies, completion tracking,
+deployment or remote CI is claimed. P3.1/R1 remain partial; timed assessments,
+issuer verification and persisted learning plans are still open.
 
 **Done** means implemented with recorded checks. **Partial** means usable but
 with the stated gap. **Open** means work remains. **Deferred** means recorded
@@ -74,10 +395,10 @@ real inbox journeys and remaining session cases require verification.
 | D07 | Account-aware workspace | Done | Server verifies session and reads owner profile; dashboard, skill ranking and role gaps use saved data. `/profile` leads signed-in users to `/account`; read failures do not substitute demo data. |
 | D08 | Jobs and transparent matching | Partial | Six database-seeded fictional roles for accounts; static guest catalog, search/work-mode/saved filters, detail dialog and transparent skill gaps. Catalog administration remains deferred. |
 | D09 | Saved roles and manual tracker | Done | Signed-in save/remove/status updates persist in Supabase across sessions/devices with revision conflicts and recovery. Guest tracker stays local; older account-local saves remain unimported. |
-| D10 | Guest demo | Done | Browser-local editable sample profile/tracker, reset, malformed-storage recovery, no sample upload into accounts. |
+| D10 | Public entry and guest access | Done | Public homepage with sign-in/registration; direct private feature URLs require login. Prior editable guest demo is superseded by owner's 23 October instruction. No local demo state grants account access. |
 | D11 | Shared responsive design | Done | Graphite/chartreuse system, branded SVGs, sidebar collapse preference, mobile drawer, private profile identity and dark auth forms. Further release audit remains required. |
 | D12 | Motion hero | Done | Enhanced original local film with aurora ribbons, orbital trails, forge pulses and sparks; continuous playback while scrolling, hidden-tab pause, playback control, reduced-motion/save-data and poster fallback. |
-| D13 | Automated verification | Partial | 27 local tests; auth/recovery/navigation/demo/film browser coverage; live cross-browser tracker, two-account and RLS scripts. No comprehensive production, physical-device or performance validation. |
+| D13 | Automated verification | Partial | 76 local tests; public-entry/auth/recovery/film/accessibility coverage; real skill/session/portfolio grading/RLS and authenticated CV/portfolio/tracker/dialog checks. Historical demo cases are superseded by homepage-only guest access. No comprehensive production or physical-device validation. |
 | D14 | Hosting and release operations | Open | No verified hosted release, production environment, recovery drill or remote CI result for the latest work. |
 
 Source map: UI in `src/components/`; static jobs/matching in
@@ -88,6 +409,30 @@ SSR clients in `src/lib/supabase/`; pages/API in `src/app/`; SQL in
 data access uses the authenticated Supabase client.
 
 ## Ordered implementation queue
+
+### Owner requirements update — 28 October 2026
+
+The owner's standing engineering/architecture/UX instructions and additional
+product requirements are preserved in
+[the helper requirements record](../helper/OWNER_WORKING_STANDARDS_AND_REQUIREMENTS.md).
+They supersede historical helper restrictions on one task per session and pnpm.
+Continue coherent useful increments autonomously, verifying and committing stable
+milestones. Existing release evidence and external authorization boundaries remain.
+
+The following scoped requirements extend the full-product backlog. They do not
+mark the current release or planned destinations complete:
+
+| ID | Status | Requirement / acceptance reference | Dependencies and next action |
+| --- | --- | --- | --- |
+| R1 | Partial: timed checks and portfolio snapshots implemented | Source-grounded portfolio with claim-specific validation, reviewed timed skill assessments, degree evidence and scoped language assessment; helper R1 | React/SQL lifecycle and profile-derived portfolio templates/publication work. Practical tasks, bank review, normalized claim/evidence records and degree/language validation remain; no proof of identity/mastery. |
+| R2 | Open | Real jobs through free permitted APIs or permitted public HTTP/HTML ingestion; helper R2 | Verify source terms/availability; define bounded adapters, freshness, deduplication and failure states. Existing jobs remain fictional. No access-control bypass or arbitrary URL fetcher. |
+| R3 | Partial: learning pilot delivered | Concrete roadmap.sh-linked gap suggestions and tangible exercises; helper R3 | Saved-profile/catalog gaps now produce original tasks, review criteria and source links. Target remains in URL. Persisted targets/progress and adaptive schedules remain open; no imported content or partnership. |
+| R4 | Open | Trainer agreements, workshops and verifiable scoped certificates; helper R4 | Establish trainer/admin permissions and completion evidence before issuing certificates; support minimal verification, revocation and privacy. No trainer contacted or agreement executed. |
+
+Near-term: continue normalized profile/evidence foundations and permitted live
+job integration, retaining core release checks. Inbox/hosting blockers do not
+prevent implementation. These records define scope, not a production-readiness
+claim or authorization for paid integrations/publication.
 
 Complete one coherent item at a time. Dependencies below describe the order;
 independent owner email checks can run alongside implementation. Review scope
@@ -341,7 +686,11 @@ Correction locally verified: explicitly assert that offline state and its workin
 sign-in link, while preserving configured-suite redirect expectations. Rebuild
 locally with public Supabase values empty before rerunning the production smoke.
 All six corrected cases passed on that fresh offline build, as did lint,
-TypeScript and production build. Remote correction run remains to be checked.
+TypeScript and production build. GitHub run
+[39800105467](https://github.com/hussein-hayek-mu/CareerForge/actions/runs/39800105467)
+completed successfully for pushed commit `2fabbd5`, verifying the corrected Linux
+workflow. P4.2 still includes fresh-setup/live-test lifecycle work; this does not
+complete production deployment or the remaining P4.1 gates.
 
 Offline smoke increment delivered: run existing guest workspace, navigation and
 404 cases against a dedicated production server on port 3200, desktop and mobile.
@@ -363,6 +712,16 @@ Acceptance: fresh checkout/setup works; remote checks pass for the release
 commit; no abandoned test identities, secrets or debug artifacts.
 
 **P4.3 - Deploy and demonstrate. Open. Depends on release gates.**
+
+Preparation delivered: explicit Vercel build command generates Prisma and runs
+a redacted offline configuration preflight before Next build. No migrations run
+automatically. Prepare exact-origin/callback setup and rollback/smoke instructions;
+actual deployment, credential validity and hosted flows require separate evidence.
+Lint, TypeScript and 48 tests passed; the complete guarded deployment build passed
+using synthetic configuration. Local preflight correctly reports missing
+APP_ORIGIN without exposing values. An initial invocation could not resolve npm
+as a project module; invoking installed npm completed the check. Runbook:
+[DEPLOYMENT.md](DEPLOYMENT.md). No hosting action, migration or real AI call.
 
 Prepare hosting/environment/callback configuration, reviewed production
 migrations and fictional seeds, HTTPS and smoke-test instructions. Deploy when

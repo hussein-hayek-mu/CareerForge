@@ -10,6 +10,14 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## CareerForge delivery workflow
 
+Read `helper/OWNER_WORKING_STANDARDS_AND_REQUIREMENTS.md` for the owner's
+28 October standing engineering/UX instructions and claim-validation, live-job,
+roadmap.sh and trainer/certificate requirements. Continue useful coherent work
+autonomously; historical helper one-task/session and pnpm rules are superseded.
+The owner's 28 October reminder prioritizes substantive core workflows over
+cosmetics and requires commits for major changes. Commit each verified milestone
+before expanding scope; preserve unrelated IDE settings.
+
 Read `docs/IMPLEMENTATION_ROADMAP.md` before starting project work. It is the
 current status ledger and ordered queue; older increment plans are historical.
 Follow the roadmap's work protocol: select a focused task, verify its acceptance
@@ -18,6 +26,15 @@ useful increment with a benefit-oriented message. Keep the existing npm web MVP
 scope and preserve unrelated changes. User instructions take precedence.
 
 ## Product quality standards
+
+Owner UI/access contract: guests see the public homepage and auth/recovery entry
+only; feature pages require server-verified authentication. The 29 October owner
+update combines CV and portfolio creation under one CV & Portfolio entry at
+`/documents`; saved-profile CV and publication tools remain contextual. Only
+selected skills with a current supported passing check enter saved-profile CV
+skills. React/SQL basics checks are limited assessment evidence, not proof of
+mastery. Other report features retain their own destinations. Unbuilt modules may appear as explicitly Planned or
+Stretch scope pages; never imply those pages implement the underlying feature.
 
 Apply the owner's senior engineering/product instructions and
 `helper/Codex_NextJS_Production_Quality_Workflow.pdf` incrementally:
@@ -35,11 +52,18 @@ Apply the owner's senior engineering/product instructions and
   analytics, submissions or successful operations.
 - Full-product scope includes M1 profile/onboarding, M2 career/skill analysis,
   M3 academic planner, M4 job matching, M5 learning/project recommendations and
-  M6 CV analysis/portfolio building. Track missing work without expanding the
+  M6 CV analysis/portfolio building, M7 Application Agent and the admin dashboard
+  (confirmed in the actual report, sections 4/5.10). Track missing work without expanding the
   current release silently. Preserve the already implemented application tracker.
-- Mobile is separate from the web app. The owner's newer instructions describe
-  Flutter; older helper plans describe Expo. Reconcile against the actual report
-  before mobile implementation; neither requires changing the current web app.
+- Mobile is separate from the web app. The actual report sections 6/8/17/19
+  specify React Native/Expo; prior Flutter wording is not the report's stack.
+- Follow the owner's 23 October autonomous execution instructions: group coherent
+  work, continue independent implementation when external services are blocked,
+  prioritize security/core workflows over cosmetics, and avoid repeat audits or
+  recommendation-only turns. Do not promise unmeasured completion dates.
+- Generated applicant facts must trace to source profile/CV data; deterministic
+  code computes scores. Require approval of each specific application and its
+  contents before any supported submission, regardless of older auto-submit text.
 - Inspect diffs, preserve unrelated work and commit coherent verified increments
   under the owner's standing authorization. Do not infer deployment or paid-service
   authorization from a workflow example.

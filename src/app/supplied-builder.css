@@ -1,0 +1,93 @@
+/* Integration styles only; the supplied PortfolioBuilder.jsx stays unchanged. */
+.document-workspace { padding: 0; max-width: none; container-type: inline-size; container-name: document-workspace; --workspace-header-height: 75px; }
+.supplied-builder-page { display: flex; flex-direction: column; height: auto; min-height: calc(100dvh - var(--workspace-header-height)); background: var(--paper); --workspace-paper: var(--paper); --workspace-surface: var(--surface); --workspace-raised: var(--raised); --workspace-ink: var(--ink); --workspace-muted: var(--muted); --workspace-line: var(--line); --workspace-accent: var(--green); --workspace-accent-ink: var(--accent-ink); }
+.supplied-builder-bar { flex: none; min-height: 52px; padding: 8px 20px; display: flex; align-items: center; justify-content: space-between; gap: 8px 24px; flex-wrap: wrap; background: var(--workspace-paper); color: var(--workspace-muted); font-size: 12px; line-height: 1.6; border-bottom: 1px solid var(--workspace-line); }
+.supplied-builder-bar a { display: inline-flex; align-items: center; min-height: 36px; color: var(--workspace-accent); text-decoration: underline; text-underline-offset: 3px; }
+.supplied-builder-bar nav { display: flex; flex-wrap: wrap; gap: 18px; }
+.supplied-builder-bar p { margin: 0; }
+.supplied-builder-page .pb { flex: 1; min-height: 0; height: auto; }
+.supplied-builder-page .pb .stage { container-type: inline-size; container-name: builder-stage; overflow: visible; }
+.supplied-builder-page .pb .panel { border: 0; border-right: 1px solid var(--line); border-radius: 0; margin: 0; box-shadow: none; overflow: visible; align-self: start; }
+.supplied-builder-page .pb .avatar { height: auto; display: block; width: clamp(140px, 24cqw, 260px); border: 0; color: inherit; font: inherit; }
+.supplied-builder-page .pb .port { padding-inline: clamp(20px, 5cqw, 72px); }
+.supplied-builder-page .pb .hero { gap: clamp(24px, 5cqw, 56px); }
+.supplied-builder-page .pb .hero h2 { font-size: clamp(46px, 11cqw, 112px); overflow-wrap: anywhere; }
+.supplied-builder-page .pb .ed { overflow-wrap: anywhere; }
+.supplied-builder-page .pb .grid { grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); }
+.supplied-builder-page .pb .dl { flex-wrap: wrap; max-width: 100%; }
+/* The supplied observer misses newly added skill nodes; keep their text visible. */
+.supplied-builder-page .pb .chips .chip.rv:not(.in) { opacity: 1; }
+.supplied-builder-tools { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 20px; }
+.builder-notes-toggle { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; padding: 8px 12px; border: 1px solid var(--workspace-line); border-radius: 8px; background: var(--workspace-surface); color: var(--workspace-ink); font: inherit; font-weight: 600; }
+.builder-notes-toggle:hover { background: var(--workspace-raised); }
+.builder-notes-toggle:focus-visible { outline: 2px solid var(--workspace-accent); outline-offset: 3px; }
+.builder-notes-toggle[aria-expanded="false"] svg { transform: rotate(180deg); }
+.supplied-builder-page[data-notes-collapsed="true"] .pb { grid-template-columns: minmax(0, 1fr); }
+.supplied-builder-page[data-notes-collapsed="true"] .pb > .panel { display: none; }
+/* The document scrolls as one page; the controls and preview have no nested scrollers. */
+.document-workspace .supplied-builder-page .pb .toolbar { position: static; }
+.supplied-builder-page .pb .pnav { top: calc(var(--workspace-header-height) + 12px); }
+/* Leave room for the application header, sticky section menu and a reading gap. */
+.supplied-builder-page .pb [data-sec] { scroll-margin-top: calc(var(--workspace-header-height) + 80px); }
+/* Workspace controls follow CareerForge; document colors belong to the preview. */
+.document-workspace .supplied-builder-page .pb .panel,
+.document-workspace .supplied-builder-page .pb .toolbar,
+.document-workspace .supplied-builder-page .pb .hint { background: var(--workspace-paper); color: var(--workspace-ink); border-color: var(--workspace-line); }
+.document-workspace .supplied-builder-page .pb .panel .sub,
+.document-workspace .supplied-builder-page .pb .panel .meta,
+.document-workspace .supplied-builder-page .pb .panel .note,
+.document-workspace .supplied-builder-page .pb .toolbar small,
+.document-workspace .supplied-builder-page .pb .toolbar label,
+.document-workspace .supplied-builder-page .pb .hint { color: var(--workspace-muted); }
+.document-workspace .supplied-builder-page .pb .panel textarea { background: var(--workspace-surface); border-color: var(--workspace-line); color: var(--workspace-ink); }
+.document-workspace .supplied-builder-page .pb .panel textarea:focus { border-color: var(--workspace-accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--workspace-accent) 20%, transparent); }
+.document-workspace .supplied-builder-page .pb .panel .link { color: var(--workspace-accent); }
+.document-workspace .supplied-builder-page .pb .panel .btn.primary { background: var(--workspace-accent); color: var(--workspace-accent-ink); box-shadow: none; }
+.document-workspace .supplied-builder-page .pb .panel .btn.primary:hover:not(:disabled) { background: color-mix(in srgb, var(--workspace-accent) 88%, white); }
+.document-workspace .supplied-builder-page .pb .toolbar .seg { background: var(--workspace-surface); }
+.document-workspace .supplied-builder-page .pb .toolbar .seg button { color: var(--workspace-muted); }
+.document-workspace .supplied-builder-page .pb .toolbar .seg button.on { background: var(--workspace-accent); color: var(--workspace-accent-ink); }
+.document-workspace .supplied-builder-page .pb .toolbar .seg button:hover:not(.on) { background: var(--workspace-raised); color: var(--workspace-ink); }
+.document-workspace .supplied-builder-page .pb .toolbar .modebtn,
+.document-workspace .supplied-builder-page .pb .toolbar .btn.sm { background: var(--workspace-surface); border-color: var(--workspace-line); color: var(--workspace-ink); }
+.document-workspace .supplied-builder-page .pb .toolbar .sw.on { border-color: var(--workspace-accent); box-shadow: 0 0 0 2px var(--workspace-paper) inset; }
+.document-workspace .supplied-builder-page .pb .toolbar button:focus-visible,
+.document-workspace .supplied-builder-page .pb .panel button:focus-visible { outline-color: var(--workspace-accent); }
+.supplied-builder-page .pb .preview { background: var(--workspace-paper); overflow: visible; max-height: none; }
+.supplied-builder-page .pb .preview:has(.port) { padding: clamp(12px, 2cqw, 28px); }
+.supplied-builder-page .pb .port { width: min(100%, 1120px); margin-inline: auto; border-radius: 16px; box-shadow: 0 0 0 1px var(--workspace-line); }
+@container document-workspace (max-width: 1000px) {
+  .supplied-builder-page { height: auto; min-height: calc(100dvh - var(--workspace-header-height)); }
+  .supplied-builder-page .pb { flex: none; grid-template-columns: 1fr; }
+  .supplied-builder-page .pb .panel { border: 0; overflow: visible; }
+  .supplied-builder-page .pb .stage, .supplied-builder-page .pb .preview { overflow: visible; }
+
+  .supplied-builder-page .pb .status { position: fixed; }
+}
+@container builder-stage (max-width: 650px) {
+  .supplied-builder-page .pb .hero { grid-template-columns: 1fr; }
+  .supplied-builder-page .pb .avatar { order: -1; width: 150px; }
+  .supplied-builder-page .pb .cv.modern { grid-template-columns: 1fr; grid-template-areas: "side" "main"; min-height: 0; }
+  .supplied-builder-page .pb .cv-main { padding: 32px 24px; }
+}
+@media screen and (max-width: 760px) {
+  .document-workspace { --workspace-header-height: 66px; }
+}
+.supplied-builder-page .pb .edu:focus-within .ed-x { opacity: 1; }
+@media (hover: none) {
+  .supplied-builder-page .pb .sk-x { width: 24px; min-height: 24px; opacity: 1; margin-left: 6px; }
+  .supplied-builder-page .pb .edu { padding-right: 28px; }
+  .supplied-builder-page .pb .ed-x { right: 0; width: 24px; height: 24px; opacity: 1; }
+}
+@media print {
+  .app-shell:has(.document-workspace) .app-sidebar,
+  .app-shell:has(.document-workspace) .app-topbar,
+  .app-shell:has(.document-workspace) .navigation-drawer,
+  .app-shell:has(.document-workspace) .skip-link,
+  .supplied-builder-bar { display: none !important; }
+  .app-shell:has(.document-workspace) .app-main { margin: 0 !important; }
+  .document-workspace { padding: 0; max-width: none; container-type: normal; }
+  .supplied-builder-page .pb .preview { padding: 0; background: transparent; }
+  .supplied-builder-page { display: block; height: auto; min-height: 0; background: white; }
+  .supplied-builder-page .pb .stage { position: static; container-type: normal; }
+}

@@ -5,18 +5,25 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:offline": "node scripts/build-offline.mjs",
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "next typegen && tsc --noEmit",
     "test:e2e": "playwright test",
-    "test": "tsx --test src/app/api/v1/health/route.test.ts src/lib/supabase/middleware.test.ts src/lib/demo-workspace.test.ts src/lib/account/handlers.test.ts src/lib/tracker/handlers.test.ts src/lib/account/recovery.test.ts src/lib/account/request-body.test.ts",
+    "test:hydration": "node scripts/verify-root-hydration.mjs",
+    "test": "node scripts/test-unit.mjs",
     "db:migrate": "node scripts/db-migrate.mjs",
     "test:rls": "node scripts/test-rls.mjs",
     "test:account:live": "node scripts/test-account-live.mjs",
     "prisma:generate": "prisma generate",
     "audit:contrast": "node scripts/audit-contrast.mjs",
     "audit:performance": "node scripts/audit-performance.mjs",
-    "test:e2e:ci": "playwright test --config playwright.ci.config.ts"
+    "test:e2e:ci": "playwright test --config playwright.ci.config.ts",
+    "check:deployment": "node scripts/check-deployment.mjs",
+    "build:deploy": "npm run check:deployment && npm run prisma:generate && next build",
+    "test:skill-checks": "node scripts/test-skill-checks.mjs",
+    "test:portfolios": "node scripts/test-portfolios.mjs",
+    "test:portfolio-appearance": "node scripts/test-portfolio-appearance.mjs"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.1",
@@ -41,5 +48,8 @@
     "prisma": "^7.10.1",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": "22.x"
   }
 }

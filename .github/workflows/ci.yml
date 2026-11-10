@@ -3,7 +3,7 @@ name: CI
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [main, 'preview/**']
 
 permissions:
   contents: read
@@ -30,7 +30,7 @@ jobs:
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test
-      - run: npm run build
+      - run: npm run build:offline
       - name: Install Chromium for offline browser checks
         run: npx playwright install --with-deps chromium
       - name: Desktop and mobile production smoke

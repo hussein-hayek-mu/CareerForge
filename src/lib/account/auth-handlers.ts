@@ -30,6 +30,9 @@ export function authHandler(kind: "login" | "register" | "logout", provider: () 
       const auth = await provider();
       const result = kind === "login" ? await auth.login(parsed.data) : await auth.register(parsed.data, new URL("/auth/callback", requestOrigin(request)).href);
       if (result.error?.status === 429) return failure("RATE_LIMITED", "Too many attempts. Please wait before trying again.", 429);
+      if (result.error && (!result.error.status || result.error.status === 408 || result.error.status >= 500)) {
+        return failure("AUTH_UNAVAILABLE", "Authentication is temporarily unavailable. Please try again.", 503);
+      }
       if (kind === "login" && result.error?.code === "email_not_confirmed") return failure("EMAIL_NOT_CONFIRMED", "Confirm your email using the newest link, or request a new confirmation below.", 403);
       if (result.error) return kind === "login"
         ? failure("INVALID_CREDENTIALS", "The email or password is incorrect. Check your details or reset your password below.", 401)

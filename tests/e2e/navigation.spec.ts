@@ -1,48 +1,74 @@
 import { expect, test } from "@playwright/test";
-import { navigate } from "./navigation";
 
-test("shared navigation is accessible, responsive, and preserves desktop collapse preference", async ({ page }, testInfo) => {
+test("the reference navbar stays on the homepage with session cookies and unavailable Auth", async ({ page, context, baseURL }) => {
+  await context.addCookies([{ name: "sb-navbar-regression-auth-token", value: "session-cookie-fixture", url: baseURL! }]);
   await page.goto("/");
-  if (testInfo.project.name === "mobile") {
-    const menu = page.getByRole("button", { name: "Open navigation" });
-    await menu.click();
-    const drawer = page.getByRole("dialog", { name: "Navigation", exact: true });
-    await expect(drawer).toBeVisible();
-    await expect(drawer.getByRole("button", { name: "Close navigation" })).toBeFocused();
-    await page.keyboard.press("Shift+Tab");
-    expect(await drawer.evaluate(node => node.contains(document.activeElement))).toBeTruthy();
-    await page.keyboard.press("Escape");
-    await expect(drawer).not.toBeVisible();
-    await expect(menu).toBeFocused();
-    await navigate(page, "Find opportunities");
-    await expect(page).toHaveURL(/\/jobs$/);
-    await expect(drawer).not.toBeVisible();
-    await menu.click();
-    await expect(drawer.getByRole("link", { name: "Find opportunities", exact: true })).toHaveAttribute("aria-current", "page");
-    await page.keyboard.press("Escape");
-  } else {
-    await expect(page.locator(".app-sidebar")).toHaveCSS("scrollbar-width", "none");
-    await page.getByRole("button", { name: "Collapse sidebar" }).click();
-    await expect(page.locator(".app-shell")).toHaveClass(/sidebar-collapsed/);
-    await navigate(page, "Find opportunities");
-    await expect(page.getByRole("button", { name: "Expand sidebar" })).toBeVisible();
-    await page.reload();
-    await expect(page.getByRole("button", { name: "Expand sidebar" })).toBeVisible();
-    await page.getByRole("button", { name: "Expand sidebar" }).click();
-    await expect(page.locator(".app-shell")).not.toHaveClass(/sidebar-collapsed/);
-    await page.setViewportSize({ width: 1440, height: 480 });
-    await page.getByRole("navigation", { name: "Main navigation" }).getByRole("link", { name: "My account", exact: true }).scrollIntoViewIfNeeded();
-    await expect(page.getByRole("navigation", { name: "Main navigation" }).getByRole("link", { name: "My account", exact: true })).toBeInViewport();
-  }
-  for (const width of [360, 768, 1024, 1440]) {
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Build a career");
+  await expect(page.getByRole("navigation", { name: "Main navigation" })).toHaveCount(0);
+  const island = page.locator(".lp-island");
+  await expect(island).toBeVisible();
+  const before = await island.boundingBox();
+  expect(before?.y).toBeGreaterThanOrEqual(0);
+  expect(before?.y).toBeLessThan(30);
+  await page.evaluate(() => window.scrollTo({ top: 700, behavior: "instant" }));
+  await expect(island).toHaveAttribute("data-scrolled", "true");
+  const after = await island.boundingBox();
+  expect(after?.y).toBeGreaterThanOrEqual(0);
+  expect(after?.y).toBeLessThan(30);
+  await expect(island.getByRole("link", { name: "CareerForge home", exact: true })).toBeVisible();
+});
+
+test("guests have a public homepage and sign-in entry without workspace navigation", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/");
+  await expect(page.getByRole("navigation", { name: "Main navigation" })).toHaveCount(0);
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Build a career");
+  for (const width of [320, 768, 1440]) {
     await page.setViewportSize({ width, height: 900 });
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    if (width <= 860) {
+      await expect(page.getByRole("button", { name: "Open menu", exact: true })).toBeVisible();
+      await expect(page.getByRole("navigation", { name: "Public navigation" })).toBeHidden();
+    } else {
+      await expect(page.getByRole("navigation", { name: "Public navigation" })).toBeVisible();
+      await expect(page.getByRole("button", { name: "Open menu", exact: true })).toBeHidden();
+    }
   }
-  await navigate(page, "My account");
-  if (testInfo.config.metadata.offlineAuth) {
-    await expect(page).toHaveURL(/\/account$/);
-    await expect(page.getByRole("heading", { name: "Your account is temporarily unavailable." })).toBeVisible();
-    await page.getByRole("link", { name: "Back to sign in", exact: true }).click();
+  await page.getByRole("navigation", { name: "Public navigation" }).getByRole("link", { name: "Sign in", exact: true }).click();
+  await expect(page).toHaveURL(/\/login$/);
+});
+
+test("landing navigation reaches sections and sign-in with a keyboard-accessible mobile menu", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/");
+  const menuButton = page.getByRole("button", { name: "Open menu", exact: true });
+  if ((page.viewportSize()?.width ?? 1440) <= 860) {
+    await expect(menuButton).toBeVisible();
+    await menuButton.click();
+    const menu = page.getByRole("dialog", { name: "Menu", exact: true });
+    await expect(menu).toBeVisible();
+    await expect(menuButton).toHaveAttribute("aria-expanded", "true");
+    await menu.getByRole("link", { name: "02 Features", exact: true }).click();
+    await expect(page).toHaveURL(/\/#features$/);
+    await expect(menu).toBeHidden();
+    await expect(menuButton).toHaveAttribute("aria-expanded", "false");
+    await expect(menuButton).toBeFocused();
+    await menuButton.click();
+    await page.keyboard.press("Escape");
+    await expect(menu).toBeHidden();
+    await expect(menuButton).toBeFocused();
+    await menuButton.click();
+    await menu.getByRole("link", { name: "04 Sign in", exact: true }).click();
+  } else {
+    const navigation = page.getByRole("navigation", { name: "Public navigation" });
+    await navigation.getByRole("link", { name: "Platform", exact: true }).click();
+    await expect(page).toHaveURL(/\/#platform$/);
+    await expect(page.locator("#platform")).toBeInViewport();
+    await navigation.getByRole("link", { name: "Features", exact: true }).click();
+    await expect(page).toHaveURL(/\/#features$/);
+    await expect(page.locator("#features")).toBeInViewport();
+    await navigation.getByRole("link", { name: "Sign in", exact: true }).click();
   }
   await expect(page).toHaveURL(/\/login$/);
+  await expect(page.getByLabel("Email address", { exact: true })).toBeVisible();
 });

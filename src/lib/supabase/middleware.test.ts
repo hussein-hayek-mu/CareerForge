@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { NextRequest } from "next/server";
 import { updateSession } from "./middleware";
-import { proxy } from "../../../proxy";
+import { proxy } from "../../proxy";
 
 test("unconfigured Supabase allows the scaffold to run without contacting auth", async (t) => {
   t.mock.method(globalThis, "fetch", async () => {
@@ -30,13 +30,34 @@ test("unconfigured Supabase allows the scaffold to run without contacting auth",
       assert.equal(response.headers.get("x-middleware-next"), "1");
       assert.equal(response.headers.get("location"), null);
       assert.deepEqual(response.cookies.getAll(), []);
-      for (const path of ["/", "/account", "/jobs", "/applications", "/profile", "/reset-password", "/api/v1/profile", "/auth/callback"]) {
+      for (const path of ["/dashboard", "/account", "/cv", "/jobs", "/applications", "/profile", "/reset-password", "/api/v1/profile", "/auth/callback"]) {
         const guarded = await proxy(new NextRequest(`http://localhost:3000${path}`));
         assert.equal(guarded.headers.get("cache-control"), "private, no-store");
       }
       const media = await proxy(new NextRequest("http://localhost:3000/media/film.webm"));
       assert.equal(media.headers.get("cache-control"), null);
     }
+  } finally {
+    if (originalUrl === undefined) delete process.env.NEXT_PUBLIC_SUPABASE_URL;
+    else process.env.NEXT_PUBLIC_SUPABASE_URL = originalUrl;
+    if (originalKey === undefined) delete process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+    else process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = originalKey;
+  }
+});
+
+test("the homepage and its navbar remain available with session cookies when Auth is unavailable", async (t) => {
+  const originalUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const originalKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+  try {
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://example.supabase.co";
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = "test-publishable-key";
+    t.mock.method(globalThis, "fetch", async () => { assert.fail("The public homepage must not contact Auth"); });
+    const request = new NextRequest("http://localhost:3000/", { headers: { cookie: "sb-session-auth-token=session-fixture" } });
+    const response = await proxy(request);
+    assert.equal(response.headers.get("x-middleware-next"), "1");
+    assert.equal(response.headers.get("location"), null);
+    assert.equal(response.headers.get("cache-control"), null);
+    assert.equal(response.headers.get("set-cookie"), null);
   } finally {
     if (originalUrl === undefined) delete process.env.NEXT_PUBLIC_SUPABASE_URL;
     else process.env.NEXT_PUBLIC_SUPABASE_URL = originalUrl;

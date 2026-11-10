@@ -1,3 +1,3 @@
-import { WorkspacePage } from "@/components/workspace-page";
+import { PublicHome } from "@/components/public-home";
 
-export default function Home() { return <WorkspacePage view="overview" />; }
+export default function Home() { return <PublicHome />; }

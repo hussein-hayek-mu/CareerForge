@@ -3,10 +3,12 @@ import { redirect } from "next/navigation";
 import { AccountProfileEditor } from "@/components/account-profile";
 import { createClient } from "@/lib/supabase/server";
 import { profileFromRow } from "@/lib/account/schemas";
+import { cookies } from "next/headers";
 
 export const dynamic = "force-dynamic";
 
 export default async function AccountPage() {
+  if (!(await cookies()).getAll().some(cookie => cookie.name.startsWith("sb-"))) redirect("/login");
   let result;
   try {
     const client = await createClient();

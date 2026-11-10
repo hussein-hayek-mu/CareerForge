@@ -1,5 +1,10 @@
 import assert from "node:assert/strict";
 import { verifyTrackerLive } from "./verify-tracker-live.mjs";
+import { verifyCVLive } from "./verify-cv-live.mjs";
+import { verifyFeaturesLive } from "./verify-features-live.mjs";
+import { verifyLearningLive } from "./verify-learning-live.mjs";
+import { verifyPortfolioLive } from "./verify-portfolio-live.mjs";
+import { verifySuppliedBuilderLive } from "./verify-supplied-builder-live.mjs";
 import { verifyProfileLayout } from "./verify-profile-layout.mjs";
 import { randomUUID } from "node:crypto";
 import { mkdir } from "node:fs/promises";
@@ -9,6 +14,9 @@ import { chromium, devices, expect } from "@playwright/test";
 
 nextEnv.loadEnvConfig(process.cwd());
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000";
+const assessmentOnly = process.argv.includes("--assessment-only");
+const portfolioOnly = process.argv.includes("--portfolio-only");
+const builderOnly = process.argv.includes("--builder-only");
 const users = [randomUUID(), randomUUID()].map(id => ({ id, email: `${id}@careerforge.invalid`, password: `Test-${randomUUID()}!` }));
 const db = new Client({ connectionString: process.env.DATABASE_URL, connectionTimeoutMillis: 15000, statement_timeout: 15000 });
 let browser;
@@ -78,13 +86,39 @@ try {
   await expect(a.page.getByLabel("Your skills", { exact: true })).toHaveValue("React, SQL");
   const aProfile = await (await a.context.request.get("/api/v1/profile")).json();
   assert.equal(aProfile.profile.name, "Live Test Owner A");
+  if (assessmentOnly || portfolioOnly || builderOnly) {
+    if (!builderOnly) {
+      stage = "focused timed-assessment and CV verification";
+      await verifyCVLive(a.context);
+    }
+    if (portfolioOnly) {
+      stage = "focused portfolio browser verification";
+      await verifyPortfolioLive(a.context);
+    }
+    if (portfolioOnly || builderOnly) {
+      stage = "integrated CV & Portfolio builder";
+      await verifySuppliedBuilderLive(a.context);
+    }
+    assert.deepEqual(errors, []);
+    console.log(builderOnly ? "PASS: focused unified CV & Portfolio browser checks" : portfolioOnly ? "PASS: focused development assessment/CV/portfolio browser checks" : "PASS: focused development assessment/CV browser checks");
+  } else {
   stage = "maximum-length private profile layouts";
   await verifyProfileLayout(a.context);
+  stage = "saved-profile CV preview and PDF";
+  await verifyCVLive(a.context);
+  stage = "portfolio drafts and selected-field publication";
+  await verifyPortfolioLive(a.context);
+  stage = "integrated CV & Portfolio builder";
+  await verifySuppliedBuilderLive(a.context);
+  stage = "gap-based learning exercises and resource links";
+  await verifyLearningLive(a.context);
+  stage = "feature directory and dedicated module navigation";
+  await verifyFeaturesLive(a.context);
   await a.page.evaluate(() => window.scrollTo(0, 0));
   await a.page.screenshot({ path: "test-results/account-desktop.png", fullPage: true, animations: "disabled" });
 
   stage = "saved profile drives workspace and matching";
-  await a.page.goto("/");
+  await a.page.goto("/dashboard");
   await expect(a.page.locator(".demo-info")).toContainText("saved account profile");
   await expect(a.page.locator(".app-sidebar-account").first()).toContainText("Live Test Owner A");
   await expect(a.page.locator(".film-summary")).toContainText("2 self-reported skills");
@@ -118,7 +152,7 @@ try {
   await b.page.screenshot({ path: "test-results/account-mobile.png", fullPage: true, animations: "disabled" });
 
   stage = "second account workspace isolation";
-  await b.page.goto("/");
+  await b.page.goto("/dashboard");
   await expect(b.page.locator(".film-summary")).toContainText("0 self-reported skills");
   await b.page.goto("/applications");
   await expect(b.page.locator(".tracker-row")).toHaveCount(0);
@@ -161,6 +195,7 @@ try {
   await expect(a.page).toHaveURL(`${baseURL}/login`);
   assert.equal((await a.context.request.get("/api/v1/profile")).status(), 401);
   assert.equal((await a.context.request.get("/api/v1/applications")).status(), 401);
+  assert.equal((await a.context.request.post("/api/v1/skill-checks", { data: {} })).status(), 401);
   await a.page.goto("/account");
   await expect(a.page).toHaveURL(`${baseURL}/login`);
   stage = "new password works and previous password is rejected";
@@ -173,9 +208,10 @@ try {
   await expect(b.page).toHaveURL(`${baseURL}/login`);
   assert.deepEqual(errors, []);
   console.log("PASS: real login, HttpOnly sessions, Supabase persistence, two-user isolation, phone layout, save-error recovery, logout, anonymous denial");
+  }
 } catch (error) {
   console.error("Live account verification failed at", stage, "(", error.code ?? error.name, ")");
-  if (error.name === "Error") console.error(error.message);
+  if (error.name === "Error" || error.code === "ERR_ASSERTION") console.error(error.message);
   if (currentPage) {
     console.error("Visible account state:", await currentPage.getByRole("heading", { level: 1 }).allTextContents().catch(() => []));
     console.error("Form message:", await currentPage.getByRole("alert").allTextContents().catch(() => []));

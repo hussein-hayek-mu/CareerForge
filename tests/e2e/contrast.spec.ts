@@ -17,13 +17,20 @@ test("contrast sampler detects weak text and placeholders and skips uncertain ba
 
 test("sampled public text contrast stays above its threshold", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
-  let checked = 0;
-  for (const path of ["/", "/profile", "/jobs", "/applications", "/login?confirmation=failed", "/register", "/forgot-password", "/confirm-email", "/reset-password"]) {
+  for (const [path, action, role] of [
+    ["/", "Start your journey", "link"],
+    ["/login?confirmation=failed", "Sign in", "button"],
+    ["/register", "Create account", "button"],
+    ["/forgot-password", "Send reset link", "button"],
+    ["/confirm-email", "Send confirmation link", "button"],
+    ["/reset-password", "Request reset link", "link"]
+  ] as const) {
     await page.goto(path);
     await expect(page.getByRole("heading").first()).toBeVisible();
+    await expect(page.getByRole(role, { name: action, exact: true })).toBeEnabled();
     const result = await textContrast(page);
+    // Require each page's main action to be measured; a global count depended on skipped gradient surfaces.
+    expect(result.samples.find((sample: { text: string }) => sample.text === action), `${path}: primary action must be sampled`).toBeDefined();
     expect(result.samples.filter((sample: { passes: boolean }) => !sample.passes), path).toEqual([]);
-    checked += result.samples.length;
   }
-  expect(checked).toBeGreaterThan(100);
 });

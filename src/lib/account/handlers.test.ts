@@ -103,3 +103,17 @@ test("auth routes use clean invalid-credential, rate-limit, and provider-failure
   assert.equal(unavailable.status, 503);
   assert.equal((await unavailable.text()).includes("secret"), false);
 });
+
+test("provider transport errors and service outages never accuse the user of incorrect credentials", async () => {
+  for (const kind of ["login", "register"] as const) {
+    for (const status of [undefined, 0, 408, 500, 502, 503]) {
+      const response = await authHandler(kind, async () => ({
+        ...provider,
+        [kind]: async () => ({ error: { status } })
+      }), () => 0)(request({ email: "person@example.com", password: "password123" }));
+      assert.equal(response.status, 503);
+      assert.equal((await response.json()).error.code, "AUTH_UNAVAILABLE");
+      assert.equal(response.headers.get("cache-control"), "no-store");
+    }
+  }
+});
